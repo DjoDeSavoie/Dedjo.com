@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600&display=swap');
+
+@layer base {
+  :root {
+    --background: 43 45% 97%;
+    --foreground: 25 35% 18%;
+
+    --card: 207 45% 92%;
+    --card-foreground: 25 35% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 35% 18%;
+
+    --primary: 124 35% 65%;
+    --primary-foreground: 25 35% 15%;
+
+    --secondary: 170 40% 78%;
+    --secondary-foreground: 25 35% 18%;
+
+    --muted: 43 30% 92%;
+    --muted-foreground: 25 20% 40%;
+
+    --accent: 340 45% 72%;
+    --accent-foreground: 25 35% 15%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 43 25% 85%;
+    --input: 43 30% 93%;
+    --ring: 124 35% 60%;
+
+    --radius: 1rem;
+
+    /* Custom palette - SOFT PASTELS */
+    --mint: 124 40% 82%;
+    --cyan: 170 45% 82%;
+    --sky: 207 50% 85%;
+    --pink: 340 50% 85%;
+    --cream: 43 50% 86%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(43 45% 95%) 0%, hsl(340 35% 94%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(207 40% 95%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(25 35% 18% / 0.08);
+    --shadow-hover: 0 8px 30px -8px hsl(25 35% 18% / 0.12);
+
+    /* Fonts */
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Nunito', sans-serif;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 30 20% 10%;
+    --foreground: 43 71% 94%;
+
+    --card: 30 20% 15%;
+    --card-foreground: 43 71% 94%;
+
+    --popover: 30 20% 12%;
+    --popover-foreground: 43 71% 94%;
+
+    --primary: 124 60% 70%;
+    --primary-foreground: 30 20% 10%;
+
+    --secondary: 170 50% 30%;
+    --secondary-foreground: 43 71% 94%;
+
+    --muted: 30 15% 20%;
+    --muted-foreground: 43 40% 70%;
+
+    --accent: 340 50% 60%;
+    --accent-foreground: 43 71% 94%;
+
+    --border: 30 15% 25%;
+    --input: 30 15% 25%;
+    --ring: 124 60% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .card-pastry {
+    @apply bg-card rounded-2xl p-6 shadow-soft transition-all duration-300 hover:shadow-hover hover:-translate-y-1;
+  }
+
+  .btn-newsletter {
+    @apply bg-accent text-accent-foreground font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-hover;
+  }
+
+  .input-newsletter {
+    @apply bg-background border-2 border-border rounded-full px-5 py-3 focus:outline-none focus:border-primary transition-colors duration-300;
+  }
+
+  .section-title {
+    @apply font-display text-3xl md:text-4xl font-semibold text-foreground mb-8 text-center;
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-hover {
+    box-shadow: var(--shadow-hover);
+  }
+}
