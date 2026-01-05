@@ -27,6 +27,7 @@ const Navbar = () => {
     { id: "salty-pastries", label: "My Salty Puff Pastries" },
     { id: "pizzas", label: "Pizzas" },
     { id: "order", label: "Order" },
+    { id: "newsletter", label: "Grow with us" },
   ];
 
   return (
@@ -52,7 +53,7 @@ const Navbar = () => {
               <li key={link.id}>
                 <button
                   onClick={() => scrollToSection(link.id)}
-                  className="text-foreground/80 hover:text-foreground font-medium transition-colors duration-200 text-sm"
+                  className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
                 >
                   {link.label}
                 </button>
@@ -89,7 +90,7 @@ const Navbar = () => {
                 <li key={link.id}>
                   <button
                     onClick={() => scrollToSection(link.id)}
-                    className="text-foreground/80 hover:text-foreground font-medium transition-colors duration-200 w-full text-left"
+                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 w-full text-left"
                   >
                     {link.label}
                   </button>

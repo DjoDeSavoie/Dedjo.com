@@ -5,47 +5,61 @@ const Logo = ({ className = "w-12 h-12" }: { className?: string }) => {
       className={className}
       aria-label="De Djo logo - flower with 5 petals"
     >
-      {/* Center circle */}
-      <circle cx="50" cy="50" r="12" fill="hsl(35 85% 55%)" />
+      {/* Yellow movement lines - outer */}
+      <g opacity="0.7">
+        {[0, 72, 144, 216, 288].map((angle, i) => (
+          <path
+            key={`outer-${i}`}
+            d="M50 8 Q55 3 60 6"
+            stroke="hsl(45 90% 55%)"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+            transform={`rotate(${angle} 50 50)`}
+          />
+        ))}
+        {[36, 108, 180, 252, 324].map((angle, i) => (
+          <path
+            key={`outer2-${i}`}
+            d="M50 10 Q43 4 38 8"
+            stroke="hsl(45 90% 55%)"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+            transform={`rotate(${angle} 50 50)`}
+          />
+        ))}
+      </g>
       
-      {/* 5 petals - Blue, Orange, Yellow colors */}
-      {/* Top petal - Blue */}
-      <ellipse 
-        cx="50" cy="22" rx="14" ry="22" 
-        fill="hsl(210 70% 55%)"
-        transform="rotate(0 50 50)"
-      />
+      {/* 5 sky blue petals */}
+      {[0, 72, 144, 216, 288].map((angle, i) => (
+        <ellipse 
+          key={i}
+          cx="50" cy="24" rx="13" ry="20" 
+          fill="hsl(200 70% 65%)"
+          transform={`rotate(${angle} 50 50)`}
+        />
+      ))}
       
-      {/* Top right petal - Orange */}
-      <ellipse 
-        cx="50" cy="22" rx="14" ry="22" 
-        fill="hsl(30 90% 55%)"
-        transform="rotate(72 50 50)"
-      />
+      {/* Yellow movement lines - inner (swirling toward center) */}
+      <g opacity="0.8">
+        {[20, 92, 164, 236, 308].map((angle, i) => (
+          <path
+            key={`inner-${i}`}
+            d="M50 38 Q54 35 56 38"
+            stroke="hsl(45 95% 55%)"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+            transform={`rotate(${angle} 50 50)`}
+          />
+        ))}
+      </g>
       
-      {/* Bottom right petal - Yellow */}
-      <ellipse 
-        cx="50" cy="22" rx="14" ry="22" 
-        fill="hsl(45 95% 55%)"
-        transform="rotate(144 50 50)"
-      />
-      
-      {/* Bottom left petal - Blue */}
-      <ellipse 
-        cx="50" cy="22" rx="14" ry="22" 
-        fill="hsl(210 70% 55%)"
-        transform="rotate(216 50 50)"
-      />
-      
-      {/* Top left petal - Orange */}
-      <ellipse 
-        cx="50" cy="22" rx="14" ry="22" 
-        fill="hsl(30 90% 55%)"
-        transform="rotate(288 50 50)"
-      />
-      
-      {/* Inner center highlight */}
-      <circle cx="50" cy="50" r="8" fill="hsl(45 95% 65%)" />
+      {/* Orange center */}
+      <circle cx="50" cy="50" r="14" fill="hsl(30 90% 55%)" />
+      <circle cx="50" cy="50" r="9" fill="hsl(35 95% 60%)" />
+      <circle cx="50" cy="50" r="5" fill="hsl(40 100% 65%)" />
     </svg>
   );
 };
