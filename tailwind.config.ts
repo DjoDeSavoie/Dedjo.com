@@ -51,12 +51,19 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        mint: "hsl(var(--mint))",
-        cyan: "hsl(var(--cyan))",
-        sky: "hsl(var(--sky))",
-        pink: "hsl(var(--pink))",
-        cream: "hsl(var(--cream))",
-        // Product colors
+        // Logo-inspired colors
+        "sky-blue": "hsl(var(--sky-blue))",
+        "sky-blue-intense": "hsl(var(--sky-blue-intense))",
+        "orange": "hsl(var(--orange))",
+        "orange-intense": "hsl(var(--orange-intense))",
+        "yellow": "hsl(var(--yellow))",
+        "yellow-intense": "hsl(var(--yellow-intense))",
+        // Section backgrounds
+        "section-sky": "hsl(var(--section-sky))",
+        "section-orange": "hsl(var(--section-orange))",
+        "section-yellow": "hsl(var(--section-yellow))",
+        "section-cream": "hsl(var(--section-cream))",
+        // Product colors (pastries)
         "product-goet": "#cfebd3",
         "product-montagne": "#ffd0c2",
         "product-noix": "#e1cbb2",
@@ -65,6 +72,12 @@ export default {
         "product-raisin": "#b1a1ed",
         "product-chocolat": "#8f5d46",
         "product-croissant": "#feda15",
+        // Pizza colors
+        "pizza-classique": "#ff6b6b",
+        "pizza-flam": "#ffd9a0",
+        "pizza-vege": "#98d89e",
+        "pizza-praline": "#ffb3d9",
+        "pizza-nut": "#8b5a2b",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
