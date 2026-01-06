@@ -7,44 +7,44 @@ const SweetProductsSection = () => {
 
   const products: (ProductDetail & { color: string })[] = [
     {
-      name: "Croissants",
-      description: "Our signature butter croissant, with flaky golden layers of pure bliss. Made fresh every morning.",
+      name: "Le Croissant",
+      description: "Notre croissant signature au beurre, avec des couches dorées et feuilletées de pur bonheur. Fait frais chaque matin.",
       emoji: "🥐",
       color: "bg-product-croissant",
-      ingredients: ["Butter (AOP)", "Flour", "Yeast", "Sugar", "Salt", "Milk"],
-      madeBy: "Handcrafted by our master baker with 20+ years of experience",
-      whereToBuy: "Available at Ferme De La Goëttaz and local markets",
-      additionalInfo: "Best enjoyed warm, within 2 hours of baking. Can be frozen and reheated.",
+      ingredients: ["Beurre AOP", "Farine", "Levure", "Sucre", "Sel", "Lait"],
+      madeBy: "Façonné à la main par notre maître boulanger avec plus de 20 ans d'expérience",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
+      additionalInfo: "Meilleur dégusté tiède, dans les 2 heures après cuisson. Peut être congelé et réchauffé.",
     },
     {
       name: "Pain au Chocolat",
-      description: "Rich chocolate batons wrapped in buttery, laminated dough. A classic French favorite.",
+      description: "De riches bâtons de chocolat enveloppés dans une pâte feuilletée au beurre. Un classique français incontournable.",
       emoji: "🍫",
       color: "bg-product-chocolat",
-      ingredients: ["Butter (AOP)", "Dark Chocolate (70%)", "Flour", "Yeast", "Sugar", "Salt"],
-      madeBy: "Crafted with Belgian chocolate and French butter",
-      whereToBuy: "Available at Ferme De La Goëttaz and local markets",
-      additionalInfo: "Contains two generous chocolate batons inside each pastry.",
+      ingredients: ["Beurre AOP", "Chocolat noir 70%", "Farine", "Levure", "Sucre", "Sel"],
+      madeBy: "Élaboré avec du chocolat belge et du beurre français",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
+      additionalInfo: "Contient deux généreux bâtons de chocolat dans chaque viennoiserie.",
     },
     {
       name: "La Rose de Djo",
-      description: "Our house specialty – a beautiful rose-shaped pastry with delicate layers and a sweet surprise inside.",
+      description: "Notre spécialité maison – une viennoiserie en forme de rose avec des couches délicates et une surprise sucrée à l'intérieur.",
       emoji: "🌹",
       color: "bg-product-rose",
-      ingredients: ["Butter", "Flour", "Rose Water", "Raspberry Jam", "Powdered Sugar", "Vanilla"],
-      madeBy: "Our signature creation, a De Djo family recipe",
-      whereToBuy: "Exclusive to Ferme De La Goëttaz – limited daily availability",
-      additionalInfo: "Named after the founder's grandmother. Each rose is hand-shaped.",
+      ingredients: ["Beurre", "Farine", "Eau de rose", "Confiture de framboise", "Sucre glace", "Vanille"],
+      madeBy: "Notre création signature, une recette de famille De Djo",
+      whereToBuy: "Exclusivité à la Ferme De La Goëttaz – disponibilité limitée chaque jour",
+      additionalInfo: "Nommée d'après la grand-mère du fondateur. Chaque rose est façonnée à la main.",
     },
     {
-      name: "Les Pains au Raisin",
-      description: "Soft, swirled pastry filled with custard cream and juicy raisins. Perfect with your morning coffee.",
+      name: "Pain aux Raisins",
+      description: "Viennoiserie moelleuse et spiralée garnie de crème pâtissière et de raisins juteux. Parfait avec votre café du matin.",
       emoji: "🍇",
       color: "bg-product-raisin",
-      ingredients: ["Butter", "Flour", "Custard Cream", "Raisins", "Vanilla", "Rum Extract"],
-      madeBy: "Traditional French recipe passed down through generations",
-      whereToBuy: "Available at Ferme De La Goëttaz and weekend markets",
-      additionalInfo: "Our raisins are soaked in rum for 24 hours before baking.",
+      ingredients: ["Beurre", "Farine", "Crème pâtissière", "Raisins secs", "Vanille", "Extrait de rhum"],
+      madeBy: "Recette traditionnelle française transmise de génération en génération",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés du week-end",
+      additionalInfo: "Nos raisins sont macérés dans le rhum pendant 24 heures avant cuisson.",
     },
   ];
 
@@ -57,10 +57,10 @@ const SweetProductsSection = () => {
     <section id="sweet-products" className="py-20 px-6 section-cream">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥐</span>
-        <h2 className="section-title">My Sweet Products</h2>
+        <h2 className="section-title">Viennoiseries</h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Bake-it-yourself pastries, crafted with love. Each product comes ready for you to 
-          bake fresh at home – nothing beats the aroma of freshly baked viennoiseries.
+          Des viennoiseries à cuire vous-même, faites avec amour. Chaque produit arrive prêt à être 
+          cuit frais chez vous – rien ne vaut l'arôme des viennoiseries fraîchement sorties du four.
         </p>
         
         <div className="grid md:grid-cols-2 gap-6">
@@ -76,7 +76,7 @@ const SweetProductsSection = () => {
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-2">{product.name}</h3>
                   <p className="text-foreground/80">{product.description}</p>
-                  <p className="text-sm text-primary mt-2 font-medium">Click for details →</p>
+                  <p className="text-sm text-white mt-2 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
                 </div>
               </div>
             </button>

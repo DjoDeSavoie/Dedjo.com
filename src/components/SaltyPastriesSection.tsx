@@ -8,55 +8,55 @@ const SaltyPastriesSection = () => {
   const flavors: (ProductDetail & { color: string })[] = [
     {
       name: "La Montagne",
-      description: "Lardons, Oignons et Reblochon – a taste of the Alps in every bite.",
+      description: "Lardons, Oignons et Reblochon – un goût des Alpes dans chaque bouchée.",
       emoji: "🏔️",
       color: "bg-product-montagne",
-      ingredients: ["Puff Pastry", "Smoked Lardons", "Caramelized Onions", "Reblochon AOP", "Cream", "Black Pepper"],
-      madeBy: "Inspired by traditional Savoyard tartiflette recipes",
-      whereToBuy: "Available at Ferme De La Goëttaz and local markets",
-      additionalInfo: "Our Reblochon comes directly from a farm in the Aravis mountains.",
+      ingredients: ["Pâte feuilletée", "Lardons fumés", "Oignons caramélisés", "Reblochon AOP", "Crème", "Poivre noir"],
+      madeBy: "Inspiré des recettes traditionnelles de tartiflette savoyarde",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
+      additionalInfo: "Notre Reblochon vient directement d'une ferme des Aravis.",
     },
     {
       name: "La Forêt",
-      description: "Champignons, Béchamel et Fromage à Fondue – earthy, creamy, irresistible.",
+      description: "Champignons, Béchamel et Fromage à Fondue – terreux, crémeux, irrésistible.",
       emoji: "🌲",
       color: "bg-product-foret",
-      ingredients: ["Puff Pastry", "Wild Mushrooms", "Béchamel Sauce", "Fondue Cheese Blend", "Thyme", "Garlic"],
-      madeBy: "Forest-inspired recipe using locally foraged mushrooms when in season",
-      whereToBuy: "Available at Ferme De La Goëttaz",
-      additionalInfo: "Contains a mix of chanterelles, porcini, and button mushrooms.",
+      ingredients: ["Pâte feuilletée", "Champignons des bois", "Sauce béchamel", "Mélange de fromage à fondue", "Thym", "Ail"],
+      madeBy: "Recette inspirée de la forêt utilisant des champignons cueillis localement en saison",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz",
+      additionalInfo: "Contient un mélange de girolles, cèpes et champignons de Paris.",
     },
     {
       name: "La Goët",
-      description: "Poireaux de la Goët et Chèvre – local leeks paired with tangy goat cheese.",
+      description: "Poireaux de la Goët et Chèvre – poireaux locaux associés au fromage de chèvre acidulé.",
       emoji: "🥬",
       color: "bg-product-goet",
-      ingredients: ["Puff Pastry", "Leeks from La Goëttaz", "Fresh Goat Cheese", "Cream", "Nutmeg", "White Wine"],
-      madeBy: "Made with leeks grown on our own farm at La Goëttaz",
-      whereToBuy: "Exclusive to Ferme De La Goëttaz",
-      additionalInfo: "The leeks are harvested fresh each morning during the season.",
+      ingredients: ["Pâte feuilletée", "Poireaux de La Goëttaz", "Fromage de chèvre frais", "Crème", "Muscade", "Vin blanc"],
+      madeBy: "Fait avec des poireaux cultivés dans notre propre ferme à La Goëttaz",
+      whereToBuy: "Exclusivité à la Ferme De La Goëttaz",
+      additionalInfo: "Les poireaux sont récoltés frais chaque matin pendant la saison.",
     },
     {
       name: "La Noix",
-      description: "Chèvre, Miel et Noix – the perfect balance of sweet, savory, and crunchy.",
+      description: "Chèvre, Miel et Noix – l'équilibre parfait entre sucré, salé et croquant.",
       emoji: "🌰",
       color: "bg-product-noix",
-      ingredients: ["Puff Pastry", "Fresh Goat Cheese", "Local Honey", "Walnuts from Grenoble", "Fresh Thyme"],
-      madeBy: "A perfect harmony of local Alpine ingredients",
-      whereToBuy: "Available at Ferme De La Goëttaz and weekend markets",
-      additionalInfo: "Features AOC walnuts from Grenoble and honey from local beekeepers.",
+      ingredients: ["Pâte feuilletée", "Fromage de chèvre frais", "Miel local", "Noix de Grenoble", "Thym frais"],
+      madeBy: "Une harmonie parfaite d'ingrédients alpins locaux",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés du week-end",
+      additionalInfo: "Avec des noix AOC de Grenoble et du miel d'apiculteurs locaux.",
     },
   ];
 
   const sizes = [
     {
       name: "Apéritives",
-      description: "Perfect for festivities and stand-up meals. Share the love with the people you cherish – bite-sized moments of happiness.",
+      description: "Parfaites pour les fêtes et les repas debout. Partagez l'amour avec les gens que vous chérissez – des petites bouchées de bonheur.",
       emoji: "🎉",
     },
     {
       name: "Le Friand",
-      description: "One meal, one person. The perfect individual portion, ideal paired with a fresh salad for a complete meal.",
+      description: "Un repas, une personne. La portion individuelle parfaite, idéale accompagnée d'une salade fraîche pour un repas complet.",
       emoji: "🥗",
     },
   ];
@@ -70,15 +70,15 @@ const SaltyPastriesSection = () => {
     <section id="salty-pastries" className="py-20 px-6 section-sky">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥧</span>
-        <h2 className="section-title">My Salty Puff Pastries</h2>
+        <h2 className="section-title">Feuilletés Salés</h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Golden, flaky, and filled with the finest ingredients. Our savory puff pastries 
-          are perfect for any occasion.
+          Dorés, feuilletés et garnis des meilleurs ingrédients. Nos feuilletés salés 
+          sont parfaits pour toutes les occasions.
         </p>
 
         {/* Flavors */}
         <div className="mb-12">
-          <h3 className="font-display text-2xl font-semibold text-center mb-6">Four Delicious Flavors</h3>
+          <h3 className="font-display text-2xl font-semibold text-center mb-6">Quatre Saveurs Délicieuses</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {flavors.map((flavor, index) => (
               <button 
@@ -92,7 +92,7 @@ const SaltyPastriesSection = () => {
                   <div>
                     <h4 className="font-display text-xl font-semibold mb-2">{flavor.name}</h4>
                     <p className="text-foreground/80">{flavor.description}</p>
-                    <p className="text-sm text-primary mt-2 font-medium">Click for details →</p>
+                    <p className="text-sm text-white mt-2 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
                   </div>
                 </div>
               </button>
@@ -102,7 +102,7 @@ const SaltyPastriesSection = () => {
 
         {/* Sizes */}
         <div>
-          <h3 className="font-display text-2xl font-semibold text-center mb-6">Available Sizes</h3>
+          <h3 className="font-display text-2xl font-semibold text-center mb-6">Formats Disponibles</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {sizes.map((size, index) => (
               <div 

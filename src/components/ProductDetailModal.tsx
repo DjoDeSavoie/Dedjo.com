@@ -42,7 +42,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
           {/* Ingredients */}
           <div>
             <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-              📋 Ingredients
+              📋 Ingrédients
             </h4>
             <ul className="text-sm text-muted-foreground space-y-1">
               {product.ingredients.map((ingredient, index) => (
@@ -57,7 +57,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
           {/* Made By */}
           <div>
             <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">
-              👨‍🍳 Made By
+              👨‍🍳 Fabrication
             </h4>
             <p className="text-sm text-muted-foreground">{product.madeBy}</p>
           </div>
@@ -65,7 +65,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
           {/* Where to Buy */}
           <div>
             <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">
-              📍 Where to Buy
+              📍 Où acheter
             </h4>
             <p className="text-sm text-muted-foreground">{product.whereToBuy}</p>
           </div>
@@ -74,7 +74,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
           {product.additionalInfo && (
             <div>
               <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">
-                ℹ️ Good to Know
+                ℹ️ Bon à savoir
               </h4>
               <p className="text-sm text-muted-foreground">{product.additionalInfo}</p>
             </div>

@@ -22,12 +22,12 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { id: "who-i-am", label: "Who I Am" },
-    { id: "sweet-products", label: "My Sweet Products" },
-    { id: "salty-pastries", label: "My Salty Puff Pastries" },
-    { id: "pizzas", label: "Pizzas" },
-    { id: "order", label: "Order" },
-    { id: "newsletter", label: "Grow with us" },
+    { id: "who-i-am", label: "Qui suis-je" },
+    { id: "sweet-products", label: "Viennoiseries" },
+    { id: "salty-pastries", label: "Feuilletés Salés" },
+    { id: "pizzas", label: "Les Pizzas" },
+    { id: "order", label: "Commander" },
+    { id: "newsletter", label: "Grandir avec nous" },
   ];
 
   return (
@@ -65,7 +65,7 @@ const Navbar = () => {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 text-foreground"
-            aria-label="Toggle menu"
+            aria-label="Ouvrir le menu"
           >
             <svg 
               className="w-6 h-6" 

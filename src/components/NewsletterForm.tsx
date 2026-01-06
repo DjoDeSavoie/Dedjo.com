@@ -11,8 +11,8 @@ const NewsletterForm = () => {
     
     if (!email || !email.includes("@")) {
       toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address.",
+        title: "Email invalide",
+        description: "Veuillez entrer une adresse email valide.",
         variant: "destructive",
       });
       return;
@@ -24,8 +24,8 @@ const NewsletterForm = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     toast({
-      title: "Welcome to our bakery! 🥐",
-      description: "You've successfully subscribed to our newsletter.",
+      title: "Bienvenue dans notre boulangerie ! 🥐",
+      description: "Vous êtes maintenant inscrit à notre newsletter.",
     });
     
     setEmail("");
@@ -36,7 +36,7 @@ const NewsletterForm = () => {
     <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
       <input
         type="email"
-        placeholder="Enter your email"
+        placeholder="Entrez votre email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="input-newsletter flex-1"
@@ -47,7 +47,7 @@ const NewsletterForm = () => {
         className="btn-newsletter disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={isLoading}
       >
-        {isLoading ? "Subscribing..." : "Subscribe"}
+        {isLoading ? "Inscription..." : "S'inscrire"}
       </button>
     </form>
   );
