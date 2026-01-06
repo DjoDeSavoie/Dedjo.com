@@ -63,11 +63,11 @@ export default {
         "section-orange": "hsl(var(--section-orange))",
         "section-yellow": "hsl(var(--section-yellow))",
         "section-cream": "hsl(var(--section-cream))",
-        // Product colors (pastries)
-        "product-goet": "#cfebd3",
-        "product-montagne": "#ffd0c2",
-        "product-noix": "#e1cbb2",
-        "product-foret": "#ffce85",
+        // Product colors (pastries) - more contrasted for salty
+        "product-goet": "#7bc98a",
+        "product-montagne": "#ffaa8c",
+        "product-noix": "#c9a67a",
+        "product-foret": "#ffb84d",
         "product-rose": "#ffa7e1",
         "product-raisin": "#b1a1ed",
         "product-chocolat": "#8f5d46",

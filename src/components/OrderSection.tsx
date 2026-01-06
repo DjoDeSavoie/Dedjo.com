@@ -18,11 +18,11 @@ const OrderSection = () => {
     e.preventDefault();
     
     if (!formData.name.trim() || !formData.phone.trim() || !formData.numberOfPeople.trim()) {
-      toast.error("Please fill in all fields");
+      toast.error("Veuillez remplir tous les champs");
       return;
     }
 
-    toast.success("Registration submitted! We'll contact you shortly to confirm.");
+    toast.success("Inscription envoyée ! Nous vous contacterons bientôt pour confirmer.");
     setFormData({ name: "", phone: "", numberOfPeople: "", orderType: "in-place" });
   };
 
@@ -30,9 +30,9 @@ const OrderSection = () => {
     <section id="order" className="py-20 px-6 section-orange">
       <div className="container max-w-4xl">
         <span className="text-5xl mb-4 block text-center">📞</span>
-        <h2 className="section-title">Order & Reservations</h2>
+        <h2 className="section-title">Commander</h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Ready to taste our delicious creations? Contact us or register for our pizza nights!
+          Prêt à goûter nos délicieuses créations ? Contactez-nous ou inscrivez-vous pour nos soirées pizza !
         </p>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -40,10 +40,10 @@ const OrderSection = () => {
           <div className="bg-card rounded-2xl p-8 shadow-soft">
             <h3 className="font-display text-2xl font-semibold mb-6 flex items-center gap-3">
               <Phone className="w-6 h-6 text-primary" />
-              Contact Us
+              Nous contacter
             </h3>
             <p className="text-muted-foreground mb-4">
-              For orders and inquiries, give us a call:
+              Pour les commandes et renseignements, appelez-nous :
             </p>
             <a 
               href="tel:+33600000000" 
@@ -52,31 +52,31 @@ const OrderSection = () => {
               06 00 00 00 00
             </a>
             <p className="text-sm text-muted-foreground mt-4">
-              We're available during opening hours to take your orders for sweet products and salty pastries.
+              Nous sommes disponibles pendant les heures d'ouverture pour prendre vos commandes de viennoiseries et feuilletés salés.
             </p>
 
             {/* Location */}
             <div className="mt-8 pt-6 border-t border-border">
               <h4 className="font-display text-lg font-semibold mb-3 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
-                Our Pizzeria Location
+                Notre Pizzeria
               </h4>
               <p className="text-foreground font-medium">Ferme De La Goëttaz</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Come visit us at our wood-fired oven and enjoy fresh pizzas in a warm, family atmosphere.
+                Venez nous rendre visite à notre four à bois et dégustez des pizzas fraîches dans une ambiance familiale chaleureuse.
               </p>
             </div>
           </div>
 
           {/* Pizza Registration Form */}
           <div className="bg-card rounded-2xl p-8 shadow-soft">
-            <h3 className="font-display text-2xl font-semibold mb-2">🍕 Pizza Night Registration</h3>
+            <h3 className="font-display text-2xl font-semibold mb-2">🍕 Inscription Soirée Pizza</h3>
             <p className="text-muted-foreground text-sm mb-6">
-              I will be there and we would love to eat pizzas!
+              Je serai là et nous adorerions manger des pizzas !
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">Your Name</Label>
+                <Label htmlFor="name">Votre nom</Label>
                 <Input
                   id="name"
                   type="text"
@@ -89,7 +89,7 @@ const OrderSection = () => {
               </div>
 
               <div>
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">Numéro de téléphone</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -102,7 +102,7 @@ const OrderSection = () => {
               </div>
 
               <div>
-                <Label htmlFor="numberOfPeople">I will be there with</Label>
+                <Label htmlFor="numberOfPeople">Je serai là avec</Label>
                 <div className="flex items-center gap-2 mt-1">
                   <Input
                     id="numberOfPeople"
@@ -114,12 +114,12 @@ const OrderSection = () => {
                     onChange={(e) => setFormData({ ...formData, numberOfPeople: e.target.value })}
                     className="w-20"
                   />
-                  <span className="text-muted-foreground">people</span>
+                  <span className="text-muted-foreground">personnes</span>
                 </div>
               </div>
 
               <div>
-                <Label className="mb-3 block">We would like to eat</Label>
+                <Label className="mb-3 block">Nous aimerions manger</Label>
                 <RadioGroup
                   value={formData.orderType}
                   onValueChange={(value) => setFormData({ ...formData, orderType: value })}
@@ -127,17 +127,17 @@ const OrderSection = () => {
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="in-place" id="in-place" />
-                    <Label htmlFor="in-place" className="cursor-pointer">In Place</Label>
+                    <Label htmlFor="in-place" className="cursor-pointer">Sur place</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="carry-out" id="carry-out" />
-                    <Label htmlFor="carry-out" className="cursor-pointer">To Carry Out</Label>
+                    <Label htmlFor="carry-out" className="cursor-pointer">À emporter</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <Button type="submit" className="w-full mt-4">
-                Register for Pizza Night
+                S'inscrire pour la soirée pizza
               </Button>
             </form>
           </div>
