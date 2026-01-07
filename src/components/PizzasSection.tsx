@@ -5,7 +5,7 @@ const PizzasSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const saltyPizzas: (ProductDetail & { color: string })[] = [
+  const saltyPizzas: (ProductDetail & { color: string; isFavorite?: boolean })[] = [
     {
       name: "La Classique",
       description: "Sauce Tomate, Jambon, Oignons, Fromage – intemporelle et toujours satisfaisante.",
@@ -21,6 +21,7 @@ const PizzasSection = () => {
       description: "Crème Fraîche, Lardons, Oignons, Fromage – notre création d'inspiration alsacienne.",
       emoji: "🥓",
       color: "bg-pizza-flam",
+      isFavorite: true,
       ingredients: ["Pâte maison", "Crème fraîche", "Lardons fumés", "Oignons", "Gruyère", "Muscade"],
       madeBy: "Inspirée de la traditionnelle Flammekueche d'Alsace",
       whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
@@ -38,12 +39,13 @@ const PizzasSection = () => {
     },
   ];
 
-  const sweetPizzas: (ProductDetail & { color: string })[] = [
+  const sweetPizzas: (ProductDetail & { color: string; isFavorite?: boolean })[] = [
     {
       name: "La Praline Rose",
       description: "Praline rose et crème AOP – un classique lyonnais, sucré et croquant.",
       emoji: "🩷",
       color: "bg-pizza-praline",
+      isFavorite: true,
       ingredients: ["Pâte sucrée maison", "Pralines roses", "Crème AOP", "Beurre", "Sucre"],
       madeBy: "Un hommage à la célèbre tarte aux pralines roses de Lyon",
       whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
@@ -96,9 +98,12 @@ const PizzasSection = () => {
               <button 
                 key={pizza.name}
                 onClick={() => handleProductClick(pizza)}
-                className={`${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left`}
+                className={`${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
+                {pizza.isFavorite && (
+                  <div className="absolute top-3 right-3 text-2xl">❤️</div>
+                )}
                 <div className="text-center">
                   <span className="text-4xl block mb-3">{pizza.emoji}</span>
                   <h4 className="font-display text-xl font-semibold mb-2 text-foreground">{pizza.name}</h4>
@@ -118,9 +123,12 @@ const PizzasSection = () => {
               <button 
                 key={pizza.name}
                 onClick={() => handleProductClick(pizza)}
-                className={`${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left`}
+                className={`${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
+                {pizza.isFavorite && (
+                  <div className="absolute top-3 right-3 text-2xl">❤️</div>
+                )}
                 <div className="text-center">
                   <span className="text-4xl block mb-3">{pizza.emoji}</span>
                   <h4 className="font-display text-xl font-semibold mb-2 text-white">{pizza.name}</h4>
