@@ -71,7 +71,7 @@ export default {
         "product-rose": "#ffa7e1",
         "product-raisin": "#b1a1ed",
         "product-chocolat": "#8f5d46",
-        "product-croissant": "#feda15",
+        "product-croissant": "#f5d547",
         // Pizza colors
         "pizza-classique": "#ff6b6b",
         "pizza-flam": "#ffd9a0",

@@ -71,10 +71,21 @@ const SaltyPastriesSection = () => {
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥧</span>
         <h2 className="section-title">Feuilletés Salés</h2>
-        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Dorés, feuilletés et garnis des meilleurs ingrédients. Nos feuilletés salés 
           sont parfaits pour toutes les occasions.
         </p>
+
+        {/* Recipe Card */}
+        <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-2xl mx-auto">
+          <h3 className="font-display text-2xl font-semibold mb-4 text-center">🍽️ Recette de Préparation</h3>
+          <p className="text-foreground text-center leading-relaxed">
+            À cuire à <strong>180 degrés pendant 25 minutes</strong>, directement sorti du congélateur.
+          </p>
+          <p className="text-muted-foreground text-center mt-2 italic">
+            Peut-être plus longtemps selon ton four, selon tes goûts...
+          </p>
+        </div>
 
         {/* Flavors */}
         <div className="mb-12">

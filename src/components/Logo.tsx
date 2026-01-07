@@ -15,10 +15,10 @@ const Logo = ({ className = "w-12 h-12" }: { className?: string }) => {
         />
       ))}
       
-      {/* Orange center with gradient effect */}
+      {/* Orange center with dandelion yellow core */}
       <circle cx="50" cy="50" r="16" fill="hsl(30 90% 55%)" />
       <circle cx="50" cy="50" r="11" fill="hsl(35 95% 60%)" />
-      <circle cx="50" cy="50" r="6" fill="hsl(40 100% 65%)" />
+      <circle cx="50" cy="50" r="6" fill="hsl(50 100% 55%)" />
     </svg>
   );
 };
