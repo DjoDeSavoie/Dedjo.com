@@ -11,7 +11,7 @@ const SweetProductsSection = () => {
       description: "Notre croissant signature au beurre, avec des couches dorées et feuilletées de pur bonheur. Fait frais chaque matin.",
       emoji: "🥐",
       color: "bg-product-croissant",
-      badge: { icon: "🌼", label: "Classique" },
+      badge: { icon: " 🌼", label: "❤️" },
       ingredients: ["Beurre AOP", "Farine", "Levure", "Sucre", "Sel", "Lait"],
       madeBy: "Façonné à la main par notre maître boulanger avec plus de 20 ans d'expérience",
       whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
@@ -42,7 +42,7 @@ const SweetProductsSection = () => {
       description: "Notre spécialité maison – une viennoiserie en forme de rose avec des couches délicates et une surprise sucrée à l'intérieur.",
       emoji: "🌹",
       color: "bg-product-rose",
-      badge: { icon: "🌼", label: "Favori" },
+      badge: { icon: "🌸", label: "❤️" },
       ingredients: ["Beurre", "Farine", "Eau de rose", "Confiture de framboise", "Sucre glace", "Vanille"],
       madeBy: "Notre création signature, une recette de famille De Djo",
       whereToBuy: "Exclusivité à la Ferme De La Goëttaz – disponibilité limitée chaque jour",
@@ -67,7 +67,7 @@ const SweetProductsSection = () => {
 
         {/* Recipe Card */}
         <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-3xl mx-auto">
-          <h3 className="font-display text-2xl font-semibold mb-6 text-center">🍽️ Recette de Préparation</h3>
+          <h3 className="font-display text-2xl font-semibold mb-6 text-center">☕️ Recette de Préparation</h3>
           
           <div className="space-y-4 text-foreground leading-relaxed">
             <div className="flex items-start gap-3">
@@ -75,23 +75,23 @@ const SweetProductsSection = () => {
               <p><strong>La veille au soir :</strong> Chauffe ton four à 50 degrés pendant 5 minutes.</p>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-xl">2️⃣</span>
+              <span className="text-xl"></span>
               <p>Pose tes viennoiseries sur une plaque recouverte de papier cuisson et enfourne.</p>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-xl">3️⃣</span>
+              <span className="text-xl"></span>
               <p>Éteins ton four et laisse le temps et les levures travailler ensemble, pendant la nuit.</p>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-xl">4️⃣</span>
+              <span className="text-xl">2️⃣</span>
               <p><strong>Le lendemain matin :</strong> Les viennoiseries ont gonflé ! Elles sont prêtes à passer en cuisson.</p>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-xl">5️⃣</span>
+              <span className="text-xl"></span>
               <p>Retire-les du four. Préchauffe-le à 180 °C.</p>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-xl">6️⃣</span>
+              <span className="text-xl"></span>
               <p>Enfourne 13 à 18 minutes selon le doré et le croustillant que tu aimes. <strong>Régale-toi !</strong></p>
             </div>
           </div>
