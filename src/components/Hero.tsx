@@ -15,21 +15,20 @@ const Hero = () => {
         De Djo
       </h1>
       <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-        Artisan pastries, handcrafted with passion. Discover our delicious croissants, 
-        savory puff pastries, and authentic homemade pizzas.
+        L'artisanat pour se connecter à ce que l'on mange, et le partager avec fierté.
       </p>
       <div className="flex gap-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
         <button 
           onClick={() => scrollToSection("sweet-products")}
           className="bg-primary text-primary-foreground px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
         >
-          Explore Menu
+          Découvrir les produits
         </button>
         <button 
           onClick={() => scrollToSection("who-i-am")}
           className="bg-secondary text-secondary-foreground px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
         >
-          About Me
+          Nous connaitre
         </button>
       </div>
     </section>

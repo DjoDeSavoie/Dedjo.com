@@ -61,52 +61,16 @@ const SweetProductsSection = () => {
         <span className="text-5xl mb-4 block text-center">🥐</span>
         <h2 className="section-title">Viennoiseries</h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Des viennoiseries à cuire vous-même, faites avec amour. Chaque produit arrive prêt à être 
-          cuit frais chez vous – rien ne vaut l'arôme des viennoiseries fraîchement sorties du four.
+          Des viennoiseries artisanales, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
         </p>
 
-        {/* Recipe Card */}
-        <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-3xl mx-auto">
-          <h3 className="font-display text-2xl font-semibold mb-6 text-center">☕️ Recette de Préparation</h3>
-          
-          <div className="space-y-4 text-foreground leading-relaxed">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">1️⃣</span>
-              <p><strong>La veille au soir :</strong> Chauffe ton four à 50 degrés pendant 5 minutes.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-xl"></span>
-              <p>Pose tes viennoiseries sur une plaque recouverte de papier cuisson et enfourne.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-xl"></span>
-              <p>Éteins ton four et laisse le temps et les levures travailler ensemble, pendant la nuit.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-xl">2️⃣</span>
-              <p><strong>Le lendemain matin :</strong> Les viennoiseries ont gonflé ! Elles sont prêtes à passer en cuisson.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-xl"></span>
-              <p>Retire-les du four. Préchauffe-le à 180 °C.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-xl"></span>
-              <p>Enfourne 13 à 18 minutes selon le doré et le croustillant que tu aimes. <strong>Régale-toi !</strong></p>
-            </div>
-          </div>
+        <ProductDetailModal 
+        product={selectedProduct}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
 
-          <div className="mt-8 pt-6 border-t border-muted text-center">
-            <p className="text-muted-foreground italic leading-relaxed">
-              Produit d'un savoir-faire hérité de mes grands-parents.<br />
-              Manipulé avec respect et patience, tel un rituel gourmand,<br />
-              il ouvre les portes d'un moment de partage avec les gens que l'on aime,<br />
-              et ceux que l'on souhaite découvrir davantage.
-            </p>
-          </div>
-        </div>
-        
-        <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
           {products.map((product, index) => (
             <button 
               key={product.name}
@@ -130,14 +94,56 @@ const SweetProductsSection = () => {
               </div>
             </button>
           ))}
+
         </div>
+
+        <br /> <br />
+
+        {/* Recipe Card */}
+        <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-3xl mx-auto">
+          <h3 className="font-display text-2xl font-semibold mb-6 text-center">☕️ Recette de Préparation</h3>
+          
+          <div className="space-y-4 text-foreground leading-relaxed">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">1️⃣</span>
+              <p><strong>Le Réveil des Levures :</strong> La veille au soir, chauffe ton four à 50 degrés pendant 5 minutes.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-xl"></span>
+              <p>Pose tes viennoiseries sur une plaque recouverte de papier cuisson et enfourne.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-xl"></span>
+              <p>Éteins ton four et laisse le temps et les levures travailler ensemble, pendant la nuit.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-xl">2️⃣</span>
+              <p><strong>La cuisson :</strong> Le lendemain matin, les viennoiseries ont gonflé ! 
+              Elles sont prêtes à passer en cuisson.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-xl"></span>
+              <p>Retire-les du four. Préchauffe-le à 180 °C.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-xl"></span>
+              <p>Enfourne 13 à 18 minutes selon le doré et le croustillant que tu aimes. <strong>Régale-toi !</strong></p>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-muted text-center">
+            <p className="text-muted-foreground italic leading-relaxed">
+              Produit d'un savoir-faire hérité de mes grands-parents.<br />
+              Manipulé avec respect et patience, tel un rituel gourmand,<br />
+              il ouvre les portes d'un moment de partage avec les gens que l'on aime,<br />
+              et ceux que l'on souhaite découvrir davantage.
+            </p>
+          </div>
+        </div>
+        
+        
       </div>
 
-      <ProductDetailModal 
-        product={selectedProduct}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
     </section>
   );
 };
