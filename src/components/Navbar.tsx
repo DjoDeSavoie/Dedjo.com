@@ -84,13 +84,13 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-border pt-4">
-            <ul className="flex flex-col gap-4">
+          <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 bg-background rounded-lg shadow-soft">
+            <ul className="flex flex-col gap-3 px-2">
               {navLinks.map((link) => (
                 <li key={link.id}>
                   <button
                     onClick={() => scrollToSection(link.id)}
-                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 w-full text-left"
+                    className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base"
                   >
                     {link.label}
                   </button>
