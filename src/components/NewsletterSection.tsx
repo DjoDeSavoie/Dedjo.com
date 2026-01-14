@@ -41,7 +41,7 @@ const NewsletterSection = () => {
         <h2 className="section-title">Grandir avec nous</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
           Rejoignez notre communauté et soyez les premiers informés des nouvelles créations, 
-          événements spéciaux et actualités de la famille De Djo.
+          événements spéciaux et actualités de la famille Dedjo.
         </p>
         
         {/* Newsletter subscription */}

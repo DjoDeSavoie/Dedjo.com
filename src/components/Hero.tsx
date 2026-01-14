@@ -15,7 +15,7 @@ const Hero = () => {
         De Djo
       </h1>
       <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-        L'artisanat pour se connecter à ce que l'on mange, et le partager avec fierté.
+        L'artisanat pour se connecter à ce que l'on mange, <br /> et le partager avec fierté.
       </p>
       <div className="flex gap-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
         <button 

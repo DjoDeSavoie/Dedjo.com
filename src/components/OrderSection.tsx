@@ -49,7 +49,7 @@ const OrderSection = () => {
               href="tel:+33600000000" 
               className="text-2xl font-display font-semibold text-primary hover:text-primary/80 transition-colors"
             >
-              06 00 00 00 00
+              07 77 28 20 23
             </a>
             <p className="text-sm text-muted-foreground mt-4">
               Nous sommes disponibles pendant les heures d'ouverture pour prendre vos commandes de viennoiseries et feuilletés salés.

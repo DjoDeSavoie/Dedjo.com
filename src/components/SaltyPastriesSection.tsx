@@ -39,7 +39,7 @@ const SaltyPastriesSection = () => {
     {
       name: "La Noix",
       description: "Chèvre, Miel et Noix – l'équilibre parfait entre sucré, salé et croquant.",
-      emoji: "🌰",
+      emoji: "🐝",
       color: "bg-product-noix",
       ingredients: ["Pâte feuilletée", "Fromage de chèvre frais", "Miel local", "Noix de Grenoble", "Thym frais"],
       madeBy: "Une harmonie parfaite d'ingrédients alpins locaux",
@@ -74,7 +74,6 @@ const SaltyPastriesSection = () => {
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Une pâte feuilletée artisanale enveloppant une garniture gourmande. <br /> Préparés avec la main et le coeur, sous forme de bouchées apéritives ou de friands individuels. <br /> Pour une soirée conviviale ou un repas de la flemme du lundi soir.
         </p>
-
 
         {/* Flavors */}
         <div className="mb-12">

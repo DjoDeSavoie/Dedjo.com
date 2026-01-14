@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container max-w-6xl flex flex-col items-center gap-4">
         <Logo className="w-8 h-8" />
         <p className="text-muted-foreground text-center">
-          © 2026 De Djo. Fait avec 🥖 et amour.
+          © 2026 De Djo. Fait avec amour. 🥖
         </p>
       </div>
     </footer>

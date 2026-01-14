@@ -8,45 +8,45 @@ const SweetProductsSection = () => {
   const products: (ProductDetail & { color: string; badge?: { icon: string; label: string } })[] = [
     {
       name: "Le Croissant",
-      description: "Notre croissant signature au beurre, avec des couches dorées et feuilletées de pur bonheur. Fait frais chaque matin.",
+      description: "La signature au beurre, un croissant rustique établie après des heures de confection et de perfectionnement, à étaler des kilos de pâtes au rouleau à patisserie.",
       emoji: "🥐",
       color: "bg-product-croissant",
       badge: { icon: " 🌼", label: "❤️" },
-      ingredients: ["Beurre AOP", "Farine", "Levure", "Sucre", "Sel", "Lait"],
-      madeBy: "Façonné à la main par notre maître boulanger avec plus de 20 ans d'expérience",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
-      additionalInfo: "Meilleur dégusté tiède, dans les 2 heures après cuisson. Peut être congelé et réchauffé.",
+      ingredients: ["Farine", "Beurre AOP", "Eau", "Lait", "Levure", "Sucre", "Sel"],
+      madeBy: "Pétri puis façonné à la main par Dj'o, puis bloqué en congélation pour préserver toute la fraîcheur du beurre.",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz, et bientôt sur votre marché local ?",
+      additionalInfo: "",
     },
     {
       name: "Pain au Chocolat",
-      description: "De riches bâtons de chocolat enveloppés dans une pâte feuilletée au beurre. Un classique français incontournable.",
+      description: "Deux bâtons de chocolat enveloppés dans une pâte feuilletée au beurre. Un classique incontournable. Façonnés de telle sorte à avoir du chocolat dans chaques bouchées.",
       emoji: "🍫",
       color: "bg-product-chocolat",
-      ingredients: ["Beurre AOP", "Chocolat noir 70%", "Farine", "Levure", "Sucre", "Sel"],
-      madeBy: "Élaboré avec du chocolat belge et du beurre français",
+      ingredients: ["Base de pâte à croissant", "Bâtonnets de chocolat noir"],
+      madeBy: "",
       whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
-      additionalInfo: "Contient deux généreux bâtons de chocolat dans chaque viennoiserie.",
+      additionalInfo: "",
     },
     {
       name: "Pain aux Raisins",
-      description: "Viennoiserie moelleuse et spiralée garnie de crème pâtissière et de raisins juteux. Parfait avec votre café du matin.",
+      description: "Un roulée au raisins secs et une crème pâtissière chargée de Vanille.",
       emoji: "🍇",
       color: "bg-product-raisin",
-      ingredients: ["Beurre", "Farine", "Crème pâtissière", "Raisins secs", "Vanille", "Extrait de rhum"],
-      madeBy: "Recette traditionnelle française transmise de génération en génération",
+      ingredients: ["Base de pâte à croissant", "Crème pâtissière à la vanille", "Raisins secs"],
+      madeBy: "Dj'o",
       whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés du week-end",
-      additionalInfo: "Nos raisins sont macérés dans le rhum pendant 24 heures avant cuisson.",
+      additionalInfo: "💡 Une suggestion d'Apolline (avec deux ailes) et des ses parents",
     },
     {
-      name: "La Rose de Djo",
-      description: "Notre spécialité maison – une viennoiserie en forme de rose avec des couches délicates et une surprise sucrée à l'intérieur.",
+      name: "La Rose de Dj'o",
+      description: "Un enrobage de praline rose et de crème vanille. À partager telle une belle fleur pour donner le sourire",
       emoji: "🌹",
       color: "bg-product-rose",
       badge: { icon: "🌸", label: "❤️" },
-      ingredients: ["Beurre", "Farine", "Eau de rose", "Confiture de framboise", "Sucre glace", "Vanille"],
-      madeBy: "Notre création signature, une recette de famille De Djo",
-      whereToBuy: "Exclusivité à la Ferme De La Goëttaz – disponibilité limitée chaque jour",
-      additionalInfo: "Nommée d'après la grand-mère du fondateur. Chaque rose est façonnée à la main.",
+      ingredients: ["Base de pâte à croissant", "Crème pâtissière à la vanille", "Praline rose croquante"],
+      madeBy: "Notre création signature, une recette de Dj'o",
+      whereToBuy: "Disponible à la Ferme De La Goëttaz pendant le marché du vendredi",
+      additionalInfo: "La spécialité de la maison.",
     },
   ];
 
@@ -106,15 +106,15 @@ const SweetProductsSection = () => {
           <div className="space-y-4 text-foreground leading-relaxed">
             <div className="flex items-start gap-3">
               <span className="text-xl">1️⃣</span>
-              <p><strong>Le Réveil des Levures :</strong> La veille au soir, chauffe ton four à 50 degrés pendant 5 minutes.</p>
+              <p><strong>Le Réveil des Levures :</strong> La veille au soir, chauffe ton four à 50 degrés.</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-xl"></span>
-              <p>Pose tes viennoiseries sur une plaque recouverte de papier cuisson et enfourne.</p>
+              <p>Pose tes viennoiseries sur une plaque recouverte de papier cuisson et enfourne 5 minutes.</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-xl"></span>
-              <p>Éteins ton four et laisse le temps et les levures travailler ensemble, pendant la nuit.</p>
+              <p>Éteins simplement ton four, les viennoiseries toujours à l'intérieur et ... laisse sa chaleur, le temps et les levures travailler ensemble, pendant la nuit.</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-xl">2️⃣</span>

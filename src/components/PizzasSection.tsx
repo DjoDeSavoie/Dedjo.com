@@ -78,12 +78,16 @@ const PizzasSection = () => {
         <div className="bg-card rounded-2xl p-8 mb-12 text-center shadow-soft">
           <h3 className="font-display text-2xl font-semibold mb-4">L'Équipe</h3>
           <p className="text-foreground leading-relaxed mb-4">
-            Cousins, frères et sœurs – nous sommes une famille unie par notre amour de la pizza. 
+            Cousins, frères et sœurs, nous nous réunissons chaque vendredi pour un moment en famille. 
             Des étaleurs de pâte aux preneurs de commandes et cuisiniers, chaque pizza est faite avec 
             bonne humeur, sourires et la joie d'être réunis.
           </p>
+          <p className="text-foreground leading-relaxed mb-4">
+            Nous utilisons au maximum des ingrédients locaux et de saison, en privilégiant le plus possible les légumes de la Goët. 
+          </p>
           <p className="text-muted-foreground italic mb-4">
             Notre pâte ? Faite maison avec amour, étalée à la main et cuite à la perfection dans notre four à bois.
+            Nous vous proposons finalement avec plaisir, une pizza que nous sommes fiers de manger nous-mêmes.
           </p>
           <p className="text-primary font-semibold">
             📍 Retrouvez-nous à la Ferme De La Goëttaz
