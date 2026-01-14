@@ -20,16 +20,32 @@ const NewsletterForm = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Bienvenue dans la tribu Dedjo !",
-      description: "Tu fais désormais parti de la newsletter. Ravi de continuer cette aventure avec toi 🌿",
-    });
-    
-    setEmail("");
-    setIsLoading(false);
+    try {
+      const res = await fetch("/.netlify/functions/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const txt = await res.text(); // utile si erreur
+      if (!res.ok) throw new Error(txt || "Erreur lors de l’inscription");
+
+      toast({
+        title: "Bienvenue dans la tribu Dedjo !",
+        description:
+          "Tu fais désormais partie de la newsletter. Ravi de continuer cette aventure avec toi 🌿 (désinscription à tout moment via le lien dans nos emails)",
+      });
+
+      setEmail("");
+    } catch (err: any) {
+      toast({
+        title: "Oups…",
+        description: err?.message || "Impossible d’inscrire cet email. Réessaie.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
