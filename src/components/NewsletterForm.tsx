@@ -24,8 +24,8 @@ const NewsletterForm = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     toast({
-      title: "Bienvenue dans notre boulangerie ! 🥐",
-      description: "Vous êtes maintenant inscrit à notre newsletter.",
+      title: "Bienvenue dans la tribu Dedjo !",
+      description: "Tu fais désormais parti de la newsletter. Ravi de continuer cette aventure avec toi 🌿",
     });
     
     setEmail("");
