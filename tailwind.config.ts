@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         display: ["var(--font-display)", "serif"],
         body: ["var(--font-body)", "sans-serif"],
+        handwritten: ["var(--font-handwritten)", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -63,6 +64,9 @@ export default {
         "section-orange": "hsl(var(--section-orange))",
         "section-yellow": "hsl(var(--section-yellow))",
         "section-cream": "hsl(var(--section-cream))",
+        // Handmade colors
+        "handmade": "hsl(var(--handmade))",
+        "handmade-dark": "hsl(var(--handmade-dark))",
         // Product colors (pastries) - more contrasted for salty
         "product-goet": "#7bc98a",
         "product-montagne": "#ffaa8c",

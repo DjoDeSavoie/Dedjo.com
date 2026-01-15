@@ -105,7 +105,7 @@ const SaltyPastriesSection = () => {
           <p className="text-foreground text-center leading-relaxed">
             À cuire à <strong>180 degrés pendant 25 minutes</strong>, directement sorti du congélateur.
           </p>
-          <p className="text-muted-foreground text-center mt-2 italic">
+          <p className="font-handwritten text-xl text-handmade-dark text-center mt-2">
             Peut-être plus longtemps selon ton four, selon tes goûts...
           </p>
         </div>

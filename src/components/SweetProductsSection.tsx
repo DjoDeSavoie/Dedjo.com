@@ -132,7 +132,7 @@ const SweetProductsSection = () => {
           </div>
 
           <div className="mt-8 pt-6 border-t border-muted text-center">
-            <p className="text-muted-foreground italic leading-relaxed">
+            <p className="font-handwritten text-2xl text-handmade-dark leading-relaxed">
               Produit d'un savoir-faire hérité de mes grands-parents.<br />
               Manipulé avec respect et patience, tel un rituel gourmand,<br />
               il ouvre les portes d'un moment de partage avec les gens que l'on aime,<br />
