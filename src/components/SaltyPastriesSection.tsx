@@ -70,7 +70,7 @@ const SaltyPastriesSection = () => {
     <section id="salty-pastries" className="py-20 px-6 section-sky">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥧</span>
-        <h2 className="section-title">Feuilletés Salés</h2>
+        <h2 className="section-title"><span className="font-handwritten text-handmade-dark">Feuilletés Salés</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Une pâte feuilletée artisanale enveloppant une garniture gourmande. <br /> Préparés avec la main et le coeur, sous forme de bouchées apéritives ou de friands individuels. <br /> Pour une soirée conviviale ou un repas de la flemme du lundi soir.
         </p>
@@ -101,7 +101,7 @@ const SaltyPastriesSection = () => {
 
         {/* Recipe Card */}
         <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-2xl mx-auto">
-          <h3 className="font-display text-2xl font-semibold mb-4 text-center">🍽️ Recette de Préparation</h3>
+          <h3 className="font-display text-2xl font-semibold mb-4 text-center">🍽️ <span className="font-handwritten text-handmade-dark">Recette de Préparation</span></h3>
           <p className="text-foreground text-center leading-relaxed">
             À cuire à <strong>180 degrés pendant 25 minutes</strong>, directement sorti du congélateur.
           </p>

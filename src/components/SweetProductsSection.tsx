@@ -59,7 +59,7 @@ const SweetProductsSection = () => {
     <section id="sweet-products" className="py-20 px-6 section-cream">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥐</span>
-        <h2 className="section-title">Viennoiseries</h2>
+        <h2 className="section-title"><span className="font-handwritten text-handmade-dark">Viennoiseries</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Des viennoiseries artisanales, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
         </p>
@@ -101,7 +101,7 @@ const SweetProductsSection = () => {
 
         {/* Recipe Card */}
         <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-3xl mx-auto">
-          <h3 className="font-display text-2xl font-semibold mb-6 text-center">☕️ Recette de Préparation</h3>
+          <h3 className="font-display text-2xl font-semibold mb-6 text-center">☕️ <span className="font-handwritten text-handmade-dark">Recette de Préparation</span></h3>
           
           <div className="space-y-4 text-foreground leading-relaxed">
             <div className="flex items-start gap-3">
