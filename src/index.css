@@ -1,8 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Handlee&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Playfair+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600&display=swap');
 
 @layer base {
   :root {
@@ -62,6 +63,8 @@
     --font-display: 'Playfair Display', serif;
     --font-body: 'Nunito', sans-serif;
     --font-handwritten: 'Dancing Script', cursive;
+    --font-artisan: 'Fraunces', serif;
+    --font-handmade: 'Handlee', cursive;
 
     /* Handmade color */
     --handmade: 35 30% 75%;
@@ -123,6 +126,10 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* .font-artisan {
+  font-family: var(--font-artisan);
+  } */
 }
 
 @layer components {

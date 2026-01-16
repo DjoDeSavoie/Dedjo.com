@@ -14,9 +14,13 @@ const Hero = () => {
       <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 text-foreground animate-fade-in">
         De Djo
       </h1>
-      <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-        <span className="font-handwritten text-2xl md:text-3xl text-handmade-dark">L'artisanat</span> pour se connecter à ce que l'on mange, <br /> et le partager avec fierté.
-      </p>
+      <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 animate-fade-in">
+  <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
+  L'artisanat
+</span>{" "}
+  pour se connecter à ce que l'on mange,<br />
+  et le partager avec fierté.
+</p>
       <div className="flex gap-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
         <button 
           onClick={() => scrollToSection("sweet-products")}

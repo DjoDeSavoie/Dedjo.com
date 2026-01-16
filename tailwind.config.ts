@@ -17,6 +17,8 @@ export default {
         display: ["var(--font-display)", "serif"],
         body: ["var(--font-body)", "sans-serif"],
         handwritten: ["var(--font-handwritten)", "cursive"],
+        artisan: ["var(--font-artisan)", "serif"],
+        handmade: ["var(--font-handmade)", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",

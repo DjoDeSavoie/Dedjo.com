@@ -3,7 +3,7 @@ const AboutSection = () => {
     <section id="who-i-am" className="py-20 px-6 section-orange">
       <div className="container max-w-4xl">
         <span className="text-5xl mb-4 block text-center">👨🏻‍🍳</span>
-        <h2 className="section-title"><span className="font-handwritten text-handmade-dark">Qui suis-je</span></h2>
+        <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Qui suis-je</span></h2>
         <div className="bg-card rounded-2xl p-8 shadow-soft">
           <p className="text-lg text-foreground leading-relaxed mb-6">
             Bonjour et bienvenue chez <span className="font-display font-semibold text-primary">De Djo</span> !

@@ -7,7 +7,7 @@ const SweetProductsSection = () => {
 
   const products: (ProductDetail & { color: string; badge?: { icon: string; label: string } })[] = [
     {
-      name: "Le Croissant",
+      name: "La Lune",
       description: "La signature au beurre, un croissant rustique établie après des heures de confection et de perfectionnement, à étaler des kilos de pâtes au rouleau à patisserie.",
       emoji: "🥐",
       color: "bg-product-croissant",
@@ -18,7 +18,7 @@ const SweetProductsSection = () => {
       additionalInfo: "",
     },
     {
-      name: "Pain au Chocolat",
+      name: "La Cabosse",
       description: "Deux bâtons de chocolat enveloppés dans une pâte feuilletée au beurre. Un classique incontournable. Façonnés de telle sorte à avoir du chocolat dans chaques bouchées.",
       emoji: "🍫",
       color: "bg-product-chocolat",
@@ -28,7 +28,7 @@ const SweetProductsSection = () => {
       additionalInfo: "",
     },
     {
-      name: "Pain aux Raisins",
+      name: "La Grappe",
       description: "Un roulée au raisins secs et une crème pâtissière chargée de Vanille.",
       emoji: "🍇",
       color: "bg-product-raisin",
@@ -38,7 +38,7 @@ const SweetProductsSection = () => {
       additionalInfo: "💡 Une suggestion d'Apolline (avec deux ailes) et des ses parents",
     },
     {
-      name: "La Rose de Dj'o",
+      name: "La Rose",
       description: "Un enrobage de praline rose et de crème vanille. À partager telle une belle fleur pour donner le sourire",
       emoji: "🌹",
       color: "bg-product-rose",
@@ -59,9 +59,9 @@ const SweetProductsSection = () => {
     <section id="sweet-products" className="py-20 px-6 section-cream">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥐</span>
-        <h2 className="section-title"><span className="font-handwritten text-handmade-dark">Viennoiseries</span></h2>
+        <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Viennoiseries</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Des viennoiseries artisanales, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
+          Des viennoiseries faites à la main, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
         </p>
 
         <ProductDetailModal 
@@ -101,7 +101,7 @@ const SweetProductsSection = () => {
 
         {/* Recipe Card */}
         <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-3xl mx-auto">
-          <h3 className="font-display text-2xl font-semibold mb-6 text-center">☕️ <span className="font-handwritten text-handmade-dark">Recette de Préparation</span></h3>
+          <h3 className="font-display text-2xl font-semibold mb-6 text-center">☕️ <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Recette de Préparation</span></h3>
           
           <div className="space-y-4 text-foreground leading-relaxed">
             <div className="flex items-start gap-3">
@@ -132,7 +132,7 @@ const SweetProductsSection = () => {
           </div>
 
           <div className="mt-8 pt-6 border-t border-muted text-center">
-            <p className="font-handwritten text-2xl text-handmade-dark leading-relaxed">
+            <p className="font-handmade md:text-xl tracking-wide text-handmade-dark">
               Produit d'un savoir-faire hérité de mes grands-parents.<br />
               Manipulé avec respect et patience, tel un rituel gourmand,<br />
               il ouvre les portes d'un moment de partage avec les gens que l'on aime,<br />

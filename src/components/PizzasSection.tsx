@@ -72,7 +72,7 @@ const PizzasSection = () => {
     <section id="pizzas" className="py-20 px-6 section-yellow">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🍕</span>
-        <h2 className="section-title"><span className="font-handwritten text-handmade-dark">Les Pizzas</span></h2>
+        <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Les Pizzas</span></h2>
 
         {/* Team Introduction */}
         <div className="bg-card rounded-2xl p-8 mb-12 text-center shadow-soft">
@@ -96,7 +96,7 @@ const PizzasSection = () => {
 
         {/* Salty Pizzas */}
         <div className="mb-12">
-          <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handwritten text-handmade-dark">Pizzas Salées</span></h3>
+          <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handmade text-2xl md:text-2xl tracking-wide text-handmade-dark">Pizzas Salées</span></h3>
           <div className="grid md:grid-cols-3 gap-6">
             {saltyPizzas.map((pizza, index) => (
               <button 
@@ -121,7 +121,7 @@ const PizzasSection = () => {
 
         {/* Sweet Pizzas */}
         <div>
-          <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handwritten text-handmade-dark">Pizzas Sucrées</span></h3>
+          <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handmade text-2xl md:text-2xl tracking-wide text-handmade-dark">Pizzas Sucrées</span></h3>
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {sweetPizzas.map((pizza, index) => (
               <button 
