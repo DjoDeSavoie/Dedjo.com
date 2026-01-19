@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Logo from "./Logo";
 
 const Hero = () => {
@@ -23,17 +24,17 @@ const Hero = () => {
 </p>
       <div className="flex gap-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
         <button 
-          onClick={() => scrollToSection("sweet-products")}
+          onClick={() => scrollToSection("products-overview")}
           className="bg-primary text-primary-foreground px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
         >
           Découvrir les produits
         </button>
-        <button 
-          onClick={() => scrollToSection("who-i-am")}
+        <Link 
+          to="/discover"
           className="bg-secondary text-secondary-foreground px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
         >
-          Nous connaitre
-        </button>
+          L'univers Dedjo
+        </Link>
       </div>
     </section>
   );

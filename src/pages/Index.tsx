@@ -4,7 +4,6 @@ import ProductShowcaseSection from "@/components/ProductShowcaseSection";
 import SweetProductsSection from "@/components/SweetProductsSection";
 import SaltyPastriesSection from "@/components/SaltyPastriesSection";
 import PizzasSection from "@/components/PizzasSection";
-import OrderSection from "@/components/OrderSection";
 import NewsletterSection from "@/components/NewsletterSection";
 import Footer from "@/components/Footer";
 
@@ -17,7 +16,6 @@ const Index = () => {
       <SweetProductsSection />
       <SaltyPastriesSection />
       <PizzasSection />
-      <OrderSection />
       <NewsletterSection />
       <Footer />
     </div>

@@ -89,8 +89,11 @@ const PizzasSection = () => {
             Notre pâte ? Faite maison avec amour, étalée à la main et cuite à la perfection dans notre four à bois.
             Nous vous proposons finalement avec plaisir, une pizza que nous sommes fiers de manger nous-mêmes.
           </p>
-          <p className="text-primary font-semibold">
+          <p className="text-primary font-semibold mb-2">
             📍 Retrouvez-nous à la Ferme De La Goëttaz
+          </p>
+          <p className="text-primary font-semibold">
+            🗓️ Les vendredis à partir de 18h
           </p>
         </div>
 
