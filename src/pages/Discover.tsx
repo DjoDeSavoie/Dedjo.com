@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
-import { Phone, MapPin, ArrowLeft, Instagram } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Phone, MapPin, Instagram } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import Logo from "@/components/Logo";
 
 const Discover = () => {
@@ -45,24 +44,11 @@ const Discover = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-[hsl(50,100%,75%)] py-6 px-6 sticky top-0 z-50 shadow-soft">
-        <div className="container max-w-6xl flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <Logo className="w-10 h-10" />
-            <span className="font-display text-2xl font-bold text-foreground">De Djo</span>
-          </Link>
-          <Link to="/">
-            <Button variant="outline" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Retour
-            </Button>
-          </Link>
-        </div>
-      </header>
+      {/* Navbar */}
+      <Navbar />
 
       {/* Hero */}
-      <section className="py-20 px-6 bg-sky-blue">
+      <section className="pt-32 pb-20 px-6 bg-sky-blue">
         <div className="container max-w-4xl text-center">
           <span className="text-6xl mb-6 block">✨</span>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">

@@ -46,12 +46,22 @@ const ProductShowcaseSection = () => {
       <div className="container max-w-5xl">
         <div className="flex justify-center mb-4">
           <svg className="w-16 h-16 text-primary" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M32 8C28 8 24 12 22 18C20 12 16 8 12 8C8 8 4 14 4 22C4 32 14 40 22 48L32 56L42 48C50 40 60 32 60 22C60 14 56 8 52 8C48 8 44 12 42 18C40 12 36 8 32 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M20 28C20 28 24 32 32 32C40 32 44 28 44 28" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M26 20L28 24M38 20L36 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="32" cy="40" r="3" fill="currentColor"/>
-            <path d="M12 34C8 30 6 26 6 22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
-            <path d="M52 34C56 30 58 26 58 22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+            {/* Deux mains ouvertes joyeuses */}
+            {/* Main gauche */}
+            <path d="M8 38C8 38 6 32 8 28C10 24 14 22 16 24L18 28L20 22C20 22 22 18 26 20C28 21 28 24 28 26L26 34" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M16 24L14 18C14 18 14 14 18 14C22 14 22 18 22 18L20 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M18 14L20 10C20 10 22 6 26 8C28 9 28 12 28 14L26 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M26 34L28 42C28 42 26 48 20 48C14 48 10 44 10 40L8 38" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* Main droite */}
+            <path d="M56 38C56 38 58 32 56 28C54 24 50 22 48 24L46 28L44 22C44 22 42 18 38 20C36 21 36 24 36 26L38 34" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M48 24L50 18C50 18 50 14 46 14C42 14 42 18 42 18L44 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M46 14L44 10C44 10 42 6 38 8C36 9 36 12 36 14L38 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M38 34L36 42C36 42 38 48 44 48C50 48 54 44 54 40L56 38" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* Étoiles de joie */}
+            <path d="M32 16L33 18L35 18L33.5 19.5L34 22L32 20.5L30 22L30.5 19.5L29 18L31 18L32 16Z" fill="currentColor"/>
+            <circle cx="12" cy="8" r="1.5" fill="currentColor" opacity="0.7"/>
+            <circle cx="52" cy="8" r="1.5" fill="currentColor" opacity="0.7"/>
+            <circle cx="32" cy="54" r="2" fill="currentColor" opacity="0.5"/>
           </svg>
         </div>
         <h2 className="section-title">
