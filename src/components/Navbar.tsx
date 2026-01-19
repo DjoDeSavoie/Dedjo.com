@@ -1,8 +1,17 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "./Logo";
 
+interface NavLink {
+  id: string;
+  label: string;
+  isLink?: boolean;
+  href?: string;
+}
+
 const Navbar = () => {
+  const location = useLocation();
+  const isDiscoverPage = location.pathname === "/discover";
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -28,6 +37,7 @@ const Navbar = () => {
     { id: "salty-pastries", label: "Feuilletés Salés" },
     { id: "pizzas", label: "Les Pizzas" },
     { id: "newsletter", label: "Grandir ensemble" },
+    { id: "discover", label: "L'univers Dedjo", isLink: true, href: "/discover" },
   ];
 
   return (
@@ -51,14 +61,30 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <ul className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
+            {navLinks.map((link: NavLink) => (
               <li key={link.id}>
-                <button
-                  onClick={() => scrollToSection(link.id)}
-                  className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
-                >
-                  {link.label}
-                </button>
+                {link.isLink ? (
+                  <Link
+                    to={link.href!}
+                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
+                  >
+                    {link.label}
+                  </Link>
+                ) : isDiscoverPage ? (
+                  <Link
+                    to={`/#${link.id}`}
+                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => scrollToSection(link.id)}
+                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
+                  >
+                    {link.label}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
@@ -88,14 +114,32 @@ const Navbar = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 bg-background rounded-lg shadow-soft">
             <ul className="flex flex-col gap-3 px-2">
-              {navLinks.map((link) => (
+              {navLinks.map((link: NavLink) => (
                 <li key={link.id}>
-                  <button
-                    onClick={() => scrollToSection(link.id)}
-                    className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base"
-                  >
-                    {link.label}
-                  </button>
+                  {link.isLink ? (
+                    <Link
+                      to={link.href!}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base block"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : isDiscoverPage ? (
+                    <Link
+                      to={`/#${link.id}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base block"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => scrollToSection(link.id)}
+                      className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base"
+                    >
+                      {link.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
