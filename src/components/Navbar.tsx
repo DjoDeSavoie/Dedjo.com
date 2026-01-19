@@ -22,12 +22,12 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { id: "who-i-am", label: "Qui suis-je" },
+    { id: "products-overview", label: "Nos Créations" },
     { id: "sweet-products", label: "Viennoiseries" },
     { id: "salty-pastries", label: "Feuilletés Salés" },
     { id: "pizzas", label: "Les Pizzas" },
     { id: "order", label: "Commander" },
-    { id: "newsletter", label: "Grandir avec nous" },
+    { id: "newsletter", label: "Grandir ensemble" },
   ];
 
   return (
