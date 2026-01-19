@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Logo from "./Logo";
 
 const Navbar = () => {
@@ -26,7 +27,6 @@ const Navbar = () => {
     { id: "sweet-products", label: "Viennoiseries" },
     { id: "salty-pastries", label: "Feuilletés Salés" },
     { id: "pizzas", label: "Les Pizzas" },
-    { id: "order", label: "Commander" },
     { id: "newsletter", label: "Grandir ensemble" },
   ];
 
