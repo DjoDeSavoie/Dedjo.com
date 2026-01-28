@@ -53,7 +53,7 @@ const Discover = () => {
           <span className="text-6xl mb-6 block">✨</span>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
             Découvrir l'univers{" "}
-            <span className="text-primary">De Djo</span>
+            <span className="text-primary">Dedjo</span>
           </h1>
           <p className="text-lg text-foreground/80 max-w-2xl mx-auto">
             Une aventure artisanale née de la passion, du partage et de l'amour du fait main.
@@ -72,7 +72,7 @@ const Discover = () => {
           </h2>
           <div className="bg-card rounded-2xl p-8 shadow-soft">
             <p className="text-lg text-foreground leading-relaxed mb-6">
-              Bonjour et bienvenue chez <span className="font-display font-semibold text-primary">De Djo</span> !
+              Bonjour et bienvenue chez <span className="font-display font-semibold text-primary">Dedjo</span> !
             </p>
             <p className="text-foreground/90 leading-relaxed mb-4">
               Issu d'une famille d'agriculteurs et de marchands, 
@@ -83,7 +83,7 @@ const Discover = () => {
               Diplômé ingénieur en informatique à Marseille, j'ai choisi de mettre la rigueur, la réflexion et la précision au service d'un métier profondément humain. 
             </p>
             <p className="text-foreground/90 leading-relaxed">
-              À travers De Djo, je souhaite transmettre des valeurs essentielles : l'importance du partage autour d'un repas, la conscience derrière chaque geste artisanal, et le respect d'un métier comme celui de boulanger. 
+              À travers Dedjo, je souhaite transmettre des valeurs essentielles : l'importance du partage autour d'un repas, la conscience derrière chaque geste artisanal, et le respect d'un métier comme celui de boulanger. 
               Aujourd'hui, mon objectif est simple : prolonger cette transmission, à mon tour, en créant des produits sincères qui rassemblent les gens que l'on aime autour de la table.
             </p>
           </div>
@@ -191,7 +191,7 @@ const Discover = () => {
             @Dedjo_
           </a>
           <p className="text-muted-foreground text-center">
-            © 2026 De Djo. Fait avec amour. 🥖
+            © 2026 Dedjo. Fait avec amour. 🥖
           </p>
         </div>
       </footer>

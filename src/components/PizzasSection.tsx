@@ -5,16 +5,20 @@ const PizzasSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const saltyPizzas: (ProductDetail & { color: string; isFavorite?: boolean })[] = [
+  const pateIngredients = "Pâte (farine, eau, huile d'olive, levure et sel)";
+  const fabricationAll = "Pâte pétrie sur place, étalée au rouleau, garnie devant vos yeux et cuite au four à bois.";
+  const bonASavoirAll = "Un savoir-faire bien rodé et une union familiale pour vous servir le meilleur.";
+
+  const saltyPizzas: (ProductDetail & { color: string; isFavorite?: boolean; favoriteTooltip?: string })[] = [
     {
       name: "La Classique",
       description: "Sauce Tomate, Jambon, Oignons, Fromage – intemporelle et toujours satisfaisante.",
       emoji: "🍕",
       color: "bg-pizza-classique",
-      ingredients: ["Pâte maison", "Sauce tomate", "Jambon", "Oignons", "Mozzarella", "Origan"],
-      madeBy: "Notre recette familiale, perfectionnée au fil des années de soirées pizza",
+      ingredients: [pateIngredients, "Sauce tomate", "Jambon", "Oignons de la ferme", "Fromage"],
+      madeBy: fabricationAll,
       whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
-      additionalInfo: "Notre sauce tomate est faite à partir de tomates San Marzano.",
+      additionalInfo: bonASavoirAll,
     },
     {
       name: "La Flam",
@@ -22,34 +26,36 @@ const PizzasSection = () => {
       emoji: "🥓",
       color: "bg-pizza-flam",
       isFavorite: true,
-      ingredients: ["Pâte maison", "Crème fraîche", "Lardons fumés", "Oignons", "Gruyère", "Muscade"],
-      madeBy: "Inspirée de la traditionnelle Flammekueche d'Alsace",
+      favoriteTooltip: "Favorite du chef",
+      ingredients: [pateIngredients, "Crème fraîche", "Lardons fumés", "Oignons", "Fromage râpé"],
+      madeBy: fabricationAll,
       whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
-      additionalInfo: "Une alternative plus légère et crémeuse aux pizzas à base de tomate.",
+      additionalInfo: bonASavoirAll,
     },
     {
       name: "La Végé",
-      description: "Sauce Tomate, Courgettes, Oignons, Champignons, Fromage – fraîche et pleine de saveur.",
+      description: "Sauce Tomate, Courgettes du jardin, Oignons du jardin, Fromage – fraîche et pleine de saveur.",
       emoji: "🥒",
       color: "bg-pizza-vege",
-      ingredients: ["Pâte maison", "Sauce tomate", "Courgettes", "Oignons", "Champignons", "Mozzarella", "Basilic frais"],
-      madeBy: "Légumes frais du jardin de producteurs locaux",
+      ingredients: [pateIngredients, "Sauce tomate", "Courgettes du jardin", "Oignons du jardin", "Fromage"],
+      madeBy: fabricationAll,
       whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
-      additionalInfo: "Parfaite pour les végétariens – garnie de légumes de saison.",
+      additionalInfo: bonASavoirAll,
     },
   ];
 
-  const sweetPizzas: (ProductDetail & { color: string; isFavorite?: boolean })[] = [
+  const sweetPizzas: (ProductDetail & { color: string; isFavorite?: boolean; favoriteTooltip?: string })[] = [
     {
       name: "La Praline Rose",
-      description: "Praline rose et crème AOP – un classique lyonnais, sucré et croquant.",
+      description: "Praline rose et crème AOP – un classique lyonnais, sucré et croquant. Favorite du chef.",
       emoji: "🩷",
       color: "bg-pizza-praline",
       isFavorite: true,
+      favoriteTooltip: "Favorite du chef",
       ingredients: ["Pâte sucrée maison", "Pralines roses", "Crème AOP", "Beurre", "Sucre"],
-      madeBy: "Un hommage à la célèbre tarte aux pralines roses de Lyon",
+      madeBy: fabricationAll,
       whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
-      additionalInfo: "Les pralines roses sont caramélisées fraîches avant chaque service.",
+      additionalInfo: bonASavoirAll,
     },
     {
       name: "La Nut'",
@@ -57,9 +63,9 @@ const PizzasSection = () => {
       emoji: "🍫",
       color: "bg-pizza-nut",
       ingredients: ["Pâte sucrée maison", "Pâte à tartiner chocolat-noisettes", "Noisettes", "Sucre glace"],
-      madeBy: "Un favori des enfants que les adultes adorent aussi",
+      madeBy: fabricationAll,
       whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
-      additionalInfo: "Garnie de noisettes concassées pour plus de croquant.",
+      additionalInfo: bonASavoirAll,
     },
   ];
 
@@ -75,7 +81,7 @@ const PizzasSection = () => {
         <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Les Pizzas</span></h2>
 
         {/* Team Introduction */}
-        <div className="bg-card rounded-2xl p-8 mb-12 text-center shadow-soft">
+        <div className="bg-card rounded-2xl p-8 mb-8 text-center shadow-soft">
           <h3 className="font-display text-2xl font-semibold mb-4">L'Équipe</h3>
           <p className="text-foreground leading-relaxed mb-4">
             Cousins, frères et sœurs, nous nous réunissons chaque vendredi pour un moment en famille. 
@@ -97,6 +103,25 @@ const PizzasSection = () => {
           </p>
         </div>
 
+        {/* Anecdotes bubbles */}
+        <div className="grid md:grid-cols-3 gap-4 mb-12">
+          <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 text-center">
+            <p className="text-foreground/90 italic text-sm">
+              🔥 "Construit en 2000, ce four à bois est un vecteur social et de partage d'instants de bonheur."
+            </p>
+          </div>
+          <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 text-center">
+            <p className="text-foreground/90 italic text-sm">
+              🍞 "Il travaille tous les vendredis pour cuire le pain de mon grand-père et les pizzas de Djo."
+            </p>
+          </div>
+          <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 text-center">
+            <p className="text-foreground/90 italic text-sm">
+              👨‍👩‍👧‍👦 "Fait en famille et servi avec le sourire."
+            </p>
+          </div>
+        </div>
+
         {/* Salty Pizzas */}
         <div className="mb-12">
           <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handmade text-2xl md:text-2xl tracking-wide text-handmade-dark">Pizzas Salées</span></h3>
@@ -109,7 +134,12 @@ const PizzasSection = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {pizza.isFavorite && (
-                  <div className="absolute top-3 right-3 text-2xl">❤️</div>
+                  <div 
+                    className="absolute top-3 right-3 text-2xl cursor-help" 
+                    title={pizza.favoriteTooltip}
+                  >
+                    ❤️
+                  </div>
                 )}
                 <div className="text-center">
                   <span className="text-4xl block mb-3">{pizza.emoji}</span>
@@ -134,7 +164,12 @@ const PizzasSection = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {pizza.isFavorite && (
-                  <div className="absolute top-3 right-3 text-2xl">❤️</div>
+                  <div 
+                    className="absolute top-3 right-3 text-2xl cursor-help" 
+                    title={pizza.favoriteTooltip}
+                  >
+                    ❤️
+                  </div>
                 )}
                 <div className="text-center">
                   <span className="text-4xl block mb-3">{pizza.emoji}</span>

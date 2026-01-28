@@ -5,48 +5,51 @@ const SweetProductsSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const products: (ProductDetail & { color: string; badge?: { icon: string; label: string } })[] = [
+  const croissantFabrication = "Pétri puis façonné à la main par Dj'o, puis bloqué en congélation pour préserver toute la fraîcheur du beurre.";
+  const whereToBuyAll = "Disponible sur le marché du vendredi de la Ferme de la Goettaz et en livraisons sur Chambéry, Aix-les-Bains, Le Bourget-du-Lac et alentours.";
+
+  const products: (ProductDetail & { color: string; badge?: { icon: string; label: string; tooltip?: string } })[] = [
     {
       name: "La Lune",
-      description: "La signature au beurre, un croissant rustique établie après des heures de confection et de perfectionnement, à étaler des kilos de pâtes au rouleau à patisserie.",
+      description: "La signature au beurre, un croissant rustique établie après des heures de confection et de perfectionnement, à étaler des kilos de pâtes au rouleau à pâtisserie.",
       emoji: "🥐",
       color: "bg-product-croissant",
-      badge: { icon: " 🌼", label: "❤️" },
+      badge: { icon: "🌼", label: "Classique" },
       ingredients: ["Farine", "Beurre AOP", "Eau", "Lait", "Levure", "Sucre", "Sel"],
-      madeBy: "Pétri puis façonné à la main par Dj'o, puis bloqué en congélation pour préserver toute la fraîcheur du beurre.",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz, et bientôt sur votre marché local ?",
+      madeBy: croissantFabrication,
+      whereToBuy: whereToBuyAll,
       additionalInfo: "",
     },
     {
       name: "La Cabosse",
-      description: "Deux bâtons de chocolat enveloppés dans une pâte feuilletée au beurre. Un classique incontournable. Façonnés de telle sorte à avoir du chocolat dans chaques bouchées.",
+      description: "Deux bâtons de chocolat enveloppés dans une pâte feuilletée au beurre. Un classique incontournable. Façonnés de telle sorte à avoir du chocolat dans chaque bouchée.",
       emoji: "🍫",
       color: "bg-product-chocolat",
       ingredients: ["Base de pâte à croissant", "Bâtonnets de chocolat noir"],
-      madeBy: "",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
+      madeBy: croissantFabrication,
+      whereToBuy: whereToBuyAll,
       additionalInfo: "",
     },
     {
       name: "La Grappe",
-      description: "Un roulée au raisins secs et une crème pâtissière chargée de Vanille.",
+      description: "Un roulé aux raisins secs et une crème pâtissière chargée de vanille.",
       emoji: "🍇",
       color: "bg-product-raisin",
       ingredients: ["Base de pâte à croissant", "Crème pâtissière à la vanille", "Raisins secs"],
-      madeBy: "Dj'o",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés du week-end",
-      additionalInfo: "💡 Une suggestion d'Apolline (avec deux ailes) et des ses parents",
+      madeBy: croissantFabrication + " Garni ensuite d'une crème pâtissière au lait entier infusé aux grains de vanille, et parsemé généreusement de raisins secs. Roulé puis détaillé en portions individuelles.",
+      whereToBuy: whereToBuyAll,
+      additionalInfo: "💡 Une suggestion d'Apolline (avec deux ailes) et de ses parents",
     },
     {
       name: "La Rose",
-      description: "Un enrobage de praline rose et de crème vanille. À partager telle une belle fleur pour donner le sourire",
+      description: "Un enrobage de praline rose et de crème vanille. À partager telle une belle fleur pour donner le sourire.",
       emoji: "🌹",
       color: "bg-product-rose",
-      badge: { icon: "🌸", label: "❤️" },
+      badge: { icon: "❤️", label: "Favorite du chef", tooltip: "Favorite du chef" },
       ingredients: ["Base de pâte à croissant", "Crème pâtissière à la vanille", "Praline rose croquante"],
-      madeBy: "Notre création signature, une recette de Dj'o",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz pendant le marché du vendredi",
-      additionalInfo: "La spécialité de la maison.",
+      madeBy: croissantFabrication + " Garni ensuite d'une crème pâtissière au lait entier infusé aux grains de vanille, et parsemé généreusement de pralines roses. Roulé puis détaillé en portions individuelles.",
+      whereToBuy: whereToBuyAll,
+      additionalInfo: "La spécialité de la maison – Favorite du chef.",
     },
   ];
 
@@ -60,17 +63,24 @@ const SweetProductsSection = () => {
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥐</span>
         <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Viennoiseries</span></h2>
-        <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground mb-4 max-w-2xl mx-auto">
           Des viennoiseries faites à la main, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
         </p>
+        
+        {/* Anecdote bubble */}
+        <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-8 max-w-xl mx-auto text-center">
+          <p className="text-foreground/90 italic text-sm">
+            💬 "Une passion transmise depuis tout jeune par mes grands-parents. Chaque geste est un hommage à leur savoir-faire et à ces matins où l'odeur du beurre chaud remplissait la cuisine."
+          </p>
+        </div>
 
         <ProductDetailModal 
-        product={selectedProduct}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-      />
+          product={selectedProduct}
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+        />
 
-      <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {products.map((product, index) => (
             <button 
               key={product.name}
@@ -79,7 +89,10 @@ const SweetProductsSection = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {product.badge && (
-                <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                <div 
+                  className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-sm font-medium flex items-center gap-1"
+                  title={product.badge.tooltip}
+                >
                   <span>{product.badge.icon}</span>
                   <span className="text-foreground">{product.badge.label}</span>
                 </div>
@@ -94,7 +107,6 @@ const SweetProductsSection = () => {
               </div>
             </button>
           ))}
-
         </div>
 
         <br /> <br />
@@ -140,10 +152,7 @@ const SweetProductsSection = () => {
             </p>
           </div>
         </div>
-        
-        
       </div>
-
     </section>
   );
 };
