@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import Logo from "./Logo";
 
 const Hero = () => {
@@ -13,7 +12,7 @@ const Hero = () => {
     <section id="hero" className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 py-20 pt-28">
       <Logo className="w-24 h-24 mb-6 animate-float" />
       <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 text-foreground animate-fade-in">
-        De Djo
+        Dedjo
       </h1>
       <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 animate-fade-in">
   <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
@@ -29,12 +28,12 @@ const Hero = () => {
         >
           Découvrir les produits
         </button>
-        <Link 
-          to="/discover"
+        <button 
+          onClick={() => scrollToSection("newsletter")}
           className="bg-secondary text-secondary-foreground px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
         >
-          L'univers Dedjo
-        </Link>
+          Grandir ensemble
+        </button>
       </div>
     </section>
   );

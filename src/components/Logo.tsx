@@ -3,7 +3,7 @@ const Logo = ({ className = "w-12 h-12" }: { className?: string }) => {
     <svg 
       viewBox="0 0 100 100" 
       className={className}
-      aria-label="De Djo logo - fleur à 5 pétales"
+      aria-label="Dedjo logo - fleur à 5 pétales"
     >
       {/* 5 sky blue petals */}
       {[0, 72, 144, 216, 288].map((angle, i) => (

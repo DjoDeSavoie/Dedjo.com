@@ -5,16 +5,20 @@ const SaltyPastriesSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const fabricationAll = "Fabriqué avec amour par moi-même, comme si je les avais fait pour moi.";
+  const whereToBuyAll = "Disponible sur le marché du vendredi de la Ferme de la Goettaz et en livraisons sur Chambéry, Aix-les-Bains, Le Bourget-du-Lac et alentours.";
+  const bonASavoirAll = "Nos oignons proviennent directement de la ferme de la Goettaz, produits par des maraîchers respectueux de la terre et du vivant.";
+
   const flavors: (ProductDetail & { color: string })[] = [
     {
       name: "La Montagne",
-      description: "Lardons, Oignons et Reblochon – un goût des Alpes dans chaque bouchée.",
+      description: "Lardons, Oignons et Reblochon. Une revisite inspirée de la tartiflette savoyarde.",
       emoji: "🏔️",
       color: "bg-product-montagne",
-      ingredients: ["Pâte feuilletée", "Lardons fumés", "Oignons caramélisés", "Reblochon AOP", "Crème", "Poivre noir"],
-      madeBy: "Inspiré des recettes traditionnelles de tartiflette savoyarde",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés locaux",
-      additionalInfo: "Notre Reblochon vient directement d'une ferme des Aravis.",
+      ingredients: ["Pâte feuilletée (farine, eau, beurre)", "Lardons", "Oignons", "Reblochon"],
+      madeBy: fabricationAll,
+      whereToBuy: whereToBuyAll,
+      additionalInfo: bonASavoirAll,
     },
     {
       name: "La Forêt",
@@ -22,9 +26,9 @@ const SaltyPastriesSection = () => {
       emoji: "🌲",
       color: "bg-product-foret",
       ingredients: ["Pâte feuilletée", "Champignons des bois", "Sauce béchamel", "Mélange de fromage à fondue", "Thym", "Ail"],
-      madeBy: "Recette inspirée de la forêt utilisant des champignons cueillis localement en saison",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz",
-      additionalInfo: "Contient un mélange de girolles, cèpes et champignons de Paris.",
+      madeBy: fabricationAll,
+      whereToBuy: whereToBuyAll,
+      additionalInfo: bonASavoirAll,
     },
     {
       name: "La Goët",
@@ -32,9 +36,9 @@ const SaltyPastriesSection = () => {
       emoji: "🥬",
       color: "bg-product-goet",
       ingredients: ["Pâte feuilletée", "Poireaux de La Goëttaz", "Fromage de chèvre frais", "Crème", "Muscade", "Vin blanc"],
-      madeBy: "Fait avec des poireaux cultivés dans notre propre ferme à La Goëttaz",
-      whereToBuy: "Exclusivité à la Ferme De La Goëttaz",
-      additionalInfo: "Les poireaux sont récoltés frais chaque matin pendant la saison.",
+      madeBy: fabricationAll,
+      whereToBuy: whereToBuyAll,
+      additionalInfo: bonASavoirAll,
     },
     {
       name: "La Noix",
@@ -42,21 +46,21 @@ const SaltyPastriesSection = () => {
       emoji: "🐝",
       color: "bg-product-noix",
       ingredients: ["Pâte feuilletée", "Fromage de chèvre frais", "Miel local", "Noix de Grenoble", "Thym frais"],
-      madeBy: "Une harmonie parfaite d'ingrédients alpins locaux",
-      whereToBuy: "Disponible à la Ferme De La Goëttaz et sur les marchés du week-end",
-      additionalInfo: "Avec des noix AOC de Grenoble et du miel d'apiculteurs locaux.",
+      madeBy: fabricationAll,
+      whereToBuy: whereToBuyAll,
+      additionalInfo: bonASavoirAll,
     },
   ];
 
   const sizes = [
     {
-      name: "Apéritives",
-      description: "Parfaites pour les fêtes et les repas debout. Partagez l'amour avec les gens que vous chérissez – des petites bouchées de bonheur.",
+      name: "Bouchées Apéritives",
+      description: "Parfaites pour les fêtes et les repas debout. Partagez l'amour avec les gens que vous chérissez – des petites bouchées de bonheur. Format : par sachets de 20 bouchées.",
       emoji: "🎉",
     },
     {
       name: "Le Friand",
-      description: "Un repas, une personne. La portion individuelle parfaite, idéale accompagnée d'une salade fraîche pour un repas complet.",
+      description: "Un repas, une personne. La portion individuelle parfaite, idéale accompagnée d'une salade fraîche pour un repas complet. Format : par sachet de 2 gros friands.",
       emoji: "🥗",
     },
   ];
@@ -71,9 +75,16 @@ const SaltyPastriesSection = () => {
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥧</span>
         <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Feuilletés Salés</span></h2>
-        <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Une pâte feuilletée artisanale enveloppant une garniture gourmande. <br /> Préparés avec la main et le coeur, sous forme de bouchées apéritives ou de friands individuels. <br /> Pour une soirée conviviale ou un repas de la flemme du lundi soir.
+        <p className="text-center text-muted-foreground mb-4 max-w-2xl mx-auto">
+          Une pâte feuilletée artisanale enveloppant une garniture gourmande. <br /> Préparés avec la main et le cœur, sous forme de bouchées apéritives ou de friands individuels. <br /> Pour une soirée conviviale ou un repas de la flemme du lundi soir.
         </p>
+
+        {/* Anecdote bubble */}
+        <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-8 max-w-xl mx-auto text-center">
+          <p className="text-foreground/90 italic text-sm">
+            💬 "Issue d'une ferme familiale maraîchère, consciente de l'importance d'une alimentation saine et d'une production raisonnée. Les produits sont sélectionnés le plus possible dans cette ferme pour les valoriser et représenter ces mêmes valeurs."
+          </p>
+        </div>
 
         {/* Flavors */}
         <div className="mb-12">

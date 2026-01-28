@@ -6,7 +6,7 @@ const AboutSection = () => {
         <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Qui suis-je</span></h2>
         <div className="bg-card rounded-2xl p-8 shadow-soft">
           <p className="text-lg text-foreground leading-relaxed mb-6">
-            Bonjour et bienvenue chez <span className="font-display font-semibold text-primary">De Djo</span> !
+            Bonjour et bienvenue chez <span className="font-display font-semibold text-primary">Dedjo</span> !
           </p>
           <p className="text-foreground/90 leading-relaxed mb-4">
             Issu d’une famille d’agriculteurs et de marchands, 

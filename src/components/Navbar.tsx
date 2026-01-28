@@ -32,12 +32,10 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { id: "products-overview", label: "Nos Créations" },
     { id: "sweet-products", label: "Viennoiseries" },
     { id: "salty-pastries", label: "Feuilletés Salés" },
     { id: "pizzas", label: "Les Pizzas" },
     { id: "newsletter", label: "Grandir ensemble" },
-    { id: "discover", label: "L'univers Dedjo", isLink: true, href: "/discover" },
   ];
 
   return (
@@ -56,7 +54,7 @@ const Navbar = () => {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <Logo className="w-10 h-10" />
-            <span className="font-display text-2xl font-bold text-foreground">De Djo</span>
+            <span className="font-display text-2xl font-bold text-foreground">Dedjo</span>
           </button>
 
           {/* Desktop Navigation */}

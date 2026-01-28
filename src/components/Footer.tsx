@@ -16,7 +16,7 @@ const Footer = () => {
           @Dedjo_
         </a>
         <p className="text-muted-foreground text-center">
-          © 2026 De Djo. Fait avec amour. 🥖
+          © 2026 Dedjo. Fait avec amour. 🥖
         </p>
       </div>
     </footer>
