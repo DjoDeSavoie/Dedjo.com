@@ -63,29 +63,11 @@ const SweetProductsSection = () => {
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥐</span>
         <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Viennoiseries</span></h2>
-        <p className="text-center text-muted-foreground mb-4 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Des viennoiseries faites à la main, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
         </p>
-        
-        {/* Comic cloud bubble anecdote - positioned to the right */}
-        <div className="relative max-w-md ml-auto mr-8 mb-8">
-          <div className="relative">
-            {/* Cloud shape using multiple overlapping circles */}
-            <div className="relative bg-white p-6 shadow-lg" style={{
-              borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-            }}>
-              <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
-                "Une passion transmise depuis tout jeune par mes grands-parents. Chaque geste est un hommage à leur savoir-faire et à ces matins où l'odeur du beurre chaud remplissait la cuisine."
-              </p>
-            </div>
-            {/* Cloud tail - small circles */}
-            <div className="absolute -bottom-3 right-12 w-5 h-5 bg-white rounded-full shadow-md"></div>
-            <div className="absolute -bottom-6 right-8 w-3 h-3 bg-white rounded-full shadow-md"></div>
-          </div>
-        </div>
 
-        <ProductDetailModal 
+        <ProductDetailModal
           product={selectedProduct}
           open={modalOpen}
           onOpenChange={setModalOpen}

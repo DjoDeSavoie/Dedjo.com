@@ -103,57 +103,6 @@ const PizzasSection = () => {
           </p>
         </div>
 
-        {/* Comic cloud bubble anecdotes - scattered positions */}
-        <div className="relative mb-12">
-          {/* First cloud bubble - top left */}
-          <div className="relative max-w-xs ml-4 mb-8">
-            <div className="relative">
-              <div className="relative bg-white p-5 shadow-lg" style={{
-                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-              }}>
-                <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
-                  🔥 "Construit en 2000, ce four à bois est un vecteur social et de partage d'instants de bonheur."
-                </p>
-              </div>
-              <div className="absolute -bottom-3 left-8 w-5 h-5 bg-white rounded-full shadow-md"></div>
-              <div className="absolute -bottom-6 left-4 w-3 h-3 bg-white rounded-full shadow-md"></div>
-            </div>
-          </div>
-          
-          {/* Second cloud bubble - center right */}
-          <div className="relative max-w-xs ml-auto mr-4 mb-8">
-            <div className="relative">
-              <div className="relative bg-white p-5 shadow-lg" style={{
-                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-              }}>
-                <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
-                  🍞 "Il travaille tous les vendredis pour cuire le pain de mon grand-père et les pizzas de Djo."
-                </p>
-              </div>
-              <div className="absolute -bottom-3 right-8 w-5 h-5 bg-white rounded-full shadow-md"></div>
-              <div className="absolute -bottom-6 right-4 w-3 h-3 bg-white rounded-full shadow-md"></div>
-            </div>
-          </div>
-          
-          {/* Third cloud bubble - bottom center */}
-          <div className="relative max-w-xs mx-auto">
-            <div className="relative">
-              <div className="relative bg-white p-5 shadow-lg" style={{
-                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-              }}>
-                <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
-                  👨‍👩‍👧‍👦 "Fait en famille et servi avec le sourire."
-                </p>
-              </div>
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-5 h-5 bg-white rounded-full shadow-md"></div>
-              <div className="absolute -bottom-6 left-1/2 translate-x-1 w-3 h-3 bg-white rounded-full shadow-md"></div>
-            </div>
-          </div>
-        </div>
-
         {/* Salty Pizzas */}
         <div className="mb-12">
           <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handmade text-2xl md:text-2xl tracking-wide text-handmade-dark">Pizzas Salées</span></h3>
