@@ -79,11 +79,16 @@ const SaltyPastriesSection = () => {
           Une pâte feuilletée artisanale enveloppant une garniture gourmande. <br /> Préparés avec la main et le cœur, sous forme de bouchées apéritives ou de friands individuels. <br /> Pour une soirée conviviale ou un repas de la flemme du lundi soir.
         </p>
 
-        {/* Anecdote bubble */}
-        <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-8 max-w-xl mx-auto text-center">
-          <p className="text-foreground/90 italic text-sm">
-            💬 "Issue d'une ferme familiale maraîchère, consciente de l'importance d'une alimentation saine et d'une production raisonnée. Les produits sont sélectionnés le plus possible dans cette ferme pour les valoriser et représenter ces mêmes valeurs."
-          </p>
+        {/* Comic bubble anecdote - positioned to the left */}
+        <div className="relative max-w-md mr-auto ml-8 mb-8">
+          <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
+            <p className="text-foreground/90 italic text-sm">
+              "Issue d'une ferme familiale maraîchère, consciente de l'importance d'une alimentation saine et d'une production raisonnée. Les produits sont sélectionnés le plus possible dans cette ferme pour les valoriser et représenter ces mêmes valeurs."
+            </p>
+            {/* Bubble tail pointing right */}
+            <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-white"></div>
+            <div className="absolute -right-[18px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-foreground/20"></div>
+          </div>
         </div>
 
         {/* Flavors */}

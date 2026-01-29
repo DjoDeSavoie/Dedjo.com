@@ -67,11 +67,16 @@ const SweetProductsSection = () => {
           Des viennoiseries faites à la main, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
         </p>
         
-        {/* Anecdote bubble */}
-        <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-8 max-w-xl mx-auto text-center">
-          <p className="text-foreground/90 italic text-sm">
-            💬 "Une passion transmise depuis tout jeune par mes grands-parents. Chaque geste est un hommage à leur savoir-faire et à ces matins où l'odeur du beurre chaud remplissait la cuisine."
-          </p>
+        {/* Comic bubble anecdote - positioned to the right */}
+        <div className="relative max-w-md ml-auto mr-8 mb-8">
+          <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
+            <p className="text-foreground/90 italic text-sm">
+              "Une passion transmise depuis tout jeune par mes grands-parents. Chaque geste est un hommage à leur savoir-faire et à ces matins où l'odeur du beurre chaud remplissait la cuisine."
+            </p>
+            {/* Bubble tail pointing left */}
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-[16px] border-r-white"></div>
+            <div className="absolute -left-[18px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-[16px] border-r-foreground/20"></div>
+          </div>
         </div>
 
         <ProductDetailModal 
