@@ -103,22 +103,42 @@ const PizzasSection = () => {
           </p>
         </div>
 
-        {/* Anecdotes bubbles */}
-        <div className="grid md:grid-cols-3 gap-4 mb-12">
-          <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 text-center">
-            <p className="text-foreground/90 italic text-sm">
-              🔥 "Construit en 2000, ce four à bois est un vecteur social et de partage d'instants de bonheur."
-            </p>
+        {/* Comic bubble anecdotes - scattered positions */}
+        <div className="relative mb-12">
+          {/* First bubble - top left */}
+          <div className="relative max-w-xs ml-4 mb-6">
+            <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
+              <p className="text-foreground/90 italic text-sm">
+                🔥 "Construit en 2000, ce four à bois est un vecteur social et de partage d'instants de bonheur."
+              </p>
+              {/* Bubble tail pointing down-left */}
+              <div className="absolute -bottom-4 left-8 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-[16px] border-t-white"></div>
+              <div className="absolute -bottom-[18px] left-8 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-[16px] border-t-foreground/20"></div>
+            </div>
           </div>
-          <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 text-center">
-            <p className="text-foreground/90 italic text-sm">
-              🍞 "Il travaille tous les vendredis pour cuire le pain de mon grand-père et les pizzas de Djo."
-            </p>
+          
+          {/* Second bubble - center right */}
+          <div className="relative max-w-xs ml-auto mr-4 mb-6">
+            <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
+              <p className="text-foreground/90 italic text-sm">
+                🍞 "Il travaille tous les vendredis pour cuire le pain de mon grand-père et les pizzas de Djo."
+              </p>
+              {/* Bubble tail pointing right */}
+              <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-white"></div>
+              <div className="absolute -right-[18px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-foreground/20"></div>
+            </div>
           </div>
-          <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 text-center">
-            <p className="text-foreground/90 italic text-sm">
-              👨‍👩‍👧‍👦 "Fait en famille et servi avec le sourire."
-            </p>
+          
+          {/* Third bubble - bottom center */}
+          <div className="relative max-w-xs mx-auto">
+            <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
+              <p className="text-foreground/90 italic text-sm">
+                👨‍👩‍👧‍👦 "Fait en famille et servi avec le sourire."
+              </p>
+              {/* Bubble tail pointing up */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-[16px] border-b-white"></div>
+              <div className="absolute -top-[18px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-[16px] border-b-foreground/20"></div>
+            </div>
           </div>
         </div>
 
