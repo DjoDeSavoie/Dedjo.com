@@ -103,41 +103,53 @@ const PizzasSection = () => {
           </p>
         </div>
 
-        {/* Comic bubble anecdotes - scattered positions */}
+        {/* Comic cloud bubble anecdotes - scattered positions */}
         <div className="relative mb-12">
-          {/* First bubble - top left */}
-          <div className="relative max-w-xs ml-4 mb-6">
-            <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
-              <p className="text-foreground/90 italic text-sm">
-                🔥 "Construit en 2000, ce four à bois est un vecteur social et de partage d'instants de bonheur."
-              </p>
-              {/* Bubble tail pointing down-left */}
-              <div className="absolute -bottom-4 left-8 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-[16px] border-t-white"></div>
-              <div className="absolute -bottom-[18px] left-8 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-[16px] border-t-foreground/20"></div>
+          {/* First cloud bubble - top left */}
+          <div className="relative max-w-xs ml-4 mb-8">
+            <div className="relative">
+              <div className="relative bg-white p-5 shadow-lg" style={{
+                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+              }}>
+                <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
+                  🔥 "Construit en 2000, ce four à bois est un vecteur social et de partage d'instants de bonheur."
+                </p>
+              </div>
+              <div className="absolute -bottom-3 left-8 w-5 h-5 bg-white rounded-full shadow-md"></div>
+              <div className="absolute -bottom-6 left-4 w-3 h-3 bg-white rounded-full shadow-md"></div>
             </div>
           </div>
           
-          {/* Second bubble - center right */}
-          <div className="relative max-w-xs ml-auto mr-4 mb-6">
-            <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
-              <p className="text-foreground/90 italic text-sm">
-                🍞 "Il travaille tous les vendredis pour cuire le pain de mon grand-père et les pizzas de Djo."
-              </p>
-              {/* Bubble tail pointing right */}
-              <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-white"></div>
-              <div className="absolute -right-[18px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-foreground/20"></div>
+          {/* Second cloud bubble - center right */}
+          <div className="relative max-w-xs ml-auto mr-4 mb-8">
+            <div className="relative">
+              <div className="relative bg-white p-5 shadow-lg" style={{
+                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+              }}>
+                <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
+                  🍞 "Il travaille tous les vendredis pour cuire le pain de mon grand-père et les pizzas de Djo."
+                </p>
+              </div>
+              <div className="absolute -bottom-3 right-8 w-5 h-5 bg-white rounded-full shadow-md"></div>
+              <div className="absolute -bottom-6 right-4 w-3 h-3 bg-white rounded-full shadow-md"></div>
             </div>
           </div>
           
-          {/* Third bubble - bottom center */}
+          {/* Third cloud bubble - bottom center */}
           <div className="relative max-w-xs mx-auto">
-            <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
-              <p className="text-foreground/90 italic text-sm">
-                👨‍👩‍👧‍👦 "Fait en famille et servi avec le sourire."
-              </p>
-              {/* Bubble tail pointing up */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-[16px] border-b-white"></div>
-              <div className="absolute -top-[18px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-[16px] border-b-foreground/20"></div>
+            <div className="relative">
+              <div className="relative bg-white p-5 shadow-lg" style={{
+                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+              }}>
+                <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
+                  👨‍👩‍👧‍👦 "Fait en famille et servi avec le sourire."
+                </p>
+              </div>
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-5 h-5 bg-white rounded-full shadow-md"></div>
+              <div className="absolute -bottom-6 left-1/2 translate-x-1 w-3 h-3 bg-white rounded-full shadow-md"></div>
             </div>
           </div>
         </div>

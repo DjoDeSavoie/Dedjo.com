@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import fleurTati from "@/assets/fleurTati.svg";
+import fleurTati from "@/assets/fleurTati.png";
 
 const ProductShowcaseSection = () => {
   const scrollToSection = (id: string) => {
