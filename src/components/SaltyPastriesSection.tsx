@@ -79,15 +79,21 @@ const SaltyPastriesSection = () => {
           Une pâte feuilletée artisanale enveloppant une garniture gourmande. <br /> Préparés avec la main et le cœur, sous forme de bouchées apéritives ou de friands individuels. <br /> Pour une soirée conviviale ou un repas de la flemme du lundi soir.
         </p>
 
-        {/* Comic bubble anecdote - positioned to the left */}
+        {/* Comic cloud bubble anecdote - positioned to the left */}
         <div className="relative max-w-md mr-auto ml-8 mb-8">
-          <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
-            <p className="text-foreground/90 italic text-sm">
-              "Issue d'une ferme familiale maraîchère, consciente de l'importance d'une alimentation saine et d'une production raisonnée. Les produits sont sélectionnés le plus possible dans cette ferme pour les valoriser et représenter ces mêmes valeurs."
-            </p>
-            {/* Bubble tail pointing right */}
-            <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-white"></div>
-            <div className="absolute -right-[18px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-[16px] border-l-foreground/20"></div>
+          <div className="relative">
+            {/* Cloud shape */}
+            <div className="relative bg-white p-6 shadow-lg" style={{
+              borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }}>
+              <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
+                "Issue d'une ferme familiale maraîchère, consciente de l'importance d'une alimentation saine et d'une production raisonnée. Les produits sont sélectionnés le plus possible dans cette ferme pour les valoriser et représenter ces mêmes valeurs."
+              </p>
+            </div>
+            {/* Cloud tail - small circles */}
+            <div className="absolute -bottom-3 left-12 w-5 h-5 bg-white rounded-full shadow-md"></div>
+            <div className="absolute -bottom-6 left-8 w-3 h-3 bg-white rounded-full shadow-md"></div>
           </div>
         </div>
 

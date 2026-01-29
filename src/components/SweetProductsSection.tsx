@@ -67,15 +67,21 @@ const SweetProductsSection = () => {
           Des viennoiseries faites à la main, produites avec amour, que je te confie pour la cuisson, te permettant de déguster et de partager, un produit qui te ressemble, avant tout.
         </p>
         
-        {/* Comic bubble anecdote - positioned to the right */}
+        {/* Comic cloud bubble anecdote - positioned to the right */}
         <div className="relative max-w-md ml-auto mr-8 mb-8">
-          <div className="bg-white border-2 border-foreground/20 rounded-3xl p-4 shadow-md relative">
-            <p className="text-foreground/90 italic text-sm">
-              "Une passion transmise depuis tout jeune par mes grands-parents. Chaque geste est un hommage à leur savoir-faire et à ces matins où l'odeur du beurre chaud remplissait la cuisine."
-            </p>
-            {/* Bubble tail pointing left */}
-            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-[16px] border-r-white"></div>
-            <div className="absolute -left-[18px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-[16px] border-r-foreground/20"></div>
+          <div className="relative">
+            {/* Cloud shape using multiple overlapping circles */}
+            <div className="relative bg-white p-6 shadow-lg" style={{
+              borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }}>
+              <p className="text-foreground/90 italic text-sm text-center leading-relaxed">
+                "Une passion transmise depuis tout jeune par mes grands-parents. Chaque geste est un hommage à leur savoir-faire et à ces matins où l'odeur du beurre chaud remplissait la cuisine."
+              </p>
+            </div>
+            {/* Cloud tail - small circles */}
+            <div className="absolute -bottom-3 right-12 w-5 h-5 bg-white rounded-full shadow-md"></div>
+            <div className="absolute -bottom-6 right-8 w-3 h-3 bg-white rounded-full shadow-md"></div>
           </div>
         </div>
 
