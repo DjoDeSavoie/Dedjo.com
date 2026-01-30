@@ -8,6 +8,7 @@ const PizzasSection = () => {
   const pateIngredients = "Pâte (farine, eau, huile d'olive, levure et sel)";
   const fabricationAll = "Pâte pétrie sur place, étalée au rouleau, garnie devant vos yeux et cuite au four à bois.";
   const bonASavoirAll = "Un savoir-faire bien rodé et une union familiale pour vous servir le meilleur.";
+  const whereToBuyAll = "Disponible à la Ferme De La Goëttaz lors des soirées pizzas";
 
   const saltyPizzas: (ProductDetail & { color: string; isFavorite?: boolean; favoriteTooltip?: string })[] = [
     {
@@ -17,7 +18,7 @@ const PizzasSection = () => {
       color: "bg-pizza-classique",
       ingredients: [pateIngredients, "Sauce tomate", "Jambon", "Oignons de la ferme", "Fromage"],
       madeBy: fabricationAll,
-      whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
+      whereToBuy: whereToBuyAll,
       additionalInfo: bonASavoirAll,
     },
     {
@@ -29,7 +30,7 @@ const PizzasSection = () => {
       favoriteTooltip: "Favorite du chef",
       ingredients: [pateIngredients, "Crème fraîche", "Lardons fumés", "Oignons", "Fromage râpé"],
       madeBy: fabricationAll,
-      whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
+      whereToBuy: whereToBuyAll,
       additionalInfo: bonASavoirAll,
     },
     {
@@ -39,7 +40,7 @@ const PizzasSection = () => {
       color: "bg-pizza-vege",
       ingredients: [pateIngredients, "Sauce tomate", "Courgettes du jardin", "Oignons du jardin", "Fromage"],
       madeBy: fabricationAll,
-      whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
+      whereToBuy: whereToBuyAll,
       additionalInfo: bonASavoirAll,
     },
   ];
@@ -54,7 +55,7 @@ const PizzasSection = () => {
       favoriteTooltip: "Favorite du chef",
       ingredients: [pateIngredients, "Pralines roses", "Crème AOP"],
       madeBy: fabricationAll,
-      whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
+      whereToBuy: whereToBuyAll,
       additionalInfo: bonASavoirAll,
     },
     {
@@ -64,7 +65,7 @@ const PizzasSection = () => {
       color: "bg-pizza-nut",
       ingredients: [pateIngredients, "Pâte à tartiner chocolat-noisettes"],
       madeBy: fabricationAll,
-      whereToBuy: "Disponible à la Ferme De La Goëttaz lors des soirées pizza",
+      whereToBuy: whereToBuyAll,
       additionalInfo: bonASavoirAll,
     },
   ];
