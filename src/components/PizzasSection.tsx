@@ -86,8 +86,8 @@ const PizzasSection = () => {
           <h3 className="font-display text-2xl font-semibold mb-4">L'Équipe</h3>
           <p className="text-foreground leading-relaxed mb-4">
             Cousins, frères et sœurs, nous nous réunissons chaque vendredi pour un moment en famille. 
-            Des étaleurs de pâte aux preneurs de commandes et cuisiniers, chaque pizza est faite avec 
-            bonne humeur, sourires et la joie d'être réunis.
+            De l'étalage de la pâte, à la prise de votre commande, au garnissage puis la cuisson, chaque pizza est faite avec 
+            bonne humeur, sourires et convivialité.
           </p>
           <p className="text-foreground leading-relaxed mb-4">
             Nous utilisons au maximum des ingrédients locaux et de saison, en privilégiant le plus possible les légumes de la Goët. 
