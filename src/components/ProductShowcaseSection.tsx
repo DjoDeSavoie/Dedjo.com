@@ -46,11 +46,11 @@ const ProductShowcaseSection = () => {
     <section id="products-overview" className="py-20 px-6 bg-background">
       <div className="container max-w-5xl">
         <div className="flex justify-center mb-4">
-          <img src={fleurTati} alt="Fleur fait main" className="w-20 h-20" />
+          <img src={fleurTati} alt="Dessin de fleur de Tati" className="w-20 h-20" />
         </div>
         <h2 className="section-title">
           <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
-            Nos Créations – Fait Main
+            Nos Créations Artisanales
           </span>
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">

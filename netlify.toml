@@ -5,3 +5,10 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+[dev]
+command = "npm run dev"
+targetPort = 5173
+
+[functions]
+directory = "netlify/functions"
