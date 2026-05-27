@@ -120,7 +120,7 @@ const PizzasSection = () => {
                     className="absolute top-3 right-3 text-2xl cursor-help" 
                     title={pizza.favoriteTooltip}
                   >
-                    ❤️
+                    🔥
                   </div>
                 )}
                 <div className="text-center">
@@ -150,7 +150,7 @@ const PizzasSection = () => {
                     className="absolute top-3 right-3 text-2xl cursor-help" 
                     title={pizza.favoriteTooltip}
                   >
-                    ❤️
+                    🌹
                   </div>
                 )}
                 <div className="text-center">
