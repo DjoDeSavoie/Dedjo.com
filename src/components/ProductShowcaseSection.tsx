@@ -14,7 +14,7 @@ const ProductShowcaseSection = () => {
       emoji: "🥐",
       title: "Viennoiseries",
       description:
-        "Un feuilletage 100% fait main. Pâte travaillée et façonnée sur place, puis bloquée en surgélation pour te garantir une cuisson parfaite chez toi, quand tu veux.",
+        "Façonné puis bloqué en congélation pour conserver sa fraîcheur. Prépare tes croissants quand tu le veux — un rituel sans pression.",
       sectionId: "sweet-products",
       bgColor: "bg-[hsl(50,100%,85%)]",
       borderColor: "border-[hsl(45,100%,60%)]",
@@ -24,7 +24,7 @@ const ProductShowcaseSection = () => {
       emoji: "🥟",
       title: "Feuilletés salés",
       description:
-        "Bouchées d'apéro ou friands du lundi soir. Une pâte feuilletée maison, 4 recettes gourmandes, à enfourner directement sortie du congélateur.",
+        "Quatre garnitures savoyardes, enveloppées dans une pâte feuilletée maison. À sortir du congélateur, à glisser au four — et à partager sans façons.",
       sectionId: "salty-pastries",
       bgColor: "bg-[hsl(140,60%,85%)]",
       borderColor: "border-[hsl(140,50%,50%)]",
@@ -34,7 +34,7 @@ const ProductShowcaseSection = () => {
       emoji: "🍕",
       title: "Pizzas du vendredi",
       description:
-        "Pâte pétrie sur place, légumes de la ferme, cuisson au feu de bois. Des pizzas simples et généreuses, servies avec le sourire, qu'on aime manger nous-mêmes.",
+        "La pâte pétrie sur place. Les légumes de la Goëttaz. Le four à bois. Chaque vendredi soir, on se retrouve — et on te propose une pizza qu'on est fiers de manger nous-mêmes.",
       sectionId: "pizzas",
       bgColor: "bg-[hsl(25,100%,88%)]",
       borderColor: "border-[hsl(25,100%,60%)]",
@@ -43,18 +43,19 @@ const ProductShowcaseSection = () => {
   ];
 
   return (
-    <section id="products-overview" className="py-20 px-6 bg-background">
+    <section id="products-overview" className="py-12 px-4 bg-background">
       <div className="container max-w-5xl">
         <div className="flex justify-center mb-4">
           <img src={fleurTati} alt="Dessin de fleur de Tati" className="w-20 h-20" />
         </div>
         <h2 className="section-title">
-          <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
+          <span className="font-pattaya text-3xl md:text-4xl tracking-wide text-foreground">
             Nos Créations Artisanales
           </span>
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Découvrez notre gamme de produits artisanaux, tous préparés avec passion et savoir-faire.
+          Tourné à la main. Façonné avec soin. Partagé avec toi.<br />
+          Chaque création Dedjo est pensée pour que le meilleur arrive dans ta cuisine — et que tu en fasses quelque chose de beau.
         </p>
 
         <div className="grid md:grid-cols-3 gap-6">

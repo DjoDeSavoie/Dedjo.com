@@ -13,7 +13,7 @@ const PizzasSection = () => {
   const saltyPizzas: (ProductDetail & { color: string; isFavorite?: boolean; favoriteTooltip?: string })[] = [
     {
       name: "La Classique",
-      description: "Sauce Tomate, Jambon, Oignons, Fromage – intemporelle et toujours satisfaisante.",
+      description: "Sauce tomate, jambon, oignons, fromage. Ce qu'on revient toujours chercher, parce que c'est juste bon.",
       emoji: "🍕",
       color: "bg-pizza-classique",
       ingredients: [pateIngredients, "Sauce tomate", "Jambon", "Oignons de la ferme", "Fromage"],
@@ -23,7 +23,7 @@ const PizzasSection = () => {
     },
     {
       name: "La Flam",
-      description: "Crème Fraîche, Lardons, Oignons, Fromage – notre création d'inspiration alsacienne.",
+      description: "Crème fraîche, lardons fumés, oignons — une flambée à la savoyarde. Notre création, notre préférée.",
       emoji: "🥓",
       color: "bg-pizza-flam",
       isFavorite: true,
@@ -35,7 +35,7 @@ const PizzasSection = () => {
     },
     {
       name: "La Végé",
-      description: "Sauce Tomate, Courgettes du jardin, Oignons du jardin, Fromage – fraîche et pleine de saveur.",
+      description: "Courgettes et oignons du jardin, sauce tomate, fromage. Ce que la ferme offre, simplement.",
       emoji: "🥒",
       color: "bg-pizza-vege",
       ingredients: [pateIngredients, "Sauce tomate", "Courgettes du jardin", "Oignons du jardin", "Fromage"],
@@ -48,7 +48,7 @@ const PizzasSection = () => {
   const sweetPizzas: (ProductDetail & { color: string; isFavorite?: boolean; favoriteTooltip?: string })[] = [
     {
       name: "La Praline Rose",
-      description: "Praline rose et crème AOP – un classique lyonnais, sucré et croquant. Favorite du chef.",
+      description: "Praline rose de Lyon, crème AOP. Un classique sucré-croquant — en pizza.",
       emoji: "🩷",
       color: "bg-pizza-praline",
       isFavorite: true,
@@ -60,7 +60,7 @@ const PizzasSection = () => {
     },
     {
       name: "La Nut'",
-      description: "Pâte à tartiner chocolat-noisette",
+      description: "Pâte à tartiner chocolat-noisette. Pour finir sur une note douce.",
       emoji: "🍫",
       color: "bg-pizza-nut",
       ingredients: [pateIngredients, "Pâte à tartiner chocolat-noisettes"],
@@ -76,25 +76,22 @@ const PizzasSection = () => {
   };
 
   return (
-    <section id="pizzas" className="py-20 px-6 section-yellow">
+    <section id="pizzas" className="py-12 px-4 section-yellow">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🍕</span>
-        <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Les Pizzas</span></h2>
+        <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Les Pizzas</span></h2>
 
         {/* Team Introduction */}
-        <div className="bg-card rounded-2xl p-8 mb-8 text-center shadow-soft">
+        <div className="bg-card rounded-2xl p-6 mb-6 text-center shadow-soft">
           <h3 className="font-display text-2xl font-semibold mb-4">L'Équipe</h3>
           <p className="text-foreground leading-relaxed mb-4">
-            Cousins, frères et sœurs, nous nous réunissons chaque vendredi pour un moment en famille. 
-            De l'étalage de la pâte, à la prise de votre commande, au garnissage puis la cuisson, chaque pizza est faite avec 
-            bonne humeur, sourires et convivialité.
+            Cousins, frères et sœurs — on se retrouve chaque vendredi à la Goëttaz. On étale la pâte, on prend ta commande, on garnit, on enfourne. Chaque pizza sort du four avec les mains de tout le monde, et le sourire avec.
           </p>
           <p className="text-foreground leading-relaxed mb-4">
-            Nous utilisons au maximum des ingrédients locaux et de saison, en privilégiant le plus possible les légumes de la Goët. 
+            On utilise ce qui pousse ici, de saison, depuis la ferme. Pas plus compliqué que ça.
           </p>
           <p className="text-muted-foreground italic mb-4">
-            Notre pâte ? Faite maison avec amour, étalée à la main et cuite à la perfection dans notre four à bois.
-            Nous vous proposons finalement avec plaisir, une pizza que nous sommes fiers de manger nous-mêmes.
+            La pâte, c'est la nôtre. Étalée à la main, cuite au feu de bois. On te propose une pizza qu'on est fiers de manger nous-mêmes.
           </p>
           <p className="text-primary font-semibold mb-2">
             📍 Retrouvez-nous à la Ferme De La Goëttaz
@@ -106,7 +103,7 @@ const PizzasSection = () => {
 
         {/* Salty Pizzas */}
         <div className="mb-12">
-          <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handmade text-2xl md:text-2xl tracking-wide text-handmade-dark">Pizzas Salées</span></h3>
+          <h3 className="text-2xl text-center mb-6"><span className="font-pattaya text-2xl md:text-3xl text-foreground">Pizzas Salées</span></h3>
           <div className="grid md:grid-cols-3 gap-6">
             {saltyPizzas.map((pizza, index) => (
               <button 
@@ -136,7 +133,7 @@ const PizzasSection = () => {
 
         {/* Sweet Pizzas */}
         <div>
-          <h3 className="font-display text-2xl font-semibold text-center mb-6"><span className="font-handmade text-2xl md:text-2xl tracking-wide text-handmade-dark">Pizzas Sucrées</span></h3>
+          <h3 className="text-2xl text-center mb-6"><span className="font-pattaya text-2xl md:text-3xl text-foreground">Pizzas Sucrées</span></h3>
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {sweetPizzas.map((pizza, index) => (
               <button 
@@ -155,9 +152,9 @@ const PizzasSection = () => {
                 )}
                 <div className="text-center">
                   <span className="text-4xl block mb-3">{pizza.emoji}</span>
-                  <h4 className="font-display text-xl font-semibold mb-2 text-white">{pizza.name}</h4>
-                  <p className="text-white/90 text-sm">{pizza.description}</p>
-                  <p className="text-sm text-white mt-3 font-medium bg-white/30 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
+                  <h4 className="font-display text-xl font-semibold mb-2 text-foreground">{pizza.name}</h4>
+                  <p className="text-foreground/80 text-sm">{pizza.description}</p>
+                  <p className="text-sm text-white mt-3 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
                 </div>
               </button>
             ))}

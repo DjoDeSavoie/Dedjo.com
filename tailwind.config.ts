@@ -19,6 +19,9 @@ export default {
         handwritten: ["var(--font-handwritten)", "cursive"],
         artisan: ["var(--font-artisan)", "serif"],
         handmade: ["var(--font-handmade)", "cursive"],
+        title: ["var(--font-title)", "sans-serif"],
+        anton: ["var(--font-anton)", "sans-serif"],
+        pattaya: ["var(--font-pattaya)", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -76,14 +79,14 @@ export default {
         "product-foret": "#ffb84d",
         "product-rose": "#ffa7e1",
         "product-raisin": "#b1a1ed",
-        "product-chocolat": "#8f5d46",
+        "product-chocolat": "#d4a87a",
         "product-croissant": "#f5d547",
         // Pizza colors
         "pizza-classique": "#ff6b6b",
         "pizza-flam": "#ffd9a0",
         "pizza-vege": "#98d89e",
         "pizza-praline": "#ffb3d9",
-        "pizza-nut": "#8b5a2b",
+        "pizza-nut": "#c49870",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

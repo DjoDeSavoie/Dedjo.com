@@ -9,11 +9,16 @@ const Hero = () => {
   };
 
   return (
-    <section id="hero" className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 py-20 pt-28">
-      <Logo className="w-24 h-24 mb-6 animate-float" />
-      <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 text-foreground animate-fade-in">
-        Dedjo
-      </h1>
+    <section id="hero" className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-12 pt-24">
+      <div className="flex items-center gap-4 mb-4 animate-fade-in">
+        <Logo className="w-[6.6rem] h-[6.6rem]" />
+        <h1
+          className="font-pattaya text-5xl md:text-6xl text-foreground"
+          style={{ letterSpacing: "2px" }}
+        >
+          Dedjo
+        </h1>
+      </div>
       <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 animate-fade-in">
   <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
   L'artisanat

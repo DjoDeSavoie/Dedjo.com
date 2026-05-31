@@ -5,14 +5,14 @@ const SaltyPastriesSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const fabricationAll = "Fabriqué avec amour par moi-même, comme si je les avais fait pour moi.";
+  const fabricationAll = "Façonné à la main dans ma cuisine. Comme si je les avais faits pour moi — parce que c'est le cas.";
   const whereToBuyAll = "Disponible sur le marché du vendredi de la Ferme de la Goettaz et en livraisons sur Chambéry, Aix-les-Bains, Le Bourget-du-Lac et alentours.";
   const bonASavoirAll = "Nos oignons proviennent directement de la ferme de la Goettaz, produits par des maraîchers respectueux de la terre et du vivant.";
 
   const flavors: (ProductDetail & { color: string })[] = [
     {
       name: "La Montagne",
-      description: "Lardons, Oignons et Reblochon. Une revisite inspirée de la tartiflette savoyarde.",
+      description: "Lardons, oignons et reblochon. Un hommage discret à la tartiflette, en une bouchée.",
       emoji: "🏔️",
       color: "bg-product-montagne",
       ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Lardons", "Oignons", "Reblochon"],
@@ -22,7 +22,7 @@ const SaltyPastriesSection = () => {
     },
     {
       name: "La Forêt",
-      description: "Champignons, Béchamel et Fromage à Fondue.",
+      description: "Champignons des bois, béchamel douce, fromage à fondue. Le goût de la forêt savoyarde, en format feuilleté.",
       emoji: "🌲",
       color: "bg-product-foret",
       ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Champignons", "Sauce béchamel", "Mélange de fromage à fondue"],
@@ -32,7 +32,7 @@ const SaltyPastriesSection = () => {
     },
     {
       name: "La Goët",
-      description: "Poireaux de la Goët et Chèvre – poireaux locaux associés au fromage de chèvre.",
+      description: "Poireaux cueillis à la Goëttaz, fromage de chèvre frais. Ce qui pousse ici finit dans ta pâte.",
       emoji: "🥬",
       color: "bg-product-goet",
       ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Poireaux de La Ferme de La Goëttaz", "Fromage de chèvre frais"],
@@ -42,7 +42,7 @@ const SaltyPastriesSection = () => {
     },
     {
       name: "La Noix",
-      description: "Chèvre, Miel et Noix – l'équilibre parfait entre sucré et salé.",
+      description: "Chèvre, miel local, cerneaux de noix. Le sucré-salé qui surprend — et qui revient.",
       emoji: "🐝",
       color: "bg-product-noix",
       ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Fromage de chèvre frais", "Miel local", "Cerneau de Noix hâchés"],
@@ -55,12 +55,12 @@ const SaltyPastriesSection = () => {
   const sizes = [
     {
       name: "Bouchées Apéritives",
-      description: "Parfaites pour les fêtes et les repas debout. Partagez l'amour avec les gens que vous chérissez – des petites bouchées de bonheur. Format : par sachets de 20 bouchées.",
+      description: "Vingt petites bouchées à partager debout, au coin du buffet, entre ceux qu'on aime. Parfaites pour que tout le monde s'y mette. Format : sachet de 20 bouchées.",
       emoji: "🎉",
     },
     {
       name: "Le Friand",
-      description: "Un repas, une personne. La portion individuelle parfaite, idéale accompagnée d'une salade fraîche pour un repas complet. Format : par sachet de 2 gros friands.",
+      description: "Pour le repas du soir avec une salade fraîche, ou le déjeuner tranquille. La portion pour souffler un peu. Format : sachet de 2 grands friands.",
       emoji: "🥗",
     },
   ];
@@ -71,12 +71,14 @@ const SaltyPastriesSection = () => {
   };
 
   return (
-    <section id="salty-pastries" className="py-20 px-6 section-sky">
+    <section id="salty-pastries" className="py-12 px-4 section-sky">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥧</span>
-        <h2 className="section-title"><span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Feuilletés Salés</span></h2>
+        <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Feuilletés Salés</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Une pâte feuilletée artisanale enveloppant une garniture gourmande. <br /> Préparés avec la main et le cœur, sous forme de bouchées apéritives ou de friands individuels. <br /> Pour une soirée conviviale ou un repas de la flemme du lundi soir.
+          Une pâte feuilletée maison. Des garnitures savoyardes.<br />
+          En bouchées pour partager, ou en friands pour souffler un peu.<br />
+          Direct du congélateur à la table — sans que ça se voit.
         </p>
 
         {/* Flavors */}
@@ -104,13 +106,15 @@ const SaltyPastriesSection = () => {
         </div>
 
         {/* Recipe Card */}
-        <div className="bg-card rounded-2xl p-8 mb-12 shadow-soft max-w-2xl mx-auto">
-          <h3 className="font-display text-2xl font-semibold mb-4 text-center">🍽️ <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">Recette de Préparation</span></h3>
-          <p className="text-foreground text-center leading-relaxed">
-            À cuire à <strong>180 degrés pendant 25 minutes</strong>, directement sorti du congélateur.
+        <div className="bg-card rounded-2xl p-6 mb-8 shadow-soft max-w-2xl mx-auto text-center">
+          <h3 className="text-2xl mb-2">🍽️ <span className="font-pattaya text-2xl md:text-3xl text-foreground">La cuisson</span></h3>
+          <p className="text-muted-foreground italic mb-5">Simple. Direct. Bon.</p>
+          <p className="text-foreground leading-relaxed">
+            Direct du congélateur au four à <strong>180 °C</strong>.<br />
+            Laisse cuire <strong>25 minutes</strong> — un peu plus si tu les aimes bien dorés.
           </p>
-          <p className="font-handmade md:text-1xl tracking-wide text-handmade-dark text-center mt-4">
-            Peut-être plus longtemps selon ton four, selon tes goûts...
+          <p className="font-handmade text-lg tracking-wide text-handmade-dark italic mt-4">
+            Laisse ton four faire le reste, et régale-toi.
           </p>
         </div>
 

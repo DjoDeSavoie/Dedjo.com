@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Handlee&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Playfair+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Pattaya&family=Outfit:wght@300;400;500&family=Handlee&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Playfair+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,33 +7,33 @@
 
 @layer base {
   :root {
-    --background: 43 30% 96%;
-    --foreground: 25 40% 15%;
+    --background: 42 60% 98%;
+    --foreground: 0 0% 17%;
 
-    --card: 200 45% 92%;
+    --card: 0 0% 100%;
     --card-foreground: 25 40% 15%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 25 40% 15%;
 
-    --primary: 30 85% 55%;
+    --primary: 203 61% 57%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 200 65% 60%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 45 90% 61%;
+    --secondary-foreground: 25 40% 15%;
 
     --muted: 43 25% 90%;
     --muted-foreground: 25 25% 40%;
 
-    --accent: 45 90% 55%;
+    --accent: 201 70% 70%;
     --accent-foreground: 25 40% 15%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 30% 80%;
+    --border: 35 25% 82%;
     --input: 43 30% 93%;
-    --ring: 200 65% 55%;
+    --ring: 203 61% 57%;
 
     --radius: 1rem;
 
@@ -45,15 +45,15 @@
     --yellow: 45 90% 75%;
     --yellow-intense: 45 95% 55%;
     
-    /* Section backgrounds */
-    --section-sky: 200 55% 92%;
-    --section-orange: 30 60% 93%;
-    --section-yellow: 45 60% 93%;
-    --section-cream: 43 45% 94%;
+    /* Section backgrounds — inspired by the hand logo (blue + yellow) */
+    --section-sky: 203 30% 94%;    /* soft logo-blue wash */
+    --section-orange: 30 45% 94%;  /* warm peach / apricot */
+    --section-yellow: 45 50% 94%;  /* warm golden ivory */
+    --section-cream: 43 35% 95%;   /* neutral warm cream */
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(200 50% 95%) 0%, hsl(45 50% 95%) 50%, hsl(30 50% 95%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(200 40% 95%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(43 45% 96%) 0%, hsl(45 50% 95%) 50%, hsl(30 50% 95%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(40 35% 95%) 100%);
 
     /* Shadows */
     --shadow-soft: 0 4px 20px -4px hsl(200 40% 30% / 0.12);
@@ -65,6 +65,12 @@
     --font-handwritten: 'Dancing Script', cursive;
     --font-artisan: 'Fraunces', serif;
     --font-handmade: 'Handlee', cursive;
+    --font-title: 'Outfit', sans-serif;
+    --font-anton: 'Anton', sans-serif;
+    --font-pattaya: 'Pattaya', sans-serif;
+
+    /* Couleur titre Dedjo — ambre chaud, entre le jaune et l'orange du logo */
+    --color-dedjo: #C8690A;
 
     /* Handmade color */
     --handmade: 35 30% 75%;
@@ -146,7 +152,7 @@
   }
 
   .section-title {
-    @apply font-display text-3xl md:text-4xl font-semibold text-foreground mb-8 text-center;
+    @apply font-display text-3xl md:text-4xl font-semibold text-foreground mb-5 text-center;
   }
 
   .shadow-soft {
