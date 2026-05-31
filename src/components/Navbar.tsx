@@ -1,104 +1,142 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Logo from "./Logo";
 
-interface NavLink {
-  id: string;
-  label: string;
-  isLink?: boolean;
-  href?: string;
-}
+const navLinks = [
+  { id: "sweet-products", label: "Viennoiseries" },
+  { id: "salty-pastries", label: "Feuilletés Salés" },
+  { id: "pizzas", label: "Les Pizzas" },
+  { id: "newsletter", label: "Grandir ensemble" },
+];
 
 const Navbar = () => {
-  const location = useLocation();
-  const isDiscoverPage = location.pathname === "/discover";
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+  // Détecte la section visible au scroll (uniquement sur la home)
+  useEffect(() => {
+    if (location.pathname !== "/") {
+      setActiveSection("");
+      return;
     }
+
+    const sectionIds = navLinks.map((l) => l.id);
+    const observers: IntersectionObserver[] = [];
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setActiveSection(id);
+        },
+        { threshold: 0.4 }
+      );
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, [location.pathname]);
+
+  const goToSection = (id: string) => {
     setIsMobileMenuOpen(false);
+    if (location.pathname === "/") {
+      const element = document.getElementById(id);
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // Naviguer vers la home puis scroller après le rendu
+      navigate("/");
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
   };
 
-  const navLinks = [
-    { id: "sweet-products", label: "Viennoiseries" },
-    { id: "salty-pastries", label: "Feuilletés Salés" },
-    { id: "pizzas", label: "Les Pizzas" },
-    { id: "newsletter", label: "Grandir ensemble" },
-  ];
+  const goHome = () => {
+    setIsMobileMenuOpen(false);
+    if (location.pathname === "/") {
+      const element = document.getElementById("hero");
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+    }
+  };
+
+  const isHistoire = location.pathname === "/histoire";
+
+  const linkClass = (active: boolean) =>
+    `font-semibold transition-colors duration-200 text-sm ${
+      active ? "text-primary" : "text-foreground hover:text-primary"
+    }`;
+
+  const mobileLinkClass = (active: boolean) =>
+    `font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base ${
+      active
+        ? "text-primary bg-primary/10"
+        : "text-foreground hover:text-primary hover:bg-primary/10"
+    }`;
 
   return (
-    <nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${
-        isScrolled
-          ? "bg-sky-blue/95 backdrop-blur-sm shadow-soft"
-          : "bg-[hsl(50,100%,75%)] shadow-soft"
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-sm border-b border-border/60 ${
+        isScrolled ? "shadow-soft" : ""
       }`}
     >
       <div className="container max-w-6xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo and Brand */}
-          <button 
-            onClick={() => scrollToSection("hero")}
+
+          {/* Logo + nom */}
+          <button
+            onClick={goHome}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <Logo className="w-10 h-10" />
-            <span className="font-display text-2xl font-bold text-foreground">Dedjo</span>
+            <span
+              className="font-pattaya text-2xl text-foreground"
+              style={{ letterSpacing: "2px" }}
+            >Dedjo</span>
           </button>
 
-          {/* Desktop Navigation */}
+          {/* Navigation desktop */}
           <ul className="hidden md:flex items-center gap-6">
-            {navLinks.map((link: NavLink) => (
+            {navLinks.map((link) => (
               <li key={link.id}>
-                {link.isLink ? (
-                  <Link
-                    to={link.href!}
-                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
-                  >
-                    {link.label}
-                  </Link>
-                ) : isDiscoverPage ? (
-                  <Link
-                    to={`/#${link.id}`}
-                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
-                  >
-                    {link.label}
-                  </Link>
-                ) : (
-                  <button
-                    onClick={() => scrollToSection(link.id)}
-                    className="text-foreground/80 hover:text-primary font-medium transition-colors duration-200 text-sm"
-                  >
-                    {link.label}
-                  </button>
-                )}
+                <button
+                  onClick={() => goToSection(link.id)}
+                  className={linkClass(activeSection === link.id)}
+                >
+                  {link.label}
+                </button>
               </li>
             ))}
+            <li>
+              <Link
+                to="/histoire"
+                className={linkClass(isHistoire)}
+              >
+                Notre histoire
+              </Link>
+            </li>
           </ul>
 
-          {/* Mobile Menu Button */}
+          {/* Bouton menu mobile */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 text-foreground"
             aria-label="Ouvrir le menu"
           >
-            <svg 
-              className="w-6 h-6" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMobileMenuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               ) : (
@@ -108,38 +146,29 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Menu mobile */}
         {isMobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 bg-background rounded-lg shadow-soft">
             <ul className="flex flex-col gap-3 px-2">
-              {navLinks.map((link: NavLink) => (
+              {navLinks.map((link) => (
                 <li key={link.id}>
-                  {link.isLink ? (
-                    <Link
-                      to={link.href!}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base block"
-                    >
-                      {link.label}
-                    </Link>
-                  ) : isDiscoverPage ? (
-                    <Link
-                      to={`/#${link.id}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base block"
-                    >
-                      {link.label}
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={() => scrollToSection(link.id)}
-                      className="text-foreground hover:text-primary hover:bg-primary/10 font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base"
-                    >
-                      {link.label}
-                    </button>
-                  )}
+                  <button
+                    onClick={() => goToSection(link.id)}
+                    className={mobileLinkClass(activeSection === link.id)}
+                  >
+                    {link.label}
+                  </button>
                 </li>
               ))}
+              <li>
+                <Link
+                  to="/histoire"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`${mobileLinkClass(isHistoire)} block`}
+                >
+                  Notre histoire
+                </Link>
+              </li>
             </ul>
           </div>
         )}

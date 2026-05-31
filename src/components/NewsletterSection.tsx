@@ -31,17 +31,17 @@ const GrowingPlant = ({ className }: { className?: string }) => (
 
 const NewsletterSection = () => {
   return (
-    <section id="newsletter" className="py-20 px-6 section-sky">
+    <section id="newsletter" className="py-12 px-4 section-sky">
       <div className="container max-w-4xl text-center relative">
         {/* Growing plant decoration */}
         <div className="flex justify-center mb-6">
           <GrowingPlant className="w-24 h-28" />
         </div>
         
-        <h2 className="section-title">Grandir avec nous</h2>
+        <h2 className="section-title font-pattaya tracking-wide">Grandir ensemble</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-          Rejoignez notre communauté et soyez les premiers informés des nouvelles créations, 
-          événements spéciaux et actualités de la famille Dedjo.
+          Les nouvelles créations, les vendredis pizzas, les livraisons de saison — tu es le premier à savoir.<br />
+          <span className="italic">Une lettre de temps en temps, pas de bruit inutile.</span>
         </p>
         
         {/* Newsletter subscription */}
@@ -51,7 +51,7 @@ const NewsletterSection = () => {
         </div>
 
         {/* Separator */}
-        <div className="flex items-center gap-4 max-w-md mx-auto mb-12">
+        <div className="flex items-center gap-4 max-w-md mx-auto mb-7">
           <div className="flex-1 h-px bg-primary/30"></div>
           <span className="text-2xl">🌿</span>
           <div className="flex-1 h-px bg-primary/30"></div>
@@ -61,8 +61,8 @@ const NewsletterSection = () => {
         <div>
           <h3 className="text-xl font-display font-semibold mb-2 text-foreground">💬 Partagez vos idées</h3>
           <p className="text-muted-foreground mb-6 text-sm">
-            Suggestions de recettes, idées de produits, questions ou simplement envie de discuter ? 
-            On grandit ensemble !
+            Une idée de recette, une envie, un retour sur une fournée — j'aime savoir ce que tu en penses.<br />
+            <span className="italic">C'est comme ça qu'on grandit.</span>
           </p>
           <ContactForm />
         </div>

@@ -48,7 +48,7 @@ const Discover = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-20 px-6 bg-sky-blue">
+      <section className="pt-24 pb-10 px-6 bg-sky-blue">
         <div className="container max-w-4xl text-center">
           <span className="text-6xl mb-6 block">✨</span>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
@@ -62,7 +62,7 @@ const Discover = () => {
       </section>
 
       {/* Qui suis-je */}
-      <section className="py-20 px-6 section-orange">
+      <section className="py-12 px-4 section-orange">
         <div className="container max-w-4xl">
           <span className="text-5xl mb-4 block text-center">👨🏻‍🍳</span>
           <h2 className="section-title">
@@ -91,7 +91,7 @@ const Discover = () => {
       </section>
 
       {/* Galerie Photos */}
-      <section className="py-20 px-6 bg-background">
+      <section className="py-12 px-4 bg-background">
         <div className="container max-w-6xl">
           <span className="text-5xl mb-4 block text-center">📸</span>
           <h2 className="section-title">
@@ -99,7 +99,7 @@ const Discover = () => {
               Notre univers en images
             </span>
           </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-muted-foreground mb-7 max-w-2xl mx-auto">
             Découvrez les coulisses de notre aventure artisanale
           </p>
           
@@ -124,7 +124,7 @@ const Discover = () => {
       </section>
 
       {/* Commander */}
-      <section className="py-20 px-6 section-yellow">
+      <section className="py-12 px-4 section-yellow">
         <div className="container max-w-5xl">
           <span className="text-5xl mb-4 block text-center">📞</span>
           <h2 className="section-title">
@@ -132,7 +132,7 @@ const Discover = () => {
               Commander
             </span>
           </h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-muted-foreground mb-7 max-w-2xl mx-auto">
             Prêt à goûter nos délicieuses créations ? Contactez-nous !
           </p>
 
