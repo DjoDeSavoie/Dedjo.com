@@ -14,7 +14,7 @@ const ProductShowcaseSection = () => {
       emoji: "🥐",
       title: "Viennoiseries",
       description:
-        "Façonné puis bloqué en congélation pour conserver sa fraîcheur. Prépare tes croissants quand tu le veux — un rituel sans pression.",
+        "Une pate pétrie, un feuilletage de beurre régulier. Façonnée puis bloquée en congélation pour conserver sa fraîcheur. Prépare ta viennoiseries quand tu le veux — un rituel sans pression.",
       sectionId: "sweet-products",
       bgColor: "bg-[hsl(50,100%,85%)]",
       borderColor: "border-[hsl(45,100%,60%)]",
@@ -24,7 +24,7 @@ const ProductShowcaseSection = () => {
       emoji: "🥟",
       title: "Feuilletés salés",
       description:
-        "Quatre garnitures savoyardes, enveloppées dans une pâte feuilletée maison. À sortir du congélateur, à glisser au four — et à partager sans façons.",
+        "Quatre garnitures savoyardes enveloppées dans une pâte feuilletée maison. En formats friands et bouchées apéritives. Sors-le du congélateur et glisse le au four. À partager sans façons.",
       sectionId: "salty-pastries",
       bgColor: "bg-[hsl(140,60%,85%)]",
       borderColor: "border-[hsl(140,50%,50%)]",
@@ -54,8 +54,9 @@ const ProductShowcaseSection = () => {
           </span>
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Tourné à la main. Façonné avec soin. Partagé avec toi.<br />
-          Chaque création Dedjo est pensée pour que le meilleur arrive dans ta cuisine — et que tu en fasses quelque chose de beau.
+          Préparées à la main. Façonnées avec soin. Partagées avec toi.<br />
+          Chaque création de Djo est pensée pour te donner le meilleur ... <br />
+          ... et que tu en fasses quelque chose de beau.
         </p>
 
         <div className="grid md:grid-cols-3 gap-6">

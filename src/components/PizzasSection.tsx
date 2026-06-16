@@ -81,25 +81,6 @@ const PizzasSection = () => {
         <span className="text-5xl mb-4 block text-center">🍕</span>
         <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Les Pizzas</span></h2>
 
-        {/* Team Introduction */}
-        <div className="bg-card rounded-2xl p-6 mb-6 text-center shadow-soft">
-          <h3 className="font-display text-2xl font-semibold mb-4">L'Équipe</h3>
-          <p className="text-foreground leading-relaxed mb-4">
-            Cousins, frères et sœurs — on se retrouve chaque vendredi à la Goëttaz. On étale la pâte, on prend ta commande, on garnit, on enfourne. Chaque pizza sort du four avec les mains de tout le monde, et le sourire avec.
-          </p>
-          <p className="text-foreground leading-relaxed mb-4">
-            On utilise ce qui pousse ici, de saison, depuis la ferme. Pas plus compliqué que ça.
-          </p>
-          <p className="text-muted-foreground italic mb-4">
-            La pâte, c'est la nôtre. Étalée à la main, cuite au feu de bois. On te propose une pizza qu'on est fiers de manger nous-mêmes.
-          </p>
-          <p className="text-primary font-semibold mb-2">
-            📍 Retrouvez-nous à la Ferme De La Goëttaz
-          </p>
-          <p className="text-primary font-semibold">
-            🗓️ Les vendredis à partir de 18h
-          </p>
-        </div>
 
         {/* Salty Pizzas */}
         <div className="mb-12">
@@ -159,6 +140,38 @@ const PizzasSection = () => {
               </button>
             ))}
           </div>
+
+          <br /><br /><br />
+        </div>
+
+         {/* Team Introduction */}
+        <div className="bg-card rounded-2xl p-6 mb-6 text-center shadow-soft">
+          <h3 className="font-display text-2xl font-semibold mb-4">L'Équipe</h3>
+          <p className="text-foreground leading-relaxed mb-4">
+            Cousins, frères et sœurs — on se retrouve le vendredi à la Goëttaz. On prend ta commande, on étale la pâte, on garnit, on enfourne. < br/> Chaque pizza sort du four avec les mains de tout le monde, et le sourire avec.
+          </p>
+          <p className="text-foreground leading-relaxed mb-4">
+            On utilise le plus possible ce qui pousse ici a la ferme pour nos garnitures.
+          </p>
+          <p className="text-muted-foreground italic mb-4">
+            La pâte, c'est la nôtre. Étalée à la main, cuite au feu de bois. On te propose une pizza qu'on est fiers de manger nous-mêmes.
+          </p>
+
+          {/* Encart farine de la ferme */}
+          <div className="mt-2 mb-4 border-l-4 border-primary bg-primary/8 rounded-2xl px-5 py-4 text-left shadow-soft max-w-xl mx-auto">
+            <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-2">🌾 De la terre à l'assiette</p>
+            <p className="text-foreground leading-relaxed text-sm">
+              Notre pâte est faite avec la farine de la ferme de la Goëttaz — complète, riche en fibres, nourrissante et digeste.
+              Un blé semé, moissonné et moulu par nos soins. De la terre à ton assiette, on maîtrise chaque étape à 100 %.
+              Nos pizzas sont préparées comme si c'était nous qui les mangions — généreuses et faites pour être partagées.
+            </p>
+          </div>
+          <p className="text-primary font-semibold mb-2">
+            📍 Retrouvez-nous à la Ferme De La Goëttaz
+          </p>
+          <p className="text-primary font-semibold">
+            🗓️ Les vendredis à partir de 18h
+          </p>
         </div>
       </div>
 

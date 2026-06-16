@@ -76,10 +76,18 @@ const SaltyPastriesSection = () => {
         <span className="text-5xl mb-4 block text-center">🥧</span>
         <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Feuilletés Salés</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Une pâte feuilletée maison. Des garnitures savoyardes.<br />
-          En bouchées pour partager, ou en friands pour souffler un peu.<br />
-          Direct du congélateur à la table — sans que ça se voit.
+          Une pâte feuilletée maison. Des garnitures du paysage savoyard.<br />
+          En bouchées pour partager et en friands.<br />
+          Direct du congélateur au four, sans perdre en qualité.
         </p>
+
+        {/* Encart terroir */}
+        <div className="max-w-2xl mx-auto mb-10 border-l-4 border-primary bg-white/60 rounded-2xl px-6 py-5 shadow-soft">
+          <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-2">🏔️ Origine savoyarde</p>
+          <p className="text-foreground leading-relaxed text-sm">
+            Reblochon, fromage à fondue Savoyarde, poireaux cueillis à la ferme de la Goëttaz — < br/> chaque garniture raconte incarne à sa façon le paysage Savoyard < br/> <i>(Sauf pour le chevre miel et noix, là j'avais juste envie de me faire un bon mélange sucré / salé)</i>< br/>
+          </p>
+        </div>
 
         {/* Flavors */}
         <div className="mb-12">
