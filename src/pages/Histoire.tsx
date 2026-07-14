@@ -12,7 +12,7 @@ const Histoire = () => {
         <div className="container max-w-3xl text-center">
           <span className="text-5xl mb-6 block">🌼</span>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
-            L'histoire de Dedjo
+            Mon histoire
           </h1>
           <p className="text-lg text-muted-foreground italic">
             D'une ferme savoyarde à ton four du dimanche matin.
@@ -23,40 +23,28 @@ const Histoire = () => {
       {/* Contenu */}
       <section className="py-10 px-4 bg-background">
         <div className="container max-w-2xl">
-          <div className="space-y-8 text-foreground leading-relaxed text-lg">
+          <div className="space-y-6 text-foreground leading-relaxed text-lg">
 
             <p>
-              <strong>Dedjo.</strong> Ça vient de là : Jonathan, dit Jo, dit « de Djo ». Un glissement naturel, presque involontaire. La marque porte mon prénom comme une signature maladroite et sincère.
+              J'ai grandi dans une famille de paysans, dans une ferme savoyarde : nous cultivons la terre, ainsi que les valeurs humaines qu'elle suggère. Je suis un passionné de boulangerie, pâtisserie et de cuisine plus généralement. Cette flamme a été transmise par mes grands-parents. Je faisais les gâteaux avec ma grand-mère dès lors que j'ai su me tenir debout. Et mon grand-père, m'a enseigné, à sa manière, l'amour du pain et les valeurs qu'il incarne : « Le pain c'est sacré », comme il me l'a souvent répété.
             </p>
 
             <div className="text-center text-2xl py-2">🌼</div>
 
             <p>
-              J'ai grandi en Savoie, à deux pas de la ferme de la Goëttaz. Là où les légumes ont encore un goût de terre, où le four à bois sent la résine et le blé brûlé, où mes grands-parents m'ont appris à ne pas aller vite. Ils m'ont transmis des gestes — étaler, tourer, façonner, recommencer — sans jamais les appeler « recettes ». Pour eux, c'était juste comme ça qu'on faisait les choses.
+              Peut être que cet amour pour l'artisanat culinaire est né de la grande technique et des connaissances qu'il est nécessaire de maîtriser pour mener à bon une recette et stimuler les sens. Peut-être incarne-t-il, par essence, toutes les valeurs qui m'ont été transmises par mes anciens. Peut-être me permet-t-il de sourire en partageant avec fierté, un croissant qui m'a demandé temps et travail pour parvenir à le maîtriser ?
             </p>
 
             <p>
-              Aujourd'hui je vis à Marseille, ingénieur de formation, et c'est depuis cette distance que j'ai compris ce que ces gestes portaient. Le dimanche matin qui s'étire. L'odeur du beurre chaud dans la cuisine. La table où on se retrouve sans raison particulière, juste parce qu'on est bien ensemble.
+              Peut-être finalement, et le plus simplement, qu'un tel savoir-faire se doit d'être proposé, car c'est aussi lui qui permet les plus belles rencontres, rendons-nous compte. C'est moins ce qu'il y a dans les assiettes que les personnes autour de la table qui rendent un moment mémorable ... Mais si on peut choisir de bien manger, pourquoi s'en priver ?
             </p>
 
             <div className="text-center text-2xl py-2">🌼</div>
-
-            <p>
-              Dedjo est né de ça. Pas d'une stratégie ni d'un marché. D'une envie simple : te confier quelque chose que j'ai façonné à la main, pour que tu en fasses un moment à toi. Je façonne chaque viennoiserie à la main, je la toure, je la bloque au froid. Et c'est toi qui fais le dernier geste — la pousse, la cuisson, la bonne odeur qui envahit ta maison.
-            </p>
-
-            <p>
-              Ce n'est pas une commodité. C'est un rituel à deux.
-            </p>
-
-            <div className="text-center text-2xl py-2">🌼</div>
-
-            <p>
-              Les viennoiseries, les feuilletés salés, les pizzas du vendredi à la Goëttaz — tout ce que fait Dedjo tient dans une seule idée : prendre le temps. Le temps de bien faire, le temps de laisser lever la pâte, le temps de partager le résultat avec ceux qu'on aime.
-            </p>
 
             <p className="font-handmade text-xl text-handmade-dark italic text-center pt-4 pb-2">
-              Hérité de mes grands-parents. Façonné dans ma cuisine. Partagé chez toi.
+              Désormais, vous me connaissez un peu mieux,<br />
+              À très bientôt,<br />
+              Djo
             </p>
 
           </div>

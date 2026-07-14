@@ -49,7 +49,7 @@ const ProductShowcaseSection = () => {
           <img src={fleurTati} alt="Dessin de fleur de Tati" className="w-20 h-20" />
         </div>
         <h2 className="section-title">
-          <span className="font-pattaya text-3xl md:text-4xl tracking-wide text-foreground">
+          <span className="font-pattaya font-normal text-3xl md:text-4xl tracking-wide text-foreground">
             Nos Créations Artisanales
           </span>
         </h2>

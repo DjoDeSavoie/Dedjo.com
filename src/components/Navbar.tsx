@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { ShoppingBasket } from "lucide-react";
 import Logo from "./Logo";
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   { id: "sweet-products", label: "Viennoiseries" },
@@ -15,6 +17,7 @@ const Navbar = () => {
   const [activeSection, setActiveSection] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -74,6 +77,7 @@ const Navbar = () => {
   };
 
   const isHistoire = location.pathname === "/histoire";
+  const isCommande = location.pathname === "/commande";
 
   const linkClass = (active: boolean) =>
     `font-semibold transition-colors duration-200 text-sm ${
@@ -125,7 +129,25 @@ const Navbar = () => {
                 to="/histoire"
                 className={linkClass(isHistoire)}
               >
-                Notre histoire
+                Mon histoire
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/commande"
+                className={`relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                  isCommande
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+                }`}
+              >
+                <ShoppingBasket className="w-4 h-4" />
+                Commander
+                {totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold">
+                    {totalItems}
+                  </span>
+                )}
               </Link>
             </li>
           </ul>
@@ -166,7 +188,26 @@ const Navbar = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`${mobileLinkClass(isHistoire)} block`}
                 >
-                  Notre histoire
+                  Mon histoire
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/commande"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold ${
+                    isCommande
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-primary/10 text-primary"
+                  }`}
+                >
+                  <ShoppingBasket className="w-4 h-4" />
+                  Commander
+                  {totalItems > 0 && (
+                    <span className="ml-auto min-w-[22px] h-5 px-1.5 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold">
+                      {totalItems}
+                    </span>
+                  )}
                 </Link>
               </li>
             </ul>

@@ -1,16 +1,25 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
+import { useCart } from "@/context/CartContext";
 
 const SweetProductsSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [fabricationOpen, setFabricationOpen] = useState(false);
+  const { addVienno } = useCart();
+
+  const handleAdd = (id: string, name: string) => {
+    addVienno(id, 1);
+    toast.success(`${name} ajoutée au panier 🥐`);
+  };
 
   const croissantFabrication = "La pâte est étalée, tourée, façonnée à la main dans ma cuisine. Puis bloquée au froid — pour que le beurre AOP garde toute sa fraîcheur jusqu'à ton four.";
   const whereToBuyAll = "Disponible sur le marché du vendredi de la Ferme de la Goettaz et en livraisons sur Chambéry, Aix-les-Bains, Le Bourget-du-Lac et alentours.";
 
-  const products: (ProductDetail & { color: string; photo?: string; badge?: { icon: string; label: string; tooltip?: string } })[] = [
+  const products: (ProductDetail & { id: string; color: string; photo?: string; badge?: { icon: string; label: string; tooltip?: string } })[] = [
     {
+      id: "lune",
       name: "La Lune",
       description: "Le classique. Un croissant rustique, né de longues heures à étaler la pâte, à plier, à recommencer en corrigeant la recette jusqu'à aboutir au résultat qu me plaît. C'est avec lui que tout a commencé.",
       emoji: "🥐",
@@ -23,6 +32,7 @@ const SweetProductsSection = () => {
       additionalInfo: "",
     },
     {
+      id: "cabosse",
       name: "La Cabosse",
       description: "Deux bâtons de chocolat dans chaque bouchée de feuilletage au beurre. Un classique que j'ai façonné pour que le chocolat ne te manque jamais.",
       emoji: "🍫",
@@ -34,6 +44,7 @@ const SweetProductsSection = () => {
       additionalInfo: "",
     },
     {
+      id: "grappe",
       name: "La Grappe",
       description: "Une crème pâtissière chargée de vanille, des raisins secs généreux, roulés dans la pâte à croissant. La douceur du dimanche matin.",
       emoji: "🍇",
@@ -45,6 +56,7 @@ const SweetProductsSection = () => {
       additionalInfo: "💡 Une suggestion d'Apolline (avec deux ailes) et de ses parents",
     },
     {
+      id: "rose",
       name: "La Rose",
       description: "Ma signature. Une spirale de praline rose croquante et de crème patissière vanille. Ma préférée — à partager comme on offre une fleur.",
       emoji: "🌹",
@@ -68,11 +80,8 @@ const SweetProductsSection = () => {
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥐</span>
         <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Viennoiseries</span></h2>
-        <p className="text-center italic text-muted-foreground text-base mb-2">
-          Fabriqué avec la main et le cœur, pour le plaisir de soi, et des autres.
-        </p>
         <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
-          Tu sors ta viennoiseries préférée — le dimanche qui flâne, le brunch improvisé, un matin pour prendre le temps.<br />
+          Une viennoiserie à enfourner chez soi facilement, pour embaumer la maison d'une douce odeur de boulangerie.
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 max-w-3xl mx-auto">
@@ -98,10 +107,9 @@ const SweetProductsSection = () => {
 
         <div className="grid md:grid-cols-2 gap-6">
           {products.map((product, index) => (
-            <button
+            <div
               key={product.name}
-              onClick={() => handleProductClick(product)}
-              className={`${product.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
+              className={`${product.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {product.badge && (
@@ -118,12 +126,23 @@ const SweetProductsSection = () => {
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-2 text-foreground">{product.name}</h3>
                   <p className="text-foreground/80 text-sm leading-relaxed">{product.description}</p>
-                  <span className="inline-block mt-3 text-sm font-medium bg-white/50 px-3 py-1 rounded-full">
-                    Voir les détails →
-                  </span>
                 </div>
               </div>
-            </button>
+              <div className="flex items-center gap-2 mt-4 flex-wrap">
+                <button
+                  onClick={() => handleProductClick(product)}
+                  className="text-sm font-medium bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-full transition-colors"
+                >
+                  Voir les détails →
+                </button>
+                <button
+                  onClick={() => handleAdd(product.id, product.name)}
+                  className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
+                >
+                  + Panier
+                </button>
+              </div>
+            </div>
           ))}
         </div>
 
@@ -162,7 +181,7 @@ const SweetProductsSection = () => {
                 <span className="text-lg flex-shrink-0">🌾</span>
                 <div>
                   <p className="font-semibold mb-1">1 — La détrempe (pétrissage)</p>
-                  <p>Farine, eau, lait, levure, sel, sucre et une noix de beurre. On pétrit jusqu'à obtenir une pâte souple et homogène. C'est la base — ce que les boulangers appellent la détrempe.</p>
+                  <p>Farine, eau, lait, levure, sel, sucre et du beurre. On pétrit jusqu'à obtenir une pâte souple et homogène. C'est la base — ce que les boulangers appellent la détrempe.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -176,7 +195,7 @@ const SweetProductsSection = () => {
                 <span className="text-lg flex-shrink-0">🧈</span>
                 <div>
                   <p className="font-semibold mb-1">3 — L'enchâssage du beurre AOP</p>
-                  <p>Un bloc de beurre AOP — le meilleur que je trouve — est enfermé dans la détrempe. Tout commence ici : c'est ce beurre qui va créer le feuilletage.</p>
+                  <p>Un bloc de beurre de tourage — le meilleur que je trouve — est enfermé dans la détrempe. Tout commence ici : c'est ce beurre qui va créer le feuilletage.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

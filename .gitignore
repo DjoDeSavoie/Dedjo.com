@@ -1,0 +1,13 @@
+# Local Netlify folder
+.netlify
+
+# Environment variables — ne jamais committer
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# Config locale Claude Code
+.claude/

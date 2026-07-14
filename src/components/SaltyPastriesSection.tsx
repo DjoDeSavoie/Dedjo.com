@@ -1,16 +1,25 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
+import { useCart } from "@/context/CartContext";
 
 const SaltyPastriesSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const { addFriand } = useCart();
+
+  const handleAdd = (id: string, name: string) => {
+    addFriand(id, 1);
+    toast.success(`${name} ajouté au panier 🥧`);
+  };
 
   const fabricationAll = "Façonné à la main dans ma cuisine. Comme si je les avais faits pour moi — parce que c'est le cas.";
   const whereToBuyAll = "Disponible sur le marché du vendredi de la Ferme de la Goettaz et en livraisons sur Chambéry, Aix-les-Bains, Le Bourget-du-Lac et alentours.";
   const bonASavoirAll = "Nos oignons proviennent directement de la ferme de la Goettaz, produits par des maraîchers respectueux de la terre et du vivant.";
 
-  const flavors: (ProductDetail & { color: string })[] = [
+  const flavors: (ProductDetail & { id: string; color: string })[] = [
     {
+      id: "montagne",
       name: "La Montagne",
       description: "Lardons, oignons et reblochon. Un hommage discret à la tartiflette, en une bouchée.",
       emoji: "🏔️",
@@ -21,6 +30,7 @@ const SaltyPastriesSection = () => {
       additionalInfo: bonASavoirAll,
     },
     {
+      id: "foret",
       name: "La Forêt",
       description: "Champignons des bois, béchamel douce, fromage à fondue. Le goût de la forêt savoyarde, en format feuilleté.",
       emoji: "🌲",
@@ -31,6 +41,7 @@ const SaltyPastriesSection = () => {
       additionalInfo: bonASavoirAll,
     },
     {
+      id: "goet",
       name: "La Goët",
       description: "Poireaux cueillis à la Goëttaz, fromage de chèvre frais. Ce qui pousse ici finit dans ta pâte.",
       emoji: "🥬",
@@ -41,6 +52,7 @@ const SaltyPastriesSection = () => {
       additionalInfo: bonASavoirAll,
     },
     {
+      id: "noix",
       name: "La Noix",
       description: "Chèvre, miel local, cerneaux de noix. Le sucré-salé qui surprend — et qui revient.",
       emoji: "🐝",
@@ -94,10 +106,9 @@ const SaltyPastriesSection = () => {
           <h3 className="font-display text-2xl font-semibold text-center mb-6">Quatre Préparations</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {flavors.map((flavor, index) => (
-              <button 
+              <div
                 key={flavor.name}
-                onClick={() => handleProductClick(flavor)}
-                className={`${flavor.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left`}
+                className={`${flavor.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left flex flex-col`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="flex items-start gap-4">
@@ -105,10 +116,23 @@ const SaltyPastriesSection = () => {
                   <div>
                     <h4 className="font-display text-xl font-semibold mb-2">{flavor.name}</h4>
                     <p className="text-foreground/80">{flavor.description}</p>
-                    <p className="text-sm text-white mt-2 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
                   </div>
                 </div>
-              </button>
+                <div className="flex items-center gap-2 mt-4 flex-wrap">
+                  <button
+                    onClick={() => handleProductClick(flavor)}
+                    className="text-sm text-white font-medium bg-foreground/40 hover:bg-foreground/60 px-3 py-1.5 rounded-full transition-colors"
+                  >
+                    Voir les détails →
+                  </button>
+                  <button
+                    onClick={() => handleAdd(flavor.id, flavor.name)}
+                    className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
+                  >
+                    + Panier
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         </div>
