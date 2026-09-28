@@ -2,6 +2,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
 import { useCart } from "@/context/CartContext";
+import { FEUILLETES, eur } from "@/lib/catalog";
+
+/** Contenu et prix du sachet, depuis le catalogue. */
+const sachetInfo = (id: string) => {
+  const p = FEUILLETES.find((f) => f.id === id)!;
+  return `${p.pieces} ${p.unit} · ${eur(p.price)}`;
+};
 
 const SaltyPastriesSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
@@ -10,7 +17,7 @@ const SaltyPastriesSection = () => {
 
   const handleAdd = (id: string, name: string) => {
     addFriand(id, 1);
-    toast.success(`${name} ajouté au panier 🥧`);
+    toast.success(`1 sachet de ${name} ajouté au panier 🥧`, { description: sachetInfo(id) });
   };
 
   const fabricationAll = "Façonné à la main dans ma cuisine. Comme si je les avais faits pour moi — parce que c'est le cas.";
@@ -116,6 +123,7 @@ const SaltyPastriesSection = () => {
                   <div>
                     <h4 className="font-display text-xl font-semibold mb-2">{flavor.name}</h4>
                     <p className="text-foreground/80">{flavor.description}</p>
+                    <p className="text-xs font-semibold text-foreground/70 mt-2">Sachet de {sachetInfo(flavor.id)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-4 flex-wrap">

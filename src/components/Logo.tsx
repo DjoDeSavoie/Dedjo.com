@@ -6,7 +6,6 @@ const Logo = ({ className = "w-12 h-12" }: { className?: string }) => {
       className={className}
       role="img"
       aria-label="Logo Dedjo"
-      draggable={false}
     >
       <title>Dedjo</title>
 

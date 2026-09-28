@@ -9,6 +9,7 @@ const navLinks = [
   { id: "salty-pastries", label: "Feuilletés Salés" },
   { id: "pizzas", label: "Les Pizzas" },
   { id: "newsletter", label: "Grandir ensemble" },
+  { id: "histoire", label: "Mon histoire" },
 ];
 
 const Navbar = () => {
@@ -17,7 +18,7 @@ const Navbar = () => {
   const [activeSection, setActiveSection] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
-  const { totalItems } = useCart();
+  const { totalSachets } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -76,7 +77,6 @@ const Navbar = () => {
     }
   };
 
-  const isHistoire = location.pathname === "/histoire";
   const isCommande = location.pathname === "/commande";
 
   const linkClass = (active: boolean) =>
@@ -126,14 +126,6 @@ const Navbar = () => {
             ))}
             <li>
               <Link
-                to="/histoire"
-                className={linkClass(isHistoire)}
-              >
-                Mon histoire
-              </Link>
-            </li>
-            <li>
-              <Link
                 to="/commande"
                 className={`relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ${
                   isCommande
@@ -143,9 +135,9 @@ const Navbar = () => {
               >
                 <ShoppingBasket className="w-4 h-4" />
                 Commander
-                {totalItems > 0 && (
+                {totalSachets > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold">
-                    {totalItems}
+                    {totalSachets}
                   </span>
                 )}
               </Link>
@@ -184,15 +176,6 @@ const Navbar = () => {
               ))}
               <li>
                 <Link
-                  to="/histoire"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`${mobileLinkClass(isHistoire)} block`}
-                >
-                  Mon histoire
-                </Link>
-              </li>
-              <li>
-                <Link
                   to="/commande"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold ${
@@ -203,9 +186,9 @@ const Navbar = () => {
                 >
                   <ShoppingBasket className="w-4 h-4" />
                   Commander
-                  {totalItems > 0 && (
+                  {totalSachets > 0 && (
                     <span className="ml-auto min-w-[22px] h-5 px-1.5 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold">
-                      {totalItems}
+                      {totalSachets}
                     </span>
                   )}
                 </Link>

@@ -5,23 +5,20 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Logo from "@/components/Logo";
 import ProductLabelModal from "@/components/ProductLabelModal";
+import ProductTags from "@/components/ProductTags";
 import { useCart } from "@/context/CartContext";
 import {
   CONFIG,
   VIENNOISERIES,
   FEUILLETES,
-  VIENNO_MIN,
-  VIENNO_TIERS,
-  VIENNO_EXTRA,
-  FRIAND_UNIT,
+  PRIX_SACHET,
   Product,
   eur,
-  viennoPrice,
-  friandPrice,
-  nextTier,
+  pluralize,
 } from "@/lib/catalog";
 
 const GRAD = "linear-gradient(135deg,#185FA5 0%,#2A7FD0 100%)";
+const RAPPEL_CONGELE = "Tout est livré congelé, à conserver au congélateur, et cuire en direct dans ton four.";
 
 interface FormState {
   secteur: string;
@@ -35,14 +32,23 @@ interface FormState {
   message: string;
 }
 
+type Group = "vienno" | "friand";
+
+/** « 2 sachets · 12 pièces » */
+const sachetsLabel = (p: Product, qty: number) =>
+  `${pluralize(qty, "sachet", "sachets")} · ${qty * p.pieces} ${p.unit}`;
+
 const Commande = () => {
   const {
     vienno,
     friand,
     addVienno,
     addFriand,
-    viennoCount,
-    friandCount,
+    viennoSachets,
+    friandSachets,
+    totalSachets,
+    viennoTotal,
+    friandTotal,
     total,
   } = useCart();
 
@@ -75,10 +81,6 @@ const Commande = () => {
     return d.toISOString().split("T")[0];
   }, []);
 
-  const vp = viennoPrice(viennoCount);
-  const fp = friandPrice(friandCount);
-  const nt = nextTier(viennoCount);
-
   const openInfo = (p: Product) => {
     setModalProduct(p);
     setModalOpen(true);
@@ -87,11 +89,7 @@ const Commande = () => {
   /* ---------- Validation & message ---------- */
   const validate = (): string[] => {
     const errs: string[] = [];
-    if (viennoCount + friandCount === 0) errs.push("Ajoute au moins un produit à ta commande.");
-    if (viennoCount > 0 && viennoCount < VIENNO_MIN)
-      errs.push(`Il faut au minimum ${VIENNO_MIN} viennoiseries (tu en as ${viennoCount}).`);
-    if (friandCount > 0 && friandCount < CONFIG.minFriands)
-      errs.push(`Il faut au minimum ${CONFIG.minFriands} friands (tu en as ${friandCount}).`);
+    if (totalSachets === 0) errs.push("Ajoute au moins un sachet à ta commande.");
     if (!form.secteur) errs.push("Choisis ton secteur (Savoie ou Marseille).");
     if (!form.mode) errs.push("Choisis ton mode de récupération.");
     if (isLivraison && !form.address.trim()) errs.push("Indique ton adresse de livraison.");
@@ -113,23 +111,24 @@ const Commande = () => {
 
   const buildMessage = (): string => {
     const L: string[] = [];
+    const lines = (products: Product[], counts: Record<string, number>) =>
+      products
+        .filter((p) => counts[p.id] > 0)
+        .forEach((p) => L.push(`• ${p.name} × ${sachetsLabel(p, counts[p.id])} — ${eur(counts[p.id] * p.price)}`));
+
     L.push("🥐 NOUVELLE COMMANDE DEDJO");
     L.push("L'artisanat qui se partage.");
     L.push("");
-    if (viennoCount > 0) {
+    if (viennoSachets > 0) {
       L.push("— Viennoiseries —");
-      VIENNOISERIES.forEach((p) => {
-        if (vienno[p.id] > 0) L.push(`• ${p.name} × ${vienno[p.id]}`);
-      });
-      L.push(`Sous-total (${viennoCount} pièces) : ${vp !== null ? eur(vp) : "à confirmer"}`);
+      lines(VIENNOISERIES, vienno);
+      L.push(`Sous-total : ${eur(viennoTotal)}`);
       L.push("");
     }
-    if (friandCount > 0) {
+    if (friandSachets > 0) {
       L.push("— Feuilletés salés —");
-      FEUILLETES.forEach((p) => {
-        if (friand[p.id] > 0) L.push(`• ${p.name} × ${friand[p.id]}`);
-      });
-      L.push(`Sous-total (${friandCount} friands) : ${eur(fp)}`);
+      lines(FEUILLETES, friand);
+      L.push(`Sous-total : ${eur(friandTotal)}`);
       L.push("");
     }
     L.push(`TOTAL : ${eur(total)} (à régler au retrait / à la livraison)`);
@@ -146,7 +145,7 @@ const Commande = () => {
     if (form.email.trim()) L.push(`Email : ${form.email}`);
     if (form.message.trim()) L.push(`Message : ${form.message}`);
     L.push("");
-    L.push("❄️ Produits surgelés — four 180 °C, 25 min.");
+    L.push(`❄️ ${RAPPEL_CONGELE}`);
     return L.join("\n");
   };
 
@@ -180,21 +179,15 @@ const Commande = () => {
     }
   };
 
-  /* ---------- Sous-composants ---------- */
-  const ProductCard = ({
-    p,
-    group,
-    unit,
-  }: {
-    p: Product;
-    group: "vienno" | "friand";
-    unit?: string;
-  }) => {
+  /* ---------- Rendu d'une carte produit ----------
+     (fonction de rendu et non composant : les boutons ne sont pas recréés
+      à chaque clic, le focus clavier est conservé) */
+  const renderCard = (p: Product, group: Group) => {
     const count = group === "vienno" ? vienno[p.id] : friand[p.id];
-    const inc = () => (group === "vienno" ? addVienno(p.id, 1) : addFriand(p.id, 1));
-    const dec = () => (group === "vienno" ? addVienno(p.id, -1) : addFriand(p.id, -1));
+    const add = group === "vienno" ? addVienno : addFriand;
     return (
       <div
+        key={p.id}
         className="bg-card rounded-2xl shadow-soft p-4 flex flex-col gap-3 border-t-4"
         style={{ borderTopColor: p.color }}
       >
@@ -206,25 +199,23 @@ const Commande = () => {
             {p.emoji}
           </span>
           <div>
-            <h3 className="font-bold text-foreground flex items-center gap-2" style={{ fontFamily: '"Bitter", serif' }}>
+            <h3 className="font-bold text-foreground" style={{ fontFamily: '"Bitter", serif' }}>
               {p.name}
-              {p.allergen && (
-                <span className="text-[0.68rem] font-bold bg-[#fdeccd] text-[#8a5a09] px-2 py-0.5 rounded-full">
-                  ⚠️ Fruits à coque
-                </span>
-              )}
             </h3>
             {p.type && <p className="text-xs text-muted-foreground">{p.type}</p>}
-            {unit && <p className="text-xs font-bold text-[#185FA5]">{unit}</p>}
+            <p className="text-xs font-bold text-[#185FA5]">
+              Sachet de {p.pieces} {p.unit} · {eur(p.price)}
+            </p>
+            <ProductTags product={p} className="mt-1.5" />
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 mt-auto">
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={dec}
+              onClick={() => add(p.id, -1)}
               disabled={count <= 0}
-              aria-label={`Retirer un ${p.name}`}
+              aria-label={`Retirer un sachet de ${p.name}`}
               className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               −
@@ -238,8 +229,8 @@ const Commande = () => {
             </span>
             <button
               type="button"
-              onClick={inc}
-              aria-label={`Ajouter un ${p.name}`}
+              onClick={() => add(p.id, 1)}
+              aria-label={`Ajouter un sachet de ${p.name}`}
               className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc]"
             >
               +
@@ -248,14 +239,28 @@ const Commande = () => {
           <button
             type="button"
             onClick={() => openInfo(p)}
-            className="text-sm font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0]"
+            className="text-sm font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0] text-right"
           >
-            Voir les infos produit
+            Voir les infos de la création
           </button>
         </div>
       </div>
     );
   };
+
+  /* ---------- Lignes du récap ---------- */
+  const renderRecapLines = (products: Product[], counts: Record<string, number>) =>
+    products
+      .filter((p) => counts[p.id] > 0)
+      .map((p) => (
+        <li key={p.id} className="flex justify-between gap-3 py-1.5 border-b border-dashed border-border text-sm">
+          <span>
+            {p.emoji} {p.name}{" "}
+            <span className="text-muted-foreground">· {sachetsLabel(p, counts[p.id])}</span>
+          </span>
+          <span className="whitespace-nowrap">{eur(counts[p.id] * p.price)}</span>
+        </li>
+      ));
 
   const inputClass =
     "w-full px-3.5 py-3 border-2 border-border rounded-xl bg-white text-foreground text-base focus:outline-none focus:border-[#2A7FD0] transition-colors";
@@ -263,6 +268,8 @@ const Commande = () => {
     `flex-1 min-w-[200px] border-2 rounded-2xl px-3.5 py-3 cursor-pointer flex gap-2.5 items-start transition ${
       sel ? "border-[#2A7FD0] bg-[#eef5fc]" : "border-border bg-white hover:border-[#2A7FD0]"
     }`;
+  const sectionTitle = "text-2xl font-bold text-foreground";
+  const bitter = { fontFamily: '"Bitter", serif' };
 
   const totalStr = total > 0 ? eur(total) : "—";
 
@@ -295,86 +302,23 @@ const Commande = () => {
       </header>
 
       <main className="container max-w-3xl mx-auto px-4">
-        {/* Rappel surgelé */}
-        <div className="flex gap-3 items-start bg-[#eaf3fb] border border-[#cfe3f6] text-[#16527f] rounded-2xl px-4 py-3 my-6 text-sm">
+        {/* Rappel congelé */}
+        <div className="flex gap-3 items-center bg-[#eaf3fb] border border-[#cfe3f6] text-[#16527f] rounded-2xl px-4 py-3 my-6 text-sm">
           <span className="text-xl leading-none">❄️</span>
-          <p>
-            Tout est livré <strong>surgelé</strong>, à enfourner directement, sans décongeler.
-            <br />
-            Pour les viennoiseries : <strong>180 °C, 25 min</strong>. Et ça embaume la cuisine.
-          </p>
+          <p>{RAPPEL_CONGELE}</p>
         </div>
 
         {/* Viennoiseries */}
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="text-2xl">🥐</span>
-            <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: '"Bitter", serif' }}>
-              Les viennoiseries
-            </h2>
+            <h2 className={sectionTitle} style={bitter}>Les viennoiseries</h2>
           </div>
           <p className="text-muted-foreground mb-4 text-sm">
-            Compose ton panier comme tu veux, autant de chaque parfum. <strong>Minimum 5 pièces.</strong> Plus tu en prends, moins c'est cher.
+            Vendues en sachet, <strong>{eur(PRIX_SACHET)} le sachet</strong>. Compose ton panier comme tu veux, autant de sachets de chaque création.
           </p>
-
-          {/* Paliers */}
-          <div className="flex gap-2 flex-wrap mb-3.5" aria-hidden="true">
-            {VIENNO_TIERS.map((t) => {
-              const idx = VIENNO_TIERS.indexOf(t);
-              const nextQ = VIENNO_TIERS[idx + 1] ? VIENNO_TIERS[idx + 1].qty : Infinity;
-              const active = viennoCount >= t.qty && viennoCount < nextQ;
-              return (
-                <div
-                  key={t.qty}
-                  className={`flex-1 min-w-[90px] border-2 rounded-2xl px-2 py-2.5 text-center transition ${
-                    active ? "border-[#2A7FD0] bg-[#eef5fc] -translate-y-0.5" : "border-border bg-card"
-                  }`}
-                >
-                  <div className="font-bold" style={{ fontFamily: '"Bitter", serif' }}>
-                    {t.qty} pièces
-                  </div>
-                  <div className="text-[#185FA5] font-bold">{eur(t.price)}</div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Jauge */}
-          <div className="bg-card border-2 border-border rounded-2xl px-4 py-3.5 mb-5">
-            <p className="text-sm mb-2">
-              {nt ? (
-                <>
-                  Plus que{" "}
-                  <strong className="text-[#185FA5]">
-                    {nt.qty - viennoCount} viennoiserie{nt.qty - viennoCount > 1 ? "s" : ""}
-                  </strong>{" "}
-                  pour le panier de <strong className="text-[#185FA5]">{nt.qty}</strong> à{" "}
-                  <strong className="text-[#185FA5]">{eur(nt.price)}</strong>.
-                </>
-              ) : (
-                <>
-                  🎉 Paliers débloqués ! Au-delà de {VIENNO_TIERS[VIENNO_TIERS.length - 1].qty} pièces,
-                  chaque viennoiserie supplémentaire est à <strong className="text-[#185FA5]">{eur(VIENNO_EXTRA)}</strong>.
-                </>
-              )}
-            </p>
-            <div className="h-2.5 bg-[#eee7d7] rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-300"
-                style={{
-                  backgroundImage: GRAD,
-                  width: nt
-                    ? `${Math.min(100, Math.round(((viennoCount - nt.from) / (nt.qty - nt.from)) * 100))}%`
-                    : "100%",
-                }}
-              />
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {VIENNOISERIES.map((p) => (
-              <ProductCard key={p.id} p={p} group="vienno" />
-            ))}
+            {VIENNOISERIES.map((p) => renderCard(p, "vienno"))}
           </div>
         </section>
 
@@ -382,17 +326,13 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="text-2xl">🥧</span>
-            <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: '"Bitter", serif' }}>
-              Les feuilletés salés
-            </h2>
+            <h2 className={sectionTitle} style={bitter}>Les feuilletés salés</h2>
           </div>
           <p className="text-muted-foreground mb-4 text-sm">
-            De gros friands feuilletés, garnis à la main. <strong>{eur(FRIAND_UNIT)} le friand</strong> (sachet de 2 = {eur(FRIAND_UNIT * 2)}). Minimum {CONFIG.minFriands} friands.
+            De gros friands feuilletés, garnis à la main. Chaque sachet contient {FEUILLETES[0].pieces} {FEUILLETES[0].unit} de la même gamme, pour <strong>{eur(PRIX_SACHET)}</strong>.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {FEUILLETES.map((p) => (
-              <ProductCard key={p.id} p={p} group="friand" unit={`${eur(FRIAND_UNIT)} / friand`} />
-            ))}
+            {FEUILLETES.map((p) => renderCard(p, "friand"))}
           </div>
         </section>
 
@@ -400,9 +340,7 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="text-2xl">🍕</span>
-            <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: '"Bitter", serif' }}>
-              Les pizzas du vendredi
-            </h2>
+            <h2 className={sectionTitle} style={bitter}>Les pizzas du vendredi</h2>
           </div>
           <div className="bg-card rounded-2xl shadow-soft p-4 flex gap-3.5 items-start border-l-4 border-[#F5C842]">
             <span className="text-3xl leading-none">🔥</span>
@@ -416,15 +354,13 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="text-2xl">📍</span>
-            <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: '"Bitter", serif' }}>
-              Où je te retrouve ?
-            </h2>
+            <h2 className={sectionTitle} style={bitter}>Où je te retrouve ?</h2>
           </div>
 
-          <div className="mb-4">
-            <label className="block font-bold mb-1.5 text-sm">
+          <fieldset className="mb-4">
+            <legend className="block font-bold mb-1.5 text-sm">
               Ton secteur <span className="text-destructive">*</span>
-            </label>
+            </legend>
             <div className="flex gap-2.5 flex-wrap">
               {[
                 { v: "Savoie", d: "Retrait au marché du vendredi, Ferme de la Goëttaz" },
@@ -446,12 +382,12 @@ const Commande = () => {
                 </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
-          <div className="mb-4">
-            <label className="block font-bold mb-1.5 text-sm">
+          <fieldset className="mb-4">
+            <legend className="block font-bold mb-1.5 text-sm">
               Mode de récupération <span className="text-destructive">*</span>
-            </label>
+            </legend>
             <div className="flex gap-2.5 flex-wrap">
               {[
                 {
@@ -477,7 +413,7 @@ const Commande = () => {
                 </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {isLivraison && (
             <div className="mb-4">
@@ -518,9 +454,7 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="text-2xl">✍️</span>
-            <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: '"Bitter", serif' }}>
-              Tes coordonnées
-            </h2>
+            <h2 className={sectionTitle} style={bitter}>Tes coordonnées</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -565,51 +499,32 @@ const Commande = () => {
         {/* Récap + envoi */}
         <section ref={recapRef} className="my-8">
           <div className="bg-card rounded-2xl shadow-soft p-5">
-            <h2 className="text-xl font-bold mb-2.5" style={{ fontFamily: '"Bitter", serif' }}>
+            <h2 className="text-xl font-bold mb-2.5" style={bitter}>
               🧺 Ma commande
             </h2>
             <ul className="list-none m-0 p-0">
-              {viennoCount === 0 && friandCount === 0 && (
+              {totalSachets === 0 && (
                 <li className="text-muted-foreground italic py-1.5">Ton panier est encore vide.</li>
               )}
-              {VIENNOISERIES.filter((p) => vienno[p.id] > 0).map((p) => (
-                <li key={p.id} className="flex justify-between gap-3 py-1.5 border-b border-dashed border-border text-sm">
-                  <span>{p.emoji} {p.name}</span>
-                  <span>× {vienno[p.id]}</span>
-                </li>
-              ))}
-              {viennoCount > 0 && (
-                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]" style={{ fontFamily: '"Bitter", serif' }}>
-                  {vp !== null ? (
-                    <>
-                      <span>Sous-total viennoiseries ({viennoCount} pièces)</span>
-                      <span>{eur(vp)}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Viennoiseries ({viennoCount} pièce{viennoCount > 1 ? "s" : ""})</span>
-                      <span>min. {VIENNO_MIN} pour un prix</span>
-                    </>
-                  )}
+              {renderRecapLines(VIENNOISERIES, vienno)}
+              {viennoSachets > 0 && (
+                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]" style={bitter}>
+                  <span>Sous-total viennoiseries ({pluralize(viennoSachets, "sachet", "sachets")})</span>
+                  <span>{eur(viennoTotal)}</span>
                 </li>
               )}
-              {FEUILLETES.filter((p) => friand[p.id] > 0).map((p) => (
-                <li key={p.id} className="flex justify-between gap-3 py-1.5 border-b border-dashed border-border text-sm">
-                  <span>{p.emoji} {p.name}</span>
-                  <span>× {friand[p.id]}</span>
-                </li>
-              ))}
-              {friandCount > 0 && (
-                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]" style={{ fontFamily: '"Bitter", serif' }}>
-                  <span>Sous-total feuilletés ({friandCount} friand{friandCount > 1 ? "s" : ""})</span>
-                  <span>{eur(fp)}</span>
+              {renderRecapLines(FEUILLETES, friand)}
+              {friandSachets > 0 && (
+                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]" style={bitter}>
+                  <span>Sous-total feuilletés ({pluralize(friandSachets, "sachet", "sachets")})</span>
+                  <span>{eur(friandTotal)}</span>
                 </li>
               )}
             </ul>
 
             <div className="flex justify-between items-baseline mt-3.5 pt-3 border-t-2 border-border">
               <span className="text-sm">Total à régler au retrait / à la livraison</span>
-              <b className="text-2xl text-[#185FA5]" style={{ fontFamily: '"Bitter", serif' }}>
+              <b className="text-2xl text-[#185FA5]" style={bitter}>
                 {totalStr}
               </b>
             </div>
@@ -618,21 +533,21 @@ const Commande = () => {
               <button
                 onClick={sendWhatsApp}
                 className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 bg-[#25D366] text-[#06371b] transition hover:-translate-y-0.5 hover:shadow-hover"
-                style={{ fontFamily: '"Bitter", serif' }}
+                style={bitter}
               >
                 📲 WhatsApp
               </button>
               <button
                 onClick={sendEmail}
                 className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 text-white transition hover:-translate-y-0.5 hover:shadow-hover"
-                style={{ fontFamily: '"Bitter", serif', backgroundImage: GRAD }}
+                style={{ ...bitter, backgroundImage: GRAD }}
               >
                 ✉️ Email
               </button>
               <button
                 onClick={copyRecap}
                 className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 bg-[#F5C842] text-[#5a4406] transition hover:-translate-y-0.5 hover:shadow-hover"
-                style={{ fontFamily: '"Bitter", serif' }}
+                style={bitter}
               >
                 📋 Copier
               </button>
@@ -664,18 +579,16 @@ const Commande = () => {
       <div className="fixed left-0 right-0 bottom-0 z-40 bg-white border-t border-border px-4 py-2.5 flex items-center justify-between gap-3 shadow-[0_-6px_20px_-10px_rgba(24,95,165,0.3)]">
         <div className="flex flex-col">
           <small className="text-muted-foreground text-xs">
-            {viennoCount + friandCount > 0
-              ? `${viennoCount + friandCount} article${viennoCount + friandCount > 1 ? "s" : ""}`
-              : "Panier vide"}
+            {totalSachets > 0 ? pluralize(totalSachets, "sachet", "sachets") : "Panier vide"}
           </small>
-          <b className="text-xl text-[#185FA5]" style={{ fontFamily: '"Bitter", serif' }}>
+          <b className="text-xl text-[#185FA5]" style={bitter}>
             {totalStr}
           </b>
         </div>
         <button
           onClick={() => recapRef.current?.scrollIntoView({ behavior: "smooth" })}
           className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
-          style={{ fontFamily: '"Bitter", serif', backgroundImage: GRAD }}
+          style={{ ...bitter, backgroundImage: GRAD }}
         >
           Finaliser ↓
         </button>

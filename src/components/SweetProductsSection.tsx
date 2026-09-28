@@ -1,77 +1,42 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
+import ProductLabelModal from "./ProductLabelModal";
+import ProductTags from "./ProductTags";
 import { useCart } from "@/context/CartContext";
+import { Product, VIENNOISERIES, eur } from "@/lib/catalog";
+
+/** Étiquette, sachet et prix viennent du catalogue. */
+const catalogProduct = (id: string) => VIENNOISERIES.find((p) => p.id === id)!;
+
+const sachetInfo = (id: string) => {
+  const p = catalogProduct(id);
+  return `${p.pieces} ${p.unit} · ${eur(p.price)}`;
+};
 
 const SweetProductsSection = () => {
-  const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [fabricationOpen, setFabricationOpen] = useState(false);
   const { addVienno } = useCart();
 
-  const handleAdd = (id: string, name: string) => {
+  const handleAdd = (id: string) => {
     addVienno(id, 1);
-    toast.success(`${name} ajoutée au panier 🥐`);
+    toast.success(`1 sachet de ${catalogProduct(id).name} ajouté au panier 🥐`, {
+      description: sachetInfo(id),
+    });
   };
 
-  const croissantFabrication = "La pâte est étalée, tourée, façonnée à la main dans ma cuisine. Puis bloquée au froid — pour que le beurre AOP garde toute sa fraîcheur jusqu'à ton four.";
-  const whereToBuyAll = "Disponible sur le marché du vendredi de la Ferme de la Goettaz et en livraisons sur Chambéry, Aix-les-Bains, Le Bourget-du-Lac et alentours.";
-
-  const products: (ProductDetail & { id: string; color: string; photo?: string; badge?: { icon: string; label: string; tooltip?: string } })[] = [
-    {
-      id: "lune",
-      name: "La Lune",
-      description: "Le classique. Un croissant rustique, né de longues heures à étaler la pâte, à plier, à recommencer en corrigeant la recette jusqu'à aboutir au résultat qu me plaît. C'est avec lui que tout a commencé.",
-      emoji: "🥐",
-      color: "bg-product-croissant",
-      // photo: "/images/viennoiseries/la-lune.jpg",
-      badge: { icon: "🌼", label: "Classique" },
-      ingredients: ["Farine", "Beurre", "Eau", "Lait", "Levure", "Sucre", "Sel"],
-      madeBy: croissantFabrication,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: "",
-    },
-    {
-      id: "cabosse",
-      name: "La Cabosse",
-      description: "Deux bâtons de chocolat dans chaque bouchée de feuilletage au beurre. Un classique que j'ai façonné pour que le chocolat ne te manque jamais.",
-      emoji: "🍫",
-      color: "bg-product-chocolat",
-      // photo: "/images/viennoiseries/la-cabosse.jpg",
-      ingredients: ["Base de pâte à croissant", "Bâtonnets de chocolat noir"],
-      madeBy: croissantFabrication,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: "",
-    },
-    {
-      id: "grappe",
-      name: "La Grappe",
-      description: "Une crème pâtissière chargée de vanille, des raisins secs généreux, roulés dans la pâte à croissant. La douceur du dimanche matin.",
-      emoji: "🍇",
-      color: "bg-product-raisin",
-      // photo: "/images/viennoiseries/la-grappe.jpg",
-      ingredients: ["Base de pâte à croissant", "Crème pâtissière à la vanille", "Raisins secs"],
-      madeBy: croissantFabrication + " Garni ensuite d'une crème pâtissière au lait entier infusé aux grains de vanille, et parsemé généreusement de raisins secs. Roulé puis détaillé en portions individuelles.",
-      whereToBuy: whereToBuyAll,
-      additionalInfo: "💡 Une suggestion d'Apolline (avec deux ailes) et de ses parents",
-    },
-    {
-      id: "rose",
-      name: "La Rose",
-      description: "Ma signature. Une spirale de praline rose croquante et de crème patissière vanille. Ma préférée — à partager comme on offre une fleur.",
-      emoji: "🌹",
-      color: "bg-product-rose",
-      // photo: "/images/viennoiseries/la-rose.jpg",
-      badge: { icon: "❤️", label: "Favorite du chef", tooltip: "Favorite du chef" },
-      ingredients: ["Base de pâte à croissant", "Crème pâtissière à la vanille (contient des oeufs)", "Praline rose croquante"],
-      madeBy: croissantFabrication + " Garni ensuite d'une crème pâtissière au lait entier infusé aux grains de vanille, et parsemé généreusement de pralines roses. Roulé puis détaillé en portions individuelles.",
-      whereToBuy: whereToBuyAll,
-      additionalInfo: "La spécialité de la maison – Favorite du chef.",
-    },
+  // Couleur de carte et pastille propres au site ; nom, description, pastilles et sachet
+  // viennent du catalogue (texte des étiquettes).
+  const cards: { id: string; color: string; badge?: { icon: string; label: string; tooltip?: string } }[] = [
+    { id: "lune", color: "bg-product-croissant", badge: { icon: "🌼", label: "Classique" } },
+    { id: "cabosse", color: "bg-product-chocolat" },
+    { id: "grappe", color: "bg-product-raisin" },
+    { id: "rose", color: "bg-product-rose", badge: { icon: "❤️", label: "Favorite du chef", tooltip: "Favorite du chef" } },
   ];
 
-  const handleProductClick = (product: ProductDetail) => {
-    setSelectedProduct(product);
+  const handleProductClick = (id: string) => {
+    setSelectedProduct(catalogProduct(id));
     setModalOpen(true);
   };
 
@@ -99,51 +64,58 @@ const SweetProductsSection = () => {
           ))}
         </div>
 
-        <ProductDetailModal
+        <ProductLabelModal
           product={selectedProduct}
           open={modalOpen}
           onOpenChange={setModalOpen}
         />
 
         <div className="grid md:grid-cols-2 gap-6">
-          {products.map((product, index) => (
+          {cards.map((card, index) => {
+            const product = catalogProduct(card.id);
+            return (
             <div
-              key={product.name}
-              className={`${product.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
+              key={product.id}
+              className={`${card.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {product.badge && (
+              {card.badge && (
                 <div
                   className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-sm font-medium flex items-center gap-1 shadow-soft"
-                  title={product.badge.tooltip}
+                  title={card.badge.tooltip}
                 >
-                  <span>{product.badge.icon}</span>
-                  <span className="text-foreground">{product.badge.label}</span>
+                  <span>{card.badge.icon}</span>
+                  <span className="text-foreground">{card.badge.label}</span>
                 </div>
               )}
               <div className="flex items-start gap-4">
                 <span className="text-4xl">{product.emoji}</span>
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-2 text-foreground">{product.name}</h3>
-                  <p className="text-foreground/80 text-sm leading-relaxed">{product.description}</p>
+                  <p className="text-foreground/80 text-sm leading-relaxed">{product.label.description}</p>
+                  <ProductTags product={product} className="mt-2.5" />
+                  <p className="text-xs font-semibold text-foreground/70 mt-2">
+                    Sachet de {sachetInfo(product.id)}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-4 flex-wrap">
                 <button
-                  onClick={() => handleProductClick(product)}
+                  onClick={() => handleProductClick(product.id)}
                   className="text-sm font-medium bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-full transition-colors"
                 >
                   Voir les détails →
                 </button>
                 <button
-                  onClick={() => handleAdd(product.id, product.name)}
+                  onClick={() => handleAdd(product.id)}
                   className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
                 >
                   + Panier
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <br /> <br />
