@@ -286,7 +286,7 @@ const Commande = () => {
           </Link>
           <div className="flex items-center justify-center gap-3 mb-1">
             <Logo className="w-11 h-11" />
-            <span className="font-brand text-3xl">Dedjo</span>
+            <span className="font-brand text-3xl text-brand-cream">Dedjo</span>
           </div>
           <p className="font-display italic text-white/95">
             L'artisanat qui se partage.

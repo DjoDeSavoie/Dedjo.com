@@ -106,7 +106,7 @@ const Navbar = () => {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <Logo className="w-10 h-10" />
-            <span className="font-brand text-2xl text-foreground">Dedjo</span>
+            <span className="font-brand text-2xl text-brand-night">Dedjo</span>
           </button>
 
           {/* Navigation desktop */}

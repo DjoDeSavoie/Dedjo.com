@@ -12,7 +12,7 @@ const Hero = () => {
     <section id="hero" className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-12 pt-24">
       <div className="flex items-center gap-4 mb-4 animate-fade-in">
         <Logo className="w-[6.6rem] h-[6.6rem]" />
-        <h1 className="font-brand text-5xl md:text-6xl text-foreground">
+        <h1 className="font-brand text-5xl md:text-6xl text-brand-night">
           Dedjo
         </h1>
       </div>

@@ -68,6 +68,9 @@ export default {
         // Handmade colors
         "handmade": "hsl(var(--handmade))",
         "handmade-dark": "hsl(var(--handmade-dark))",
+        // Nom de marque « Dedjo » : bleu nuit sur fond clair, crème sur fond sombre
+        "brand-night": "#163F6B",
+        "brand-cream": "#FBF5E9",
         // Product colors (pastries) - more contrasted for salty
         "product-goet": "#7bc98a",
         "product-montagne": "#ffaa8c",
