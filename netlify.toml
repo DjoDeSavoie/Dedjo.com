@@ -1,6 +1,10 @@
 [build]
   functions = "netlify/functions"
 
+# Node figé : l'installation neuve des dépendances (netlify-cli) échoue sous Node 18.16
+[build.environment]
+  NODE_VERSION = "22"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
