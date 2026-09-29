@@ -79,12 +79,12 @@ const PizzasSection = () => {
     <section id="pizzas" className="py-12 px-4 section-yellow">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🍕</span>
-        <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Les Pizzas</span></h2>
+        <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Les Pizzas</span></h2>
 
 
         {/* Salty Pizzas */}
         <div className="mb-12">
-          <h3 className="text-2xl text-center mb-6"><span className="font-pattaya text-2xl md:text-3xl text-foreground">Pizzas Salées</span></h3>
+          <h3 className="text-2xl text-center mb-6"><span className="font-display font-bold text-2xl md:text-3xl text-foreground">Pizzas Salées</span></h3>
           <div className="grid md:grid-cols-3 gap-6">
             {saltyPizzas.map((pizza, index) => (
               <button 
@@ -103,7 +103,7 @@ const PizzasSection = () => {
                 )}
                 <div className="text-center">
                   <span className="text-4xl block mb-3">{pizza.emoji}</span>
-                  <h4 className="font-display text-xl font-semibold mb-2 text-foreground">{pizza.name}</h4>
+                  <h4 className="font-display text-xl mb-2 text-foreground">{pizza.name}</h4>
                   <p className="text-foreground/80 text-sm">{pizza.description}</p>
                   <p className="text-sm text-white mt-3 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
                 </div>
@@ -114,7 +114,7 @@ const PizzasSection = () => {
 
         {/* Sweet Pizzas */}
         <div>
-          <h3 className="text-2xl text-center mb-6"><span className="font-pattaya text-2xl md:text-3xl text-foreground">Pizzas Sucrées</span></h3>
+          <h3 className="text-2xl text-center mb-6"><span className="font-display font-bold text-2xl md:text-3xl text-foreground">Pizzas Sucrées</span></h3>
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {sweetPizzas.map((pizza, index) => (
               <button 
@@ -133,7 +133,7 @@ const PizzasSection = () => {
                 )}
                 <div className="text-center">
                   <span className="text-4xl block mb-3">{pizza.emoji}</span>
-                  <h4 className="font-display text-xl font-semibold mb-2 text-foreground">{pizza.name}</h4>
+                  <h4 className="font-display text-xl mb-2 text-foreground">{pizza.name}</h4>
                   <p className="text-foreground/80 text-sm">{pizza.description}</p>
                   <p className="text-sm text-white mt-3 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
                 </div>
@@ -146,7 +146,7 @@ const PizzasSection = () => {
 
          {/* Team Introduction */}
         <div className="bg-card rounded-2xl p-6 mb-6 text-center shadow-soft">
-          <h3 className="font-display text-2xl font-semibold mb-4">L'Équipe</h3>
+          <h3 className="font-display text-2xl mb-4">L'Équipe</h3>
           <p className="text-foreground leading-relaxed mb-4">
             Cousins, frères et sœurs — on se retrouve le vendredi à la Goëttaz. On prend ta commande, on étale la pâte, on garnit, on enfourne. < br/> Chaque pizza sort du four avec les mains de tout le monde, et le sourire avec.
           </p>

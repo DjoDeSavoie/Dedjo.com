@@ -199,7 +199,7 @@ const Commande = () => {
             {p.emoji}
           </span>
           <div>
-            <h3 className="font-bold text-foreground" style={{ fontFamily: '"Bitter", serif' }}>
+            <h3 className="text-foreground">
               {p.name}
             </h3>
             {p.type && <p className="text-xs text-muted-foreground">{p.type}</p>}
@@ -222,7 +222,6 @@ const Commande = () => {
             </button>
             <span
               className="min-w-[28px] text-center font-bold text-lg"
-              style={{ fontFamily: '"Bitter", serif' }}
               aria-live="polite"
             >
               {count}
@@ -269,7 +268,6 @@ const Commande = () => {
       sel ? "border-[#2A7FD0] bg-[#eef5fc]" : "border-border bg-white hover:border-[#2A7FD0]"
     }`;
   const sectionTitle = "text-2xl font-bold text-foreground";
-  const bitter = { fontFamily: '"Bitter", serif' };
 
   const totalStr = total > 0 ? eur(total) : "—";
 
@@ -288,11 +286,9 @@ const Commande = () => {
           </Link>
           <div className="flex items-center justify-center gap-3 mb-1">
             <Logo className="w-11 h-11" />
-            <span className="font-pattaya text-3xl" style={{ letterSpacing: "2px" }}>
-              Dedjo
-            </span>
+            <span className="font-brand text-3xl">Dedjo</span>
           </div>
-          <p className="italic text-white/95" style={{ fontFamily: '"Playfair Display", serif' }}>
+          <p className="font-display italic text-white/95">
             L'artisanat qui se partage.
           </p>
           <p className="mt-3 text-sm text-white/95 max-w-lg mx-auto">
@@ -312,7 +308,7 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="text-2xl">🥐</span>
-            <h2 className={sectionTitle} style={bitter}>Les viennoiseries</h2>
+            <h2 className={sectionTitle}>Les viennoiseries</h2>
           </div>
           <p className="text-muted-foreground mb-4 text-sm">
             Vendues en sachet, <strong>{eur(PRIX_SACHET)} le sachet</strong>. Compose ton panier comme tu veux, autant de sachets de chaque création.
@@ -326,7 +322,7 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-1">
             <span className="text-2xl">🥧</span>
-            <h2 className={sectionTitle} style={bitter}>Les feuilletés salés</h2>
+            <h2 className={sectionTitle}>Les feuilletés salés</h2>
           </div>
           <p className="text-muted-foreground mb-4 text-sm">
             De gros friands feuilletés, garnis à la main. Chaque sachet contient {FEUILLETES[0].pieces} {FEUILLETES[0].unit} de la même gamme, pour <strong>{eur(PRIX_SACHET)}</strong>.
@@ -340,7 +336,7 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="text-2xl">🍕</span>
-            <h2 className={sectionTitle} style={bitter}>Les pizzas du vendredi</h2>
+            <h2 className={sectionTitle}>Les pizzas du vendredi</h2>
           </div>
           <div className="bg-card rounded-2xl shadow-soft p-4 flex gap-3.5 items-start border-l-4 border-[#F5C842]">
             <span className="text-3xl leading-none">🔥</span>
@@ -354,7 +350,7 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="text-2xl">📍</span>
-            <h2 className={sectionTitle} style={bitter}>Où je te retrouve ?</h2>
+            <h2 className={sectionTitle}>Où je te retrouve ?</h2>
           </div>
 
           <fieldset className="mb-4">
@@ -454,7 +450,7 @@ const Commande = () => {
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="text-2xl">✍️</span>
-            <h2 className={sectionTitle} style={bitter}>Tes coordonnées</h2>
+            <h2 className={sectionTitle}>Tes coordonnées</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -499,7 +495,7 @@ const Commande = () => {
         {/* Récap + envoi */}
         <section ref={recapRef} className="my-8">
           <div className="bg-card rounded-2xl shadow-soft p-5">
-            <h2 className="text-xl font-bold mb-2.5" style={bitter}>
+            <h2 className="text-xl font-bold mb-2.5">
               🧺 Ma commande
             </h2>
             <ul className="list-none m-0 p-0">
@@ -508,14 +504,14 @@ const Commande = () => {
               )}
               {renderRecapLines(VIENNOISERIES, vienno)}
               {viennoSachets > 0 && (
-                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]" style={bitter}>
+                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]">
                   <span>Sous-total viennoiseries ({pluralize(viennoSachets, "sachet", "sachets")})</span>
                   <span>{eur(viennoTotal)}</span>
                 </li>
               )}
               {renderRecapLines(FEUILLETES, friand)}
               {friandSachets > 0 && (
-                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]" style={bitter}>
+                <li className="flex justify-between gap-3 py-1.5 font-bold text-[#185FA5]">
                   <span>Sous-total feuilletés ({pluralize(friandSachets, "sachet", "sachets")})</span>
                   <span>{eur(friandTotal)}</span>
                 </li>
@@ -524,7 +520,7 @@ const Commande = () => {
 
             <div className="flex justify-between items-baseline mt-3.5 pt-3 border-t-2 border-border">
               <span className="text-sm">Total à régler au retrait / à la livraison</span>
-              <b className="text-2xl text-[#185FA5]" style={bitter}>
+              <b className="text-2xl text-[#185FA5]">
                 {totalStr}
               </b>
             </div>
@@ -533,21 +529,19 @@ const Commande = () => {
               <button
                 onClick={sendWhatsApp}
                 className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 bg-[#25D366] text-[#06371b] transition hover:-translate-y-0.5 hover:shadow-hover"
-                style={bitter}
               >
                 📲 WhatsApp
               </button>
               <button
                 onClick={sendEmail}
                 className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 text-white transition hover:-translate-y-0.5 hover:shadow-hover"
-                style={{ ...bitter, backgroundImage: GRAD }}
+                style={{ backgroundImage: GRAD }}
               >
                 ✉️ Email
               </button>
               <button
                 onClick={copyRecap}
                 className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 bg-[#F5C842] text-[#5a4406] transition hover:-translate-y-0.5 hover:shadow-hover"
-                style={bitter}
               >
                 📋 Copier
               </button>
@@ -581,14 +575,14 @@ const Commande = () => {
           <small className="text-muted-foreground text-xs">
             {totalSachets > 0 ? pluralize(totalSachets, "sachet", "sachets") : "Panier vide"}
           </small>
-          <b className="text-xl text-[#185FA5]" style={bitter}>
+          <b className="text-xl text-[#185FA5]">
             {totalStr}
           </b>
         </div>
         <button
           onClick={() => recapRef.current?.scrollIntoView({ behavior: "smooth" })}
           className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
-          style={{ ...bitter, backgroundImage: GRAD }}
+          style={{ backgroundImage: GRAD }}
         >
           Finaliser ↓
         </button>

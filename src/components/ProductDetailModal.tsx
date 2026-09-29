@@ -41,7 +41,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
         <div className="space-y-4 pt-2">
           {/* Ingredients */}
           <div>
-            <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+            <h4 className="text-foreground mb-2 flex items-center gap-2">
               📋 Ingrédients
             </h4>
             <ul className="text-sm text-muted-foreground space-y-1">
@@ -56,7 +56,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
 
           {/* Made By */}
           <div>
-            <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">
+            <h4 className="text-foreground mb-1 flex items-center gap-2">
               👨‍🍳 Fabrication
             </h4>
             <p className="text-sm text-muted-foreground">{product.madeBy}</p>
@@ -64,7 +64,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
 
           {/* Where to Buy */}
           <div>
-            <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">
+            <h4 className="text-foreground mb-1 flex items-center gap-2">
               📍 Où acheter
             </h4>
             <p className="text-sm text-muted-foreground">{product.whereToBuy}</p>
@@ -73,7 +73,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
           {/* Additional Info */}
           {product.additionalInfo && (
             <div>
-              <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">
+              <h4 className="text-foreground mb-1 flex items-center gap-2">
                 ℹ️ Bon à savoir
               </h4>
               <p className="text-sm text-muted-foreground">{product.additionalInfo}</p>

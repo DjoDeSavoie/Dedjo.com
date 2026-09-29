@@ -38,7 +38,7 @@ const NewsletterSection = () => {
           <GrowingPlant className="w-24 h-28" />
         </div>
         
-        <h2 className="section-title font-pattaya tracking-wide">Grandir ensemble</h2>
+        <h2 className="section-title">Grandir ensemble</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
           Les nouvelles créations, les vendredis pizzas, les livraisons de saison — tu es le premier à savoir.<br />
           <span className="italic">Une lettre de temps en temps, pas de bruit inutile.</span>
@@ -46,7 +46,7 @@ const NewsletterSection = () => {
         
         {/* Newsletter subscription */}
         <div className="mb-12">
-          <h3 className="text-xl font-display font-semibold mb-4 text-foreground">📬 S'abonner à la newsletter</h3>
+          <h3 className="text-xl font-display mb-4 text-foreground">📬 S'abonner à la newsletter</h3>
           <NewsletterForm />
         </div>
 
@@ -59,7 +59,7 @@ const NewsletterSection = () => {
 
         {/* Contact form */}
         <div>
-          <h3 className="text-xl font-display font-semibold mb-2 text-foreground">💬 Partagez vos idées</h3>
+          <h3 className="text-xl font-display mb-2 text-foreground">💬 Partagez vos idées</h3>
           <p className="text-muted-foreground mb-6 text-sm">
             Une idée de recette, une envie, un retour sur une fournée — j'aime savoir ce que tu en penses.<br />
             <span className="italic">C'est comme ça qu'on grandit.</span>

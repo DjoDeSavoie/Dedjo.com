@@ -13,15 +13,11 @@ export default {
       },
     },
     extend: {
+      // Charte typographique Dedjo (polices chargées dans src/main.tsx)
       fontFamily: {
-        display: ["var(--font-display)", "serif"],
-        body: ["var(--font-body)", "sans-serif"],
-        handwritten: ["var(--font-handwritten)", "cursive"],
-        artisan: ["var(--font-artisan)", "serif"],
-        handmade: ["var(--font-handmade)", "cursive"],
-        title: ["var(--font-title)", "sans-serif"],
-        anton: ["var(--font-anton)", "sans-serif"],
-        pattaya: ["var(--font-pattaya)", "sans-serif"],
+        brand: ['"Young Serif"', "Georgia", "serif"], // nom de marque « Dedjo » uniquement
+        display: ['"Fraunces Variable"', '"Fraunces"', "Georgia", "serif"], // titres et accroches
+        body: ['"Nunito Variable"', '"Nunito"', "system-ui", "sans-serif"], // texte courant
       },
       colors: {
         border: "hsl(var(--border))",

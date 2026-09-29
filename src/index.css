@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Pattaya&family=Bitter:wght@500;600;700&family=Outfit:wght@300;400;500&family=Handlee&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Playfair+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
-
+/* Polices auto-hébergées via fontsource : voir src/main.tsx */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -58,16 +57,6 @@
     /* Shadows */
     --shadow-soft: 0 4px 20px -4px hsl(200 40% 30% / 0.12);
     --shadow-hover: 0 8px 30px -8px hsl(200 40% 30% / 0.18);
-
-    /* Fonts */
-    --font-display: 'Playfair Display', serif;
-    --font-body: 'Nunito', sans-serif;
-    --font-handwritten: 'Dancing Script', cursive;
-    --font-artisan: 'Fraunces', serif;
-    --font-handmade: 'Handlee', cursive;
-    --font-title: 'Outfit', sans-serif;
-    --font-anton: 'Anton', sans-serif;
-    --font-pattaya: 'Pattaya', sans-serif;
 
     /* Couleur titre Dedjo — ambre chaud, entre le jaune et l'orange du logo */
     --color-dedjo: #C8690A;
@@ -132,10 +121,6 @@
   .text-balance {
     text-wrap: balance;
   }
-
-  /* .font-artisan {
-  font-family: var(--font-artisan);
-  } */
 }
 
 @layer components {
@@ -152,7 +137,7 @@
   }
 
   .section-title {
-    @apply font-display text-3xl md:text-4xl font-semibold text-foreground mb-5 text-center;
+    @apply font-display text-3xl md:text-4xl font-bold leading-tight text-foreground mb-5 text-center;
   }
 
   .shadow-soft {

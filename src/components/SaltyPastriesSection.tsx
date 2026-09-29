@@ -93,7 +93,7 @@ const SaltyPastriesSection = () => {
     <section id="salty-pastries" className="py-12 px-4 section-sky">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥧</span>
-        <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Feuilletés Salés</span></h2>
+        <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Feuilletés Salés</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Une pâte feuilletée maison. Des garnitures du paysage savoyard.<br />
           En bouchées pour partager et en friands.<br />
@@ -110,7 +110,7 @@ const SaltyPastriesSection = () => {
 
         {/* Flavors */}
         <div className="mb-12">
-          <h3 className="font-display text-2xl font-semibold text-center mb-6">Quatre Préparations</h3>
+          <h3 className="font-display text-2xl text-center mb-6">Quatre Préparations</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {flavors.map((flavor, index) => (
               <div
@@ -121,7 +121,7 @@ const SaltyPastriesSection = () => {
                 <div className="flex items-start gap-4">
                   <span className="text-4xl">{flavor.emoji}</span>
                   <div>
-                    <h4 className="font-display text-xl font-semibold mb-2">{flavor.name}</h4>
+                    <h4 className="font-display text-xl mb-2">{flavor.name}</h4>
                     <p className="text-foreground/80">{flavor.description}</p>
                     <p className="text-xs font-semibold text-foreground/70 mt-2">Sachet de {sachetInfo(flavor.id)}</p>
                   </div>
@@ -147,20 +147,20 @@ const SaltyPastriesSection = () => {
 
         {/* Recipe Card */}
         <div className="bg-card rounded-2xl p-6 mb-8 shadow-soft max-w-2xl mx-auto text-center">
-          <h3 className="text-2xl mb-2">🍽️ <span className="font-pattaya text-2xl md:text-3xl text-foreground">La cuisson</span></h3>
+          <h3 className="text-2xl mb-2">🍽️ <span className="font-display font-bold text-2xl md:text-3xl text-foreground">La cuisson</span></h3>
           <p className="text-muted-foreground italic mb-5">Simple. Direct. Bon.</p>
           <p className="text-foreground leading-relaxed">
             Direct du congélateur au four à <strong>180 °C</strong>.<br />
             Laisse cuire <strong>25 minutes</strong> — un peu plus si tu les aimes bien dorés.
           </p>
-          <p className="font-handmade text-lg tracking-wide text-handmade-dark italic mt-4">
+          <p className="font-display italic text-lg text-handmade-dark mt-4">
             Laisse ton four faire le reste, et régale-toi.
           </p>
         </div>
 
         {/* Sizes */}
         <div>
-          <h3 className="font-display text-2xl font-semibold text-center mb-6">Formats Disponibles</h3>
+          <h3 className="font-display text-2xl text-center mb-6">Formats Disponibles</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {sizes.map((size, index) => (
               <div 
@@ -171,7 +171,7 @@ const SaltyPastriesSection = () => {
                 <div className="flex items-start gap-4">
                   <span className="text-4xl">{size.emoji}</span>
                   <div>
-                    <h4 className="font-display text-xl font-semibold mb-2">{size.name}</h4>
+                    <h4 className="font-display text-xl mb-2">{size.name}</h4>
                     <p className="text-muted-foreground">{size.description}</p>
                   </div>
                 </div>

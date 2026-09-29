@@ -6,7 +6,7 @@ const OrderSection = () => {
       <div className="container max-w-5xl">
         <span className="text-5xl mb-4 block text-center">📞</span>
         <h2 className="section-title">
-          <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
+          <span className="font-display italic font-normal text-2xl md:text-3xl text-handmade-dark">
             Commander
           </span>
         </h2>
@@ -17,7 +17,7 @@ const OrderSection = () => {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Présentation de Djo */}
           <div className="bg-card rounded-2xl p-8 shadow-soft">
-            <h3 className="font-display text-2xl font-semibold mb-4 flex items-center gap-3">
+            <h3 className="font-display text-2xl mb-4 flex items-center gap-3">
               <span className="text-3xl">👨🏻‍🍳</span>
               Qui est Djo ?
             </h3>
@@ -28,13 +28,13 @@ const OrderSection = () => {
               Très jeune, mes grands-parents m'ont transmis un savoir-faire artisanal qui s'est naturellement transformé en passion.
             </p>
             <p className="text-foreground/90 leading-relaxed">
-              À travers <span className="font-display font-semibold text-primary">De Djo</span>, je souhaite transmettre des valeurs essentielles : le partage, la conscience derrière chaque geste artisanal, et le respect du métier de boulanger.
+              À travers <span className="font-display text-primary">De Djo</span>, je souhaite transmettre des valeurs essentielles : le partage, la conscience derrière chaque geste artisanal, et le respect du métier de boulanger.
             </p>
           </div>
 
           {/* Contact Info */}
           <div className="bg-card rounded-2xl p-8 shadow-soft">
-            <h3 className="font-display text-2xl font-semibold mb-6 flex items-center gap-3">
+            <h3 className="font-display text-2xl mb-6 flex items-center gap-3">
               <Phone className="w-6 h-6 text-primary" />
               Nous contacter
             </h3>
@@ -43,7 +43,7 @@ const OrderSection = () => {
             </p>
             <a 
               href="tel:+33777282023" 
-              className="text-2xl font-display font-semibold text-primary hover:text-primary/80 transition-colors"
+              className="text-2xl font-display text-primary hover:text-primary/80 transition-colors"
             >
               07 77 28 20 23
             </a>
@@ -53,7 +53,7 @@ const OrderSection = () => {
 
             {/* Location */}
             <div className="mt-8 pt-6 border-t border-border">
-              <h4 className="font-display text-lg font-semibold mb-3 flex items-center gap-2">
+              <h4 className="font-display text-lg mb-3 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
                 Notre Pizzeria
               </h4>

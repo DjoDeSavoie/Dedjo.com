@@ -5,7 +5,7 @@ const HistoireSection = () => {
 
         <div className="text-center mb-10">
           <span className="text-5xl mb-4 block">🌼</span>
-          <h2 className="font-display text-4xl font-bold text-foreground mb-3">
+          <h2 className="font-display text-4xl text-foreground mb-3">
             Mon histoire
           </h2>
           <p className="text-lg text-muted-foreground italic">
@@ -31,7 +31,7 @@ const HistoireSection = () => {
 
           <div className="text-center text-2xl py-1">🌼</div>
 
-          <p className="font-handmade text-xl text-handmade-dark italic text-center pt-4 pb-2">
+          <p className="font-display italic text-xl text-handmade-dark text-center pt-4 pb-2">
             Désormais, vous me connaissez un peu mieux,<br />
             À très bientôt,<br />
             Djo

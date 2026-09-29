@@ -51,7 +51,7 @@ const Discover = () => {
       <section className="pt-24 pb-10 px-6 bg-sky-blue">
         <div className="container max-w-4xl text-center">
           <span className="text-6xl mb-6 block">✨</span>
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h1 className="font-display text-4xl md:text-5xl text-foreground mb-6">
             Découvrir l'univers{" "}
             <span className="text-primary">Dedjo</span>
           </h1>
@@ -66,13 +66,13 @@ const Discover = () => {
         <div className="container max-w-4xl">
           <span className="text-5xl mb-4 block text-center">👨🏻‍🍳</span>
           <h2 className="section-title">
-            <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
+            <span className="font-display italic font-normal text-2xl md:text-3xl text-handmade-dark">
               Qui suis-je
             </span>
           </h2>
           <div className="bg-card rounded-2xl p-8 shadow-soft">
             <p className="text-lg text-foreground leading-relaxed mb-6">
-              Bonjour et bienvenue chez <span className="font-display font-semibold text-primary">Dedjo</span> !
+              Bonjour et bienvenue chez <span className="font-display text-primary">Dedjo</span> !
             </p>
             <p className="text-foreground/90 leading-relaxed mb-4">
               Issu d'une famille d'agriculteurs et de marchands, 
@@ -95,7 +95,7 @@ const Discover = () => {
         <div className="container max-w-6xl">
           <span className="text-5xl mb-4 block text-center">📸</span>
           <h2 className="section-title">
-            <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
+            <span className="font-display italic font-normal text-2xl md:text-3xl text-handmade-dark">
               Notre univers en images
             </span>
           </h2>
@@ -111,7 +111,7 @@ const Discover = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <span className="text-5xl block mb-4 text-center">{photo.emoji}</span>
-                <h3 className="font-display text-xl font-semibold text-center mb-2 text-foreground">
+                <h3 className="font-display text-xl text-center mb-2 text-foreground">
                   {photo.title}
                 </h3>
                 <p className="text-center text-foreground/80 text-sm">
@@ -128,7 +128,7 @@ const Discover = () => {
         <div className="container max-w-5xl">
           <span className="text-5xl mb-4 block text-center">📞</span>
           <h2 className="section-title">
-            <span className="font-handmade text-2xl md:text-3xl tracking-wide text-handmade-dark">
+            <span className="font-display italic font-normal text-2xl md:text-3xl text-handmade-dark">
               Commander
             </span>
           </h2>
@@ -139,7 +139,7 @@ const Discover = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Contact Info */}
             <div className="bg-card rounded-2xl p-8 shadow-soft">
-              <h3 className="font-display text-2xl font-semibold mb-6 flex items-center gap-3">
+              <h3 className="font-display text-2xl mb-6 flex items-center gap-3">
                 <Phone className="w-6 h-6 text-primary" />
                 Nous contacter
               </h3>
@@ -148,7 +148,7 @@ const Discover = () => {
               </p>
               <a 
                 href="tel:+33777282023" 
-                className="text-2xl font-display font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="text-2xl font-display text-primary hover:text-primary/80 transition-colors"
               >
                 07 77 28 20 23
               </a>
@@ -159,7 +159,7 @@ const Discover = () => {
 
             {/* Location */}
             <div className="bg-card rounded-2xl p-8 shadow-soft">
-              <h3 className="font-display text-2xl font-semibold mb-6 flex items-center gap-3">
+              <h3 className="font-display text-2xl mb-6 flex items-center gap-3">
                 <MapPin className="w-6 h-6 text-primary" />
                 Notre Pizzeria
               </h3>

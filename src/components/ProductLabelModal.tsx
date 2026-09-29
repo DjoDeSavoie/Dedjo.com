@@ -28,7 +28,7 @@ const renderBold = (text: string) =>
 
 const Section = ({ title, children }: { title: string; children: ReactNode }) => (
   <div>
-    <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">{title}</h4>
+    <h4 className="text-foreground mb-1 flex items-center gap-2">{title}</h4>
     <div className="text-sm text-muted-foreground space-y-1">{children}</div>
   </div>
 );

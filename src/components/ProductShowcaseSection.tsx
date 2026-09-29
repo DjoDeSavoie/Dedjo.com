@@ -49,7 +49,7 @@ const ProductShowcaseSection = () => {
           <img src={fleurTati} alt="Dessin de fleur de Tati" className="w-20 h-20" />
         </div>
         <h2 className="section-title">
-          <span className="font-pattaya font-normal text-3xl md:text-4xl tracking-wide text-foreground">
+          <span className="font-display font-bold text-3xl md:text-4xl text-foreground">
             Nos Créations Artisanales
           </span>
         </h2>
@@ -66,7 +66,7 @@ const ProductShowcaseSection = () => {
               className={`${product.bgColor} ${product.hoverBg} border-2 ${product.borderColor} rounded-2xl p-6 flex flex-col items-center text-center shadow-soft hover:shadow-lg transition-all duration-300 hover:scale-[1.02]`}
             >
               <span className="text-5xl mb-4">{product.emoji}</span>
-              <h3 className="font-display text-xl font-bold text-foreground mb-3">
+              <h3 className="font-display text-xl text-foreground mb-3">
                 {product.title}
               </h3>
               <p className="text-foreground/80 text-sm leading-relaxed mb-6 flex-grow">

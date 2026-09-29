@@ -16,7 +16,7 @@ const Footer = () => {
         <div className="container max-w-4xl text-center">
           <div className="flex items-center justify-center gap-3 mb-2">
             <Instagram className="w-7 h-7 text-primary" />
-            <h2 className="font-display text-3xl font-bold text-foreground">@Dedjo_</h2>
+            <h2 className="font-display text-3xl text-foreground">@Dedjo_</h2>
           </div>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto">
             Suivez nos créations au quotidien — croissants tout chauds, enfournements du matin et moments en famille.

@@ -44,7 +44,7 @@ const SweetProductsSection = () => {
     <section id="sweet-products" className="py-12 px-4 section-cream">
       <div className="container max-w-6xl">
         <span className="text-5xl mb-4 block text-center">🥐</span>
-        <h2 className="section-title"><span className="font-pattaya text-3xl md:text-4xl text-foreground">Viennoiseries</span></h2>
+        <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Viennoiseries</span></h2>
         <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
           Une viennoiserie à enfourner chez soi facilement, pour embaumer la maison d'une douce odeur de boulangerie.
         </p>
@@ -91,7 +91,7 @@ const SweetProductsSection = () => {
               <div className="flex items-start gap-4">
                 <span className="text-4xl">{product.emoji}</span>
                 <div>
-                  <h3 className="font-display text-xl font-semibold mb-2 text-foreground">{product.name}</h3>
+                  <h3 className="font-display text-xl mb-2 text-foreground">{product.name}</h3>
                   <p className="text-foreground/80 text-sm leading-relaxed">{product.label.description}</p>
                   <ProductTags product={product} className="mt-2.5" />
                   <p className="text-xs font-semibold text-foreground/70 mt-2">
@@ -122,7 +122,7 @@ const SweetProductsSection = () => {
 
         {/* Recipe Card */}
         <div className="bg-card rounded-2xl p-6 mb-6 shadow-soft max-w-3xl mx-auto">
-          <h3 className="text-2xl mb-4 text-center">🔥 <span className="font-pattaya text-2xl md:text-3xl text-foreground">Recette de Préparation</span></h3>
+          <h3 className="text-2xl mb-4 text-center">🔥 <span className="font-display font-bold text-2xl md:text-3xl text-foreground">Recette de Préparation</span></h3>
           <div className="space-y-5 text-foreground leading-relaxed">
             <div className="flex items-start gap-3">
               <span className="text-xl flex-shrink-0">1️⃣</span>
@@ -143,7 +143,7 @@ const SweetProductsSection = () => {
             onClick={() => setFabricationOpen(!fabricationOpen)}
             className="w-full bg-card rounded-2xl p-5 shadow-soft flex items-center justify-between text-left hover:shadow-hover transition-all duration-200"
           >
-            <span className="font-pattaya text-xl text-foreground">Comment naissent tes viennoiseries ?</span>
+            <span className="font-display font-bold text-xl text-foreground">Comment naissent tes viennoiseries ?</span>
             <span className="text-2xl text-primary transition-transform duration-300" style={{ transform: fabricationOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
           </button>
 
