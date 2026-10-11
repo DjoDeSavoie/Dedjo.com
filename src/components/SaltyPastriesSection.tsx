@@ -155,8 +155,8 @@ const SaltyPastriesSection = () => {
           <h3 className="text-2xl mb-2">🍽️ <span className="font-display font-bold text-2xl md:text-3xl text-foreground">La cuisson</span></h3>
           <p className="text-muted-foreground italic mb-5">Simple. Direct. Bon.</p>
           <p className="text-foreground leading-relaxed">
-            Direct du congélateur au four à <strong>180 °C</strong>.<br />
-            Laisse cuire <strong>25 minutes</strong> — un peu plus si tu les aimes bien dorés.
+            Direct du congélateur, dans ton four préchauffé à <strong>180 °C</strong>.<br />
+            Laisse cuire <strong>30 minutes</strong>.
           </p>
           <p className="font-display italic text-lg text-handmade-dark mt-4">
             Laisse ton four faire le reste, et régale-toi.

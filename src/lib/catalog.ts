@@ -119,7 +119,7 @@ export interface Product {
    MENTIONS COMMUNES AUX ÉTIQUETTES VIENNOISERIES
    =================================================================== */
 const PREPARATION_VIENNOISERIE =
-  "Dispose tes viennoiseries **faites main** dans ton four éteint. Allume à **180 °C** — laisse 25 minutes, et jusqu'à 10 minutes de plus, selon tes goûts. Régale-toi !";
+  "Préchauffe ton four à **180 °C**. Enfourne tes viennoiseries **faites main** directement sorties du congélateur, sans décongeler : **25 minutes**. Régale-toi !";
 const MENTION_ARTISANALE =
   "Viennoiseries artisanales et locales, produites à la main, avec des ingrédients de qualité et le sourire d'un boulanger passionné.";
 const DDM_SACHET = "À consommer de préférence avant la date indiquée sur le sachet.";
@@ -242,7 +242,8 @@ export const VIENNOISERIES: Product[] = [
    (⚠️ Étiquettes encore provisoires : ingrédients et allergènes à valider
     avec les vraies recettes avant mise en ligne — sécurité alimentaire.)
    =================================================================== */
-const PREPARATION_FEUILLETE = "Direct du congélateur au four à **180 °C**, 25 minutes, sans décongeler.";
+const PREPARATION_FEUILLETE =
+  "Préchauffe ton four à **180 °C**. Enfourne tes friands directement sortis du congélateur, sans décongeler : **30 minutes**.";
 
 export const FEUILLETES: Product[] = [
   {

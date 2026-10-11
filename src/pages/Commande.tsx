@@ -127,6 +127,8 @@ const Commande = () => {
     if (!form.prenom.trim()) errs.push("Indique ton prénom.");
     if (!form.nom.trim()) errs.push("Indique ton nom.");
     if (!form.tel.trim()) errs.push("Indique ton téléphone.");
+    if (!form.email.trim()) errs.push("Indique ton email : je t'y envoie le récapitulatif de ta commande.");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.push("Vérifie ton email : il semble incomplet.");
     return errs;
   };
 
@@ -300,7 +302,7 @@ const Commande = () => {
           </Link>
           <h1 className="text-3xl font-bold">Commander</h1>
           <p className="mt-2 text-white/95">
-            Choisis tes sachets, dis-moi où je te retrouve, puis envoie-moi ta commande : tu règles au retrait ou à la livraison, rien à payer en ligne.
+            Choisis tes sachets, dis-moi où je te retrouve, puis envoie-moi ta commande : tu règles en espèces quand tu la récupères, rien à payer en ligne.
           </p>
         </div>
       </header>
@@ -455,7 +457,7 @@ const Commande = () => {
             </div>
             <div>
               <label htmlFor="email" className="block font-bold mb-1.5 text-sm">
-                Email <span className="text-muted-foreground text-xs font-normal">(optionnel)</span>
+                Email <span className="text-destructive">*</span>
               </label>
               <input id="email" type="email" autoComplete="email" value={form.email} onChange={(e) => set("email", e.target.value)} className={inputClass} />
             </div>
@@ -552,7 +554,7 @@ const Commande = () => {
             </ul>
 
             <div className="flex justify-between items-baseline mt-3.5 pt-3 border-t-2 border-border">
-              <span className="text-sm">Total à régler au retrait / à la livraison</span>
+              <span className="text-sm">Total à régler en espèces</span>
               <b className="text-2xl text-[#185FA5]">
                 {totalStr}
               </b>
@@ -622,7 +624,7 @@ const Commande = () => {
             )}
 
             <p className="mt-3.5 text-sm text-muted-foreground text-center">
-              Réservation sans paiement en ligne — tu règles en main propre au retrait ou à la livraison. 💛
+              Réservation sans paiement en ligne : tu règles en espèces quand tu récupères ta commande. 💛
             </p>
           </div>
           )}

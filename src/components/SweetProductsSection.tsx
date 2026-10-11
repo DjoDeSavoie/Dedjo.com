@@ -130,11 +130,11 @@ const SweetProductsSection = () => {
           <div className="space-y-5 text-foreground leading-relaxed">
             <div className="flex items-start gap-3">
               <span className="text-xl flex-shrink-0">1️⃣</span>
-              <p>Sors tes viennoiseries du congélateur, dispose-les sur une plaque ou une grille recouverte de papier cuisson. Mets-les dans ton four éteint.</p>
+              <p>Préchauffe ton four à <strong>180 °C</strong>.</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-xl flex-shrink-0">2️⃣</span>
-              <p>Allume ton four à <strong>180 °C</strong>, laisse <strong>25 minutes</strong> — plus ou moins, selon tes goûts.</p>
+              <p>Sors tes viennoiseries du congélateur, dispose-les sur une plaque recouverte de papier cuisson et enfourne-les directement, sans décongeler : <strong>25 minutes</strong>.</p>
             </div>
           </div>
           <p className="text-center mt-6 text-lg">Régale-toi. 🥐</p>

@@ -4,11 +4,19 @@ Quand un client clique sur « Valider ma commande » :
 
 ```
 Site (/commande) ──▶ Fonction Netlify (/api/commande) ──▶ Google Apps Script ──▶ Google Sheet « Commandes »
-                      URL du script + secret                revérifie et recalcule   └──▶ message Telegram sur ton téléphone
-                      gardés côté serveur                                                 (e-mail de secours si Telegram échoue)
+                      URL du script + secret                revérifie et recalcule   ├──▶ e-mail de récapitulatif au client
+                      gardés côté serveur                                                 └──▶ message Telegram sur ton téléphone
+                                                                                               (e-mail de secours si Telegram échoue)
 ```
 
 Compte environ 20 minutes. Il te faut : ton compte Google, l'accès à Netlify, ton téléphone avec Telegram.
+
+> **Mise à jour d'une installation existante** (e-mail de récapitulatif au client, bouton WhatsApp) :
+> 1. Recolle **tout** le nouveau `Code.gs` dans l'éditeur Apps Script, puis 💾 Enregistrer.
+> 2. Lance **`testEmailClient`** (étape 6). Apps Script demande une **nouvelle autorisation**, pour envoyer des e-mails en ton nom : accepte-la (même procédure qu'à la première installation).
+> 3. Publie une **nouvelle version** du déploiement : **Déployer > Gérer les déploiements > ✏️ > Version : Nouvelle version > Déployer**. Sans cette étape, le site continue d'appeler l'ancien code.
+>
+> La colonne « E-mail envoyé » est ajoutée automatiquement à ton onglet « Commandes » à la commande suivante, après la colonne « Payée ».
 
 > **Tu avais déjà installé la version ntfy ?** Recolle le nouveau `Code.gs` (étape 2), supprime les propriétés `NTFY_TOPIC`, `NTFY_TOKEN` et `NTFY_SERVER` (étape 4), suis l'étape 5 (Telegram), relance `testNotification` (étape 6), puis déploie une **nouvelle version** (voir « Au quotidien »). Tu peux désinstaller l'app ntfy.
 
@@ -47,7 +55,7 @@ Dans Apps Script : **⚙️ Paramètres du projet > Propriétés du script > Ajo
 | `SHARED_SECRET` | la valeur générée à l'étape 3 |
 | `TELEGRAM_TOKEN` | le jeton du bot (étape 5) |
 | `TELEGRAM_CHAT_ID` | l'identifiant de ta conversation avec le bot (étape 5) |
-| `ALERT_EMAIL` | *(facultatif)* adresse de l'e-mail de secours. Par défaut : l'adresse de ton compte Google |
+| `ALERT_EMAIL` | *(facultatif)* ton adresse : reçoit l'e-mail de secours, et sert d'adresse de réponse (« répondre à ») des e-mails clients. Par défaut : l'adresse de ton compte Google |
 
 Enregistre. Le script ajoutera lui-même `DERNIER_NUMERO` (le compteur des numéros de commande).
 
@@ -89,15 +97,34 @@ Le message « Test Dedjo » doit arriver dans la conversation avec le bot.
 
 Dans Apps Script, choisis la fonction à lancer dans la liste en haut, puis **▶ Exécuter**.
 
+> **Autorisations.** À la première exécution, et après chaque mise à jour qui ajoute une capacité (comme l'envoi d'e-mails aux clients), Google demande des autorisations : **Examiner les autorisations**, choisis ton compte. Si Google affiche « Google n'a pas validé cette application », clique sur **Paramètres avancés > Accéder à Dedjo commandes (non sécurisé)** : c'est ton propre script. Puis **Autoriser**. La liste inclut l'**envoi d'e-mails en ton nom** : c'est pour le récapitulatif envoyé aux clients et pour l'e-mail de secours.
+
 1. **`testNotification`** envoie un message Telegram d'exemple, sans rien écrire dans le Sheet.
-   - À la première exécution, Google demande des autorisations : **Examiner les autorisations**, choisis ton compte. Si Google affiche « Google n'a pas validé cette application », clique sur **Paramètres avancés > Accéder à Dedjo commandes (non sécurisé)** : c'est ton propre script. Puis **Autoriser**. La liste inclut l'envoi d'e-mails : c'est pour l'e-mail de secours.
-   - Tu dois recevoir « 🥐 Commande D-TEST » avec le bouton **Ouvrir le Sheet**. Les caractères `< > &` du message d'exemple doivent s'afficher tels quels.
+   - Tu dois recevoir « 🥐 Commande D-TEST » avec les boutons **Ouvrir le Sheet** et **Confirmer sur WhatsApp**. Les caractères `< > &` du message d'exemple doivent s'afficher tels quels.
    - Si le journal indique « Telegram : … Envoi de l'e-mail de secours… », lis la raison (jeton ou chat ID faux) et vérifie ta boîte mail : l'e-mail de secours a dû arriver.
-2. **`testerCommande`** passe une vraie commande de test. Vérifie :
+2. **`testEmailClient`** t'envoie l'e-mail de récapitulatif d'exemple, celui que reçoivent les clients. Vérifie sa présentation sur ton téléphone et sur ton ordinateur.
+3. **`testerCommande`** passe une vraie commande de test, avec **ton** adresse comme adresse client. Vérifie :
    - le journal d'exécution affiche `{"ok":true,"id":"D-0001"}` ;
-   - le Sheet contient un onglet « Commandes » avec une ligne de test ;
-   - Telegram affiche « Commande D-0001 » avec le prénom, le téléphone (cliquable pour appeler), les produits, le total de 25 € (2 sachets + 5 € de livraison), le code postal et le créneau.
-3. **Nettoie** : supprime la ligne de test du Sheet, puis remets la propriété `DERNIER_NUMERO` à `0`. La première vraie commande sera ainsi la `D-0001`.
+   - le Sheet contient un onglet « Commandes » avec une ligne de test, et « oui » dans la colonne **E-mail envoyé** ;
+   - tu reçois l'e-mail « Ta commande Dedjo D-0001 est bien reçue » ;
+   - Telegram affiche « Commande D-0001 » avec le prénom, le téléphone (cliquable pour appeler), les produits, le total de 25 € (2 sachets + 5 € de livraison), le code postal, le créneau et « ✉️ Récapitulatif envoyé à … » ;
+   - le bouton **Confirmer sur WhatsApp** ouvre WhatsApp avec le message de confirmation prérempli.
+4. **Nettoie** : supprime la ligne de test du Sheet, puis remets la propriété `DERNIER_NUMERO` à `0`. La première vraie commande sera ainsi la `D-0001`.
+
+## L'e-mail de récapitulatif au client
+
+Après chaque commande, le script envoie au client un e-mail « Ta commande Dedjo D-000X est bien reçue » : numéro, détail des sachets, livraison (offerte ou 5 €), total, adresse, créneau souhaité, commentaire, paiement en espèces à la récupération de la commande, et un rappel de cuisson.
+
+- **Expéditeur** : l'e-mail part de ton compte Gmail, avec le nom affiché **« Dedjo »**. Si le client répond, sa réponse arrive à ton adresse (`ALERT_EMAIL` si défini, sinon celle de ton compte).
+- **Personnaliser le texte** : la signature est la constante `SIGNATURE`, en haut de `Code.gs`. Le rappel de cuisson (four préchauffé à 180 °C : 25 min pour les viennoiseries, 30 min pour les feuilletés) s'adapte aux produits commandés ; températures et durées se règlent dans la constante `CUISSON`. Après modification : nouvelle version du déploiement.
+- **Suivi** : la colonne **E-mail envoyé** du Sheet indique `oui` ou `non`. En cas d'échec, la commande est quand même enregistrée, et le message Telegram l'indique (« ⚠️ E-mail de récapitulatif NON envoyé », avec la raison).
+- **Quota** : Google limite les envois à environ **100 e-mails par jour** avec un compte Gmail gratuit (1 500 avec Google Workspace).
+
+## Le bouton « Confirmer sur WhatsApp »
+
+Dans chaque message Telegram, le bouton **Confirmer sur WhatsApp** ouvre une conversation avec le client et ce message prérempli : « Salut Camille, c'est Jo de Dedjo ! Ta commande D-0007 (1× La Lune, 1× La Montagne, 25 €) est confirmée pour le samedi 17 octobre (livraison Marseille). À bientôt ! ». Tu peux le modifier avant de l'envoyer.
+
+Les numéros français sont convertis au format international : `06 12 34 56 78` devient `33612345678`. Si le numéro saisi est inutilisable (trop court), le bouton n'apparaît pas.
 
 ## 7. Déployer en application web
 
@@ -162,6 +189,8 @@ Les erreurs du script se lisent dans Apps Script, menu de gauche **Exécutions**
 | Raison : « HTTP 401 : Unauthorized » | Jeton du bot faux ou révoqué | Recopier le jeton de BotFather dans `TELEGRAM_TOKEN` |
 | Raison : « HTTP 400 : Bad Request: chat not found » | Chat ID faux, ou tu n'as jamais écrit au bot | Écrire au bot, puis refaire `getUpdates` (étape 5) |
 | Raison : « HTTP 403 : Forbidden: bot was blocked by the user » | Tu as bloqué ou supprimé la conversation avec le bot | Rouvrir le bot dans Telegram et appuyer sur **Démarrer** |
+| Colonne **E-mail envoyé** à `non` | Envoi au client refusé : la raison est dans le message Telegram (souvent le quota quotidien de Google, ou une adresse inexistante) | Contacter le client par téléphone ou WhatsApp ; vérifier l'adresse dans le Sheet |
+| L'e-mail au client n'arrive pas, mais la colonne indique `oui` | L'e-mail est dans ses indésirables, ou l'adresse contient une faute de frappe | Lui demander de vérifier ses spams ; corriger l'adresse et le recontacter |
 | Ni message Telegram, ni e-mail | Autorisation d'envoi d'e-mails pas accordée, ou quota d'e-mails Google atteint | Relancer `testNotification` depuis l'éditeur et accepter les autorisations ; consulter **Exécutions** |
 | Une modification du script n'a aucun effet | Pas de nouvelle version déployée | « Gérer les déploiements » > Nouvelle version |
 | En local, `/api/commande` ne répond pas | Site lancé avec `npm run dev` | Utiliser `npx netlify dev` |
@@ -172,5 +201,6 @@ Dans tous ces cas, **la commande est quand même enregistrée dans le Sheet**.
 
 - L'URL du script et le secret partagé ne sont **jamais** envoyés au navigateur : seule la fonction Netlify les connaît.
 - Le jeton du bot Telegram et ton chat ID ne sont que dans les propriétés du script. Personne d'autre ne reçoit les messages du bot : il n'écrit qu'à la conversation dont tu lui as donné l'identifiant.
+- L'e-mail de récapitulatif part de ton compte Gmail : le client voit ton adresse comme expéditeur, sous le nom « Dedjo ».
 - Les messages contiennent le prénom, le téléphone, le code postal et le commentaire du client. Ils restent dans ta conversation Telegram : supprime-les quand tu n'en as plus besoin.
 - Le Sheet contient des données personnelles : limite son partage, et supprime les commandes anciennes quand tu n'en as plus besoin.
