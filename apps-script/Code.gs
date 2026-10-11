@@ -5,11 +5,13 @@
  * connaît pas l'URL de ce script). Pour chaque commande :
  *   1. vérifie le secret partagé, puis revalide toutes les données ;
  *   2. recalcule le total (prix ci-dessous, jamais ceux envoyés par le navigateur) ;
- *   3. ajoute une ligne dans l'onglet « Commandes » du Google Sheet ;
- *   4. envoie au client un e-mail de récapitulatif (colonne « E-mail envoyé » : oui / non) ;
- *   5. envoie une notification Telegram (avec un bouton « Confirmer sur WhatsApp ») ; en cas
+ *   3. applique les limites anti-abus (par visiteur, par e-mail, par téléphone : voir LIMITES) ;
+ *   4. ajoute une ligne dans l'onglet « Commandes » du Google Sheet ;
+ *   5. envoie au client un e-mail de récapitulatif (colonne « E-mail envoyé » : oui / non), dans la
+ *      limite d'un plafond quotidien et en gardant une réserve de quota pour l'e-mail de secours ;
+ *   6. envoie une notification Telegram (avec un bouton « Confirmer sur WhatsApp ») ; en cas
  *      d'échec, un e-mail de secours. Aucun échec d'envoi ne remet en cause l'enregistrement ;
- *   6. renvoie { ok: true, id } ou { ok: false, error }.
+ *   7. renvoie { ok: true, id } ou { ok: false, error }.
  *
  * Propriétés du script (Paramètres du projet ⚙️ > Propriétés du script) :
  *   SHARED_SECRET   obligatoire : même valeur que ORDER_SHARED_SECRET sur Netlify
@@ -18,6 +20,7 @@
  *   ALERT_EMAIL       facultatif : ton adresse, pour l'e-mail de secours et le « répondre à » des
  *                     e-mails clients (par défaut, celle du compte Google qui exécute le script)
  *   DERNIER_NUMERO  géré automatiquement (dernier n° de commande attribué)
+ *   EMAILS_CLIENTS_JOUR  géré automatiquement (nombre d'e-mails de récapitulatif envoyés aujourd'hui)
  *
  * ⚠️ Les prix, pièces par sachet, frais et seuil de livraison et les jours des secteurs sont
  *    recopiés de src/lib/catalog.ts. Toute modification doit être faite aux deux endroits, puis
@@ -54,6 +57,19 @@ const CUISSON = { temperature: 180, minutes: { viennoiseries: 25, "feuilletés":
 
 // Couleurs Dedjo des e-mails
 const COULEURS = { nuit: "#163F6B", creme: "#FBF5E9", jaune: "#F9E830", bleu: "#7DC3E8", texte: "#2B2B2B" };
+
+// Anti-abus : au plus `max` commandes par fenêtre, par visiteur (empreinte d'IP calculée par
+// Netlify), par e-mail et par téléphone. CacheService garde une valeur 6 h au plus (360 min).
+const LIMITES = [
+  { cle: "ip", max: 3, fenetreMin: 10 },
+  { cle: "email", max: 3, fenetreMin: 360 },
+  { cle: "tel", max: 3, fenetreMin: 360 },
+];
+
+// E-mails de récapitulatif : au plus `plafondJour` par jour (au-delà, la commande est enregistrée
+// sans e-mail) ; on n'envoie plus s'il reste `reserveSecours` envois ou moins dans le quota Google
+// (~100 destinataires/jour avec un compte Gmail gratuit), gardés pour l'e-mail de secours.
+const EMAILS_CLIENTS = { plafondJour: 40, reserveSecours: 10 };
 
 const ONGLET = "Commandes";
 const QUANTITE_MAX = 50;
@@ -111,6 +127,7 @@ function doPost(e) {
 
   try {
     const commande = valider(data);
+    verifierLimites(commande, data.empreinteIp);
     const { id, url, feuille, ligne } = enregistrer(commande);
     const echecEmail = confirmerAuClient(commande, id, feuille, ligne);
     notifier(commande, id, url, echecEmail);
@@ -143,6 +160,29 @@ function texte(valeur, nom, options) {
   return v;
 }
 
+/** Prénom ou nom : lettres (accents compris), espaces, apostrophes et traits d'union uniquement. */
+function nomPropre(valeur, nom) {
+  const v = texte(valeur, nom, { requis: true, max: 80 });
+  if (!/^[\p{L}\p{M} '’-]+$/u.test(v)) {
+    throw new ErreurCommande(`${nom} : utilise uniquement des lettres, espaces, apostrophes ou traits d'union.`);
+  }
+  return v;
+}
+
+/** Vrai si le texte contient un lien, une adresse web ou un e-mail (http, www, domaine.xx, @). */
+function contientLien(v) {
+  return /https?:|:\/\/|www\.|@|[a-z0-9-]{2,}\.[a-z]{2,}/i.test(v);
+}
+
+/** Champ d'adresse (rue, ville) : refusé s'il contient un lien. */
+function champAdresse(valeur, nom, max) {
+  const v = texte(valeur, nom, { requis: true, max });
+  if (contientLien(v)) {
+    throw new ErreurCommande(`${nom} : pas de lien ni d'adresse web. Si tu abrèges, mets une espace après le point (« Av. du Prado »).`);
+  }
+  return v;
+}
+
 function valider(data) {
   const secteur = SECTEURS[data.secteur];
   if (!secteur) throw new ErreurCommande("Secteur inconnu.");
@@ -162,8 +202,8 @@ function valider(data) {
 
   // Coordonnées
   const client = data.client || {};
-  const prenom = texte(client.prenom, "Prénom", { requis: true, max: 80 });
-  const nom = texte(client.nom, "Nom", { requis: true, max: 80 });
+  const prenom = nomPropre(client.prenom, "Prénom");
+  const nom = nomPropre(client.nom, "Nom");
   const tel = texte(client.tel, "Téléphone", { requis: true, max: 25 });
   if (!/^\+?[\d\s.()-]+$/.test(tel) || tel.replace(/\D/g, "").length < 6) {
     throw new ErreurCommande("Numéro de téléphone invalide.");
@@ -177,9 +217,9 @@ function valider(data) {
   if (secteur.livraison) {
     const a = data.adresse || {};
     adresse = {
-      ligne: texte(a.ligne, "Adresse", { requis: true, max: 200 }),
+      ligne: champAdresse(a.ligne, "Adresse", 200),
       codePostal: texte(a.codePostal, "Code postal", { requis: true, max: 5 }),
-      ville: texte(a.ville, "Ville", { requis: true, max: 80 }),
+      ville: champAdresse(a.ville, "Ville", 80),
       manuelle: a.manuelle === true,
     };
     if (!/^\d{5}$/.test(adresse.codePostal)) throw new ErreurCommande("Code postal invalide.");
@@ -217,6 +257,68 @@ function valider(data) {
     dateLettres,
     creneau: `${dateLettres} · ${secteur.mode}`,
   };
+}
+
+/* ===================================================================
+   ANTI-ABUS : LIMITES PAR VISITEUR, PAR E-MAIL ET PAR TÉLÉPHONE
+   =================================================================== */
+
+/** Empreinte SHA-256 en hexadécimal : le cache ne contient jamais d'e-mail ni de téléphone en clair. */
+function empreinte(valeur) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(valeur), Utilities.Charset.UTF_8)
+    .map((octet) => ((octet + 256) % 256).toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Forme canonique d'un e-mail pour les limites : sans « +étiquette », et sans les points ignorés par Gmail. */
+function emailCanonique(email) {
+  const [local, domaine] = email.toLowerCase().split("@");
+  const sansEtiquette = local.split("+")[0];
+  return domaine === "gmail.com" || domaine === "googlemail.com"
+    ? `${sansEtiquette.replace(/\./g, "")}@gmail.com`
+    : `${sansEtiquette}@${domaine}`;
+}
+
+/**
+ * Refuse la commande si le même visiteur (empreinte d'IP envoyée par Netlify), le même e-mail ou
+ * le même téléphone a déjà atteint sa limite (LIMITES). Fenêtres fixes, gardées dans CacheService.
+ */
+function verifierLimites(c, empreinteIp) {
+  const valeurs = {
+    ip: typeof empreinteIp === "string" && /^[0-9a-f]{16,64}$/.test(empreinteIp) ? empreinteIp : "inconnue",
+    email: emailCanonique(c.client.email),
+    tel: numeroWhatsApp(c.client.tel),
+  };
+  const cache = CacheService.getScriptCache();
+  const verrou = LockService.getScriptLock();
+  verrou.waitLock(10000);
+  try {
+    const maintenant = Date.now();
+    const compteurs = LIMITES.map((limite) => {
+      const cle = `limite:${limite.cle}:${empreinte(valeurs[limite.cle])}`;
+      const fenetreMs = limite.fenetreMin * 60 * 1000;
+      let compteur = null;
+      try {
+        compteur = JSON.parse(cache.get(cle) || "null");
+      } catch (err) {
+        // valeur illisible : on repart de zéro
+      }
+      if (!compteur || maintenant - compteur.debut >= fenetreMs) compteur = { debut: maintenant, n: 0 };
+      return { limite, cle, fenetreMs, compteur };
+    });
+    if (compteurs.some(({ limite, compteur }) => compteur.n >= limite.max)) {
+      throw new ErreurCommande(
+        "Trop de commandes en peu de temps. Réessaie un peu plus tard, ou écris-moi directement sur WhatsApp."
+      );
+    }
+    compteurs.forEach(({ cle, fenetreMs, compteur }) => {
+      compteur.n += 1;
+      const resteSecondes = Math.max(1, Math.ceil((compteur.debut + fenetreMs - maintenant) / 1000));
+      cache.put(cle, JSON.stringify(compteur), resteSecondes);
+    });
+  } finally {
+    verrou.releaseLock();
+  }
 }
 
 /* ===================================================================
@@ -340,7 +442,8 @@ function emailClient(c, id) {
     [c.secteur.livraison ? "Adresse" : "Retrait", lieu],
     ["Créneau souhaité", creneau],
   ];
-  if (c.message) infos.push(["Ton commentaire", c.message]);
+  // Le commentaire (texte libre) n'est jamais recopié dans l'e-mail : on confirme seulement sa réception
+  if (c.message) infos.push(["Ton commentaire", "bien reçu"]);
 
   const objet = `Ta commande Dedjo ${id} est bien reçue`;
   const intro = "Merci pour ta commande, elle est bien arrivée !";
@@ -415,6 +518,40 @@ function rappelCuisson(c) {
   return `Préchauffe ton four à ${CUISSON.temperature} °C, puis enfourne tes sachets directement sortis du congélateur, sans décongeler : ${durees}.`;
 }
 
+/** Compteur des e-mails de récapitulatif du jour (propriété EMAILS_CLIENTS_JOUR) : { jour, n }. */
+function emailsClientsDuJour() {
+  const jour = Utilities.formatDate(new Date(), FUSEAU, "yyyy-MM-dd");
+  let compteur = null;
+  try {
+    compteur = JSON.parse(PropertiesService.getScriptProperties().getProperty("EMAILS_CLIENTS_JOUR") || "null");
+  } catch (err) {
+    // valeur illisible : on repart de zéro
+  }
+  return compteur && compteur.jour === jour ? compteur : { jour, n: 0 };
+}
+
+/** Ajoute 1 au compteur du jour. Ne lève jamais d'erreur : l'e-mail est déjà parti. */
+function noterEmailClient() {
+  try {
+    const compteur = emailsClientsDuJour();
+    compteur.n += 1;
+    PropertiesService.getScriptProperties().setProperty("EMAILS_CLIENTS_JOUR", JSON.stringify(compteur));
+  } catch (err) {
+    console.error("Impossible de mettre à jour le compteur EMAILS_CLIENTS_JOUR :", err);
+  }
+}
+
+/** Raison de ne pas envoyer l'e-mail client (plafond du jour, réserve de quota), ou null. */
+function envoiClientBloque() {
+  if (emailsClientsDuJour().n >= EMAILS_CLIENTS.plafondJour) {
+    return `plafond de ${EMAILS_CLIENTS.plafondJour} e-mails clients atteint aujourd'hui (protection anti-abus)`;
+  }
+  if (MailApp.getRemainingDailyQuota() <= EMAILS_CLIENTS.reserveSecours) {
+    return "quota d'envoi Google presque épuisé : les derniers envois sont gardés pour les alertes";
+  }
+  return null;
+}
+
 /**
  * Envoie l'e-mail de récapitulatif au client et note « oui » / « non » dans la colonne
  * « E-mail envoyé ». Renvoie null si l'e-mail est parti, sinon la raison de l'échec.
@@ -423,15 +560,20 @@ function rappelCuisson(c) {
 function confirmerAuClient(c, id, feuille, ligne) {
   let echec = null;
   try {
-    const { objet, texte, html } = emailClient(c, id);
-    const options = { to: c.client.email, subject: objet, body: texte, htmlBody: html, name: "Dedjo" };
-    const jo = adresseJo();
-    if (jo) options.replyTo = jo;
-    MailApp.sendEmail(options);
+    echec = envoiClientBloque();
+    if (!echec) {
+      const { objet, texte, html } = emailClient(c, id);
+      const options = { to: c.client.email, subject: objet, body: texte, htmlBody: html, name: "Dedjo" };
+      const jo = adresseJo();
+      if (jo) options.replyTo = jo;
+      MailApp.sendEmail(options);
+      noterEmailClient();
+    }
   } catch (err) {
-    echec = String((err && err.message) || err);
-    console.error(`E-mail de récapitulatif non envoyé à ${c.client.email} : ${echec}`);
+    // Le message d'erreur de Google peut contenir l'adresse : on la masque (journaux et Telegram)
+    echec = String((err && err.message) || err).split(c.client.email).join("[adresse du client]");
   }
+  if (echec) console.error(`E-mail de récapitulatif de la commande ${id} non envoyé : ${echec}`);
   try {
     feuille.getRange(ligne, COLONNE_EMAIL).setValue(echec ? "non" : "oui");
   } catch (err) {
@@ -479,8 +621,9 @@ function resumer(c, echecEmail) {
     ["🗓️", c.creneau],
   ];
   if (c.message) lignes.push(["💬", c.message]);
-  if (echecEmail === null) lignes.push(["✉️", `Récapitulatif envoyé à ${c.client.email}`]);
-  else if (echecEmail) lignes.push(["⚠️", `E-mail de récapitulatif NON envoyé à ${c.client.email} : ${echecEmail}`]);
+  // L'adresse e-mail du client n'est pas recopiée ici (minimisation) : elle est dans le Sheet
+  if (echecEmail === null) lignes.push(["✉️", "Récapitulatif envoyé au client"]);
+  else if (echecEmail) lignes.push(["⚠️", `Récapitulatif NON envoyé au client : ${echecEmail}`]);
   return lignes;
 }
 

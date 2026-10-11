@@ -14,7 +14,8 @@ export const handler = async (event: any) => {
     const listId = Number(process.env.BREVO_LIST_ID);
 
     if (!apiKey || !listId) {
-      return { statusCode: 500, body: JSON.stringify({ error: "Missing env vars (BREVO_API_KEY / BREVO_LIST_ID)" }) };
+      console.error("Variables d'environnement manquantes : BREVO_API_KEY et/ou BREVO_LIST_ID");
+      return { statusCode: 500, body: JSON.stringify({ error: "L'inscription n'est pas encore disponible." }) };
     }
 
     const res = await fetch("https://api.brevo.com/v3/contacts", {
@@ -31,9 +32,20 @@ export const handler = async (event: any) => {
       }),
     });
 
+    // Détails de l'erreur dans les journaux Netlify uniquement (code Brevo, sans l'adresse)
     if (!res.ok) {
       const text = await res.text();
-      return { statusCode: res.status, body: JSON.stringify({ error: "Brevo error", details: text }) };
+      let code = "";
+      try {
+        code = JSON.parse(text)?.code ?? "";
+      } catch {
+        // réponse non JSON
+      }
+      console.error("Erreur Brevo", res.status, code);
+      return {
+        statusCode: 502,
+        body: JSON.stringify({ error: "L'inscription n'a pas pu aboutir. Vérifie ton adresse e-mail et réessaie." }),
+      };
     }
 
     return {
@@ -41,6 +53,7 @@ export const handler = async (event: any) => {
       body: JSON.stringify({ ok: true }),
     };
   } catch (e: any) {
-    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+    console.error("Erreur d'inscription à la newsletter", e?.name, e?.message);
+    return { statusCode: 500, body: JSON.stringify({ error: "L'inscription n'a pas pu aboutir. Réessaie dans un instant." }) };
   }
 };

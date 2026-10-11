@@ -11,6 +11,8 @@ Site (/commande) ──▶ Fonction Netlify (/api/commande) ──▶ Google App
 
 Compte environ 20 minutes. Il te faut : ton compte Google, l'accès à Netlify, ton téléphone avec Telegram.
 
+> **Mise à jour « limites anti-abus »** (octobre 2026) : recolle **tout** le nouveau `Code.gs`, 💾 Enregistrer, puis publie une **nouvelle version** du déploiement (point 3 ci-dessous). Aucune propriété à ajouter : le script crée lui-même `EMAILS_CLIENTS_JOUR`. Détails : « Limites anti-abus », plus bas.
+
 > **Mise à jour d'une installation existante** (e-mail de récapitulatif au client, bouton WhatsApp) :
 > 1. Recolle **tout** le nouveau `Code.gs` dans l'éditeur Apps Script, puis 💾 Enregistrer.
 > 2. Lance **`testEmailClient`** (étape 6). Apps Script demande une **nouvelle autorisation**, pour envoyer des e-mails en ton nom : accepte-la (même procédure qu'à la première installation).
@@ -57,7 +59,7 @@ Dans Apps Script : **⚙️ Paramètres du projet > Propriétés du script > Ajo
 | `TELEGRAM_CHAT_ID` | l'identifiant de ta conversation avec le bot (étape 5) |
 | `ALERT_EMAIL` | *(facultatif)* ton adresse : reçoit l'e-mail de secours, et sert d'adresse de réponse (« répondre à ») des e-mails clients. Par défaut : l'adresse de ton compte Google |
 
-Enregistre. Le script ajoutera lui-même `DERNIER_NUMERO` (le compteur des numéros de commande).
+Enregistre. Le script ajoutera lui-même `DERNIER_NUMERO` (le compteur des numéros de commande) et `EMAILS_CLIENTS_JOUR` (le nombre d'e-mails de récapitulatif envoyés dans la journée).
 
 ## 5. Créer le bot Telegram
 
@@ -107,18 +109,31 @@ Dans Apps Script, choisis la fonction à lancer dans la liste en haut, puis **�
    - le journal d'exécution affiche `{"ok":true,"id":"D-0001"}` ;
    - le Sheet contient un onglet « Commandes » avec une ligne de test, et « oui » dans la colonne **E-mail envoyé** ;
    - tu reçois l'e-mail « Ta commande Dedjo D-0001 est bien reçue » ;
-   - Telegram affiche « Commande D-0001 » avec le prénom, le téléphone (cliquable pour appeler), les produits, le total de 25 € (2 sachets + 5 € de livraison), le code postal, le créneau et « ✉️ Récapitulatif envoyé à … » ;
+   - Telegram affiche « Commande D-0001 » avec le prénom, le téléphone (cliquable pour appeler), les produits, le total de 25 € (2 sachets + 5 € de livraison), le code postal, le créneau et « ✉️ Récapitulatif envoyé au client » ;
    - le bouton **Confirmer sur WhatsApp** ouvre WhatsApp avec le message de confirmation prérempli.
 4. **Nettoie** : supprime la ligne de test du Sheet, puis remets la propriété `DERNIER_NUMERO` à `0`. La première vraie commande sera ainsi la `D-0001`.
 
 ## L'e-mail de récapitulatif au client
 
-Après chaque commande, le script envoie au client un e-mail « Ta commande Dedjo D-000X est bien reçue » : numéro, détail des sachets, livraison (offerte ou 5 €), total, adresse, créneau souhaité, commentaire, paiement en espèces à la récupération de la commande, et un rappel de cuisson.
+Après chaque commande, le script envoie au client un e-mail « Ta commande Dedjo D-000X est bien reçue » : numéro, détail des sachets, livraison (offerte ou 5 €), total, adresse, créneau souhaité, paiement en espèces à la récupération de la commande, et un rappel de cuisson. Si le client a laissé un commentaire, l'e-mail indique seulement « Ton commentaire : bien reçu » : le texte libre n'est jamais recopié (voir « Limites anti-abus »).
 
 - **Expéditeur** : l'e-mail part de ton compte Gmail, avec le nom affiché **« Dedjo »**. Si le client répond, sa réponse arrive à ton adresse (`ALERT_EMAIL` si défini, sinon celle de ton compte).
 - **Personnaliser le texte** : la signature est la constante `SIGNATURE`, en haut de `Code.gs`. Le rappel de cuisson (four préchauffé à 180 °C : 25 min pour les viennoiseries, 30 min pour les feuilletés) s'adapte aux produits commandés ; températures et durées se règlent dans la constante `CUISSON`. Après modification : nouvelle version du déploiement.
-- **Suivi** : la colonne **E-mail envoyé** du Sheet indique `oui` ou `non`. En cas d'échec, la commande est quand même enregistrée, et le message Telegram l'indique (« ⚠️ E-mail de récapitulatif NON envoyé », avec la raison).
-- **Quota** : Google limite les envois à environ **100 e-mails par jour** avec un compte Gmail gratuit (1 500 avec Google Workspace).
+- **Suivi** : la colonne **E-mail envoyé** du Sheet indique `oui` ou `non`. En cas d'échec, la commande est quand même enregistrée, et le message Telegram l'indique (« ⚠️ Récapitulatif NON envoyé au client », avec la raison).
+- **Quota** : Google limite les envois à environ **100 e-mails par jour** avec un compte Gmail gratuit (1 500 avec Google Workspace). Le script n'envoie pas plus de **40 récapitulatifs par jour**, et garde toujours **10 envois** de côté pour l'e-mail de secours (voir « Limites anti-abus »).
+
+## Limites anti-abus
+
+Elles empêchent un robot d'utiliser le formulaire pour envoyer des e-mails depuis ton compte Gmail, ou de remplir ton Sheet.
+
+- **Commandes rapprochées** : au plus **3 commandes en 10 minutes** pour un même visiteur, **3 en 6 heures** pour une même adresse e-mail, et **3 en 6 heures** pour un même téléphone. Au-delà, le site affiche « Trop de commandes en peu de temps… » et **la commande n'est pas enregistrée**.
+  - Le visiteur est reconnu grâce à une empreinte de son adresse IP, calculée par la fonction Netlify : l'IP elle-même n'est jamais transmise au script ni enregistrée. Les compteurs sont effacés automatiquement au bout de 6 heures au plus.
+  - Pour l'e-mail, les variantes `+étiquette` et, chez Gmail, les points sont ignorés (`ca.mille+1@gmail.com` compte comme `camille@gmail.com`).
+- **Saisies filtrées** : le prénom et le nom n'acceptent que des lettres, des espaces, des apostrophes et des traits d'union. L'adresse et la ville refusent les liens et les adresses web (`http`, `www.`, `quelquechose.com`, `@`).
+- **Plafond d'e-mails** : au-delà de **40 récapitulatifs dans la journée**, la commande est enregistrée normalement, mais sans e-mail au client. Telegram l'indique (« ⚠️ Récapitulatif NON envoyé au client : plafond… »). C'est sûrement une attaque : regarde les dernières lignes du Sheet.
+- **Réserve de quota** : quand il reste **10 envois ou moins** dans le quota Google du jour, le script n'envoie plus de récapitulatif, pour que l'e-mail de secours puisse toujours partir.
+- **Réglages** : constantes `LIMITES` et `EMAILS_CLIENTS`, en haut de `Code.gs` (puis nouvelle version du déploiement).
+- **Tests depuis l'éditeur** : `testerCommande` n'a pas d'empreinte d'IP et compte donc comme un seul visiteur. Au 4ᵉ essai en 10 minutes, il est refusé : attends 10 minutes. Comme il utilise ton adresse, il est aussi limité à 3 essais en 6 heures.
 
 ## Le bouton « Confirmer sur WhatsApp »
 
@@ -189,18 +204,20 @@ Les erreurs du script se lisent dans Apps Script, menu de gauche **Exécutions**
 | Raison : « HTTP 401 : Unauthorized » | Jeton du bot faux ou révoqué | Recopier le jeton de BotFather dans `TELEGRAM_TOKEN` |
 | Raison : « HTTP 400 : Bad Request: chat not found » | Chat ID faux, ou tu n'as jamais écrit au bot | Écrire au bot, puis refaire `getUpdates` (étape 5) |
 | Raison : « HTTP 403 : Forbidden: bot was blocked by the user » | Tu as bloqué ou supprimé la conversation avec le bot | Rouvrir le bot dans Telegram et appuyer sur **Démarrer** |
-| Colonne **E-mail envoyé** à `non` | Envoi au client refusé : la raison est dans le message Telegram (souvent le quota quotidien de Google, ou une adresse inexistante) | Contacter le client par téléphone ou WhatsApp ; vérifier l'adresse dans le Sheet |
+| « Trop de commandes en peu de temps… » | Limite anti-abus atteinte : même visiteur, même e-mail ou même téléphone | Attendre (10 min pour un visiteur, 6 h pour un e-mail ou un téléphone). Pour un vrai client, prendre la commande sur WhatsApp |
+| « Prénom : utilise uniquement des lettres… » ou « Adresse : pas de lien… » | Saisie refusée par les filtres anti-abus | Corriger la saisie (pour une abréviation, une espace après le point : « Av. du Prado ») |
+| Colonne **E-mail envoyé** à `non` | Envoi au client refusé : la raison est dans le message Telegram (plafond anti-abus du jour, quota quotidien de Google, ou adresse inexistante) | Contacter le client par téléphone ou WhatsApp ; vérifier l'adresse dans le Sheet. Si la raison est le plafond, vérifier les dernières lignes du Sheet (robot ?) |
 | L'e-mail au client n'arrive pas, mais la colonne indique `oui` | L'e-mail est dans ses indésirables, ou l'adresse contient une faute de frappe | Lui demander de vérifier ses spams ; corriger l'adresse et le recontacter |
 | Ni message Telegram, ni e-mail | Autorisation d'envoi d'e-mails pas accordée, ou quota d'e-mails Google atteint | Relancer `testNotification` depuis l'éditeur et accepter les autorisations ; consulter **Exécutions** |
 | Une modification du script n'a aucun effet | Pas de nouvelle version déployée | « Gérer les déploiements » > Nouvelle version |
 | En local, `/api/commande` ne répond pas | Site lancé avec `npm run dev` | Utiliser `npx netlify dev` |
 
-Dans tous ces cas, **la commande est quand même enregistrée dans le Sheet**.
+Quand seuls Telegram ou l'e-mail échouent, **la commande est quand même enregistrée dans le Sheet**.
 
 ## Sécurité et données personnelles
 
 - L'URL du script et le secret partagé ne sont **jamais** envoyés au navigateur : seule la fonction Netlify les connaît.
 - Le jeton du bot Telegram et ton chat ID ne sont que dans les propriétés du script. Personne d'autre ne reçoit les messages du bot : il n'écrit qu'à la conversation dont tu lui as donné l'identifiant.
 - L'e-mail de récapitulatif part de ton compte Gmail : le client voit ton adresse comme expéditeur, sous le nom « Dedjo ».
-- Les messages contiennent le prénom, le téléphone, le code postal et le commentaire du client. Ils restent dans ta conversation Telegram : supprime-les quand tu n'en as plus besoin.
+- Les messages Telegram contiennent le prénom, le téléphone, le code postal et le commentaire du client, mais pas son adresse e-mail (elle n'est que dans le Sheet). Les journaux d'exécution du script ne contiennent pas non plus l'adresse. Les messages restent dans ta conversation Telegram : supprime-les quand tu n'en as plus besoin.
 - Le Sheet contient des données personnelles : limite son partage, et supprime les commandes anciennes quand tu n'en as plus besoin.

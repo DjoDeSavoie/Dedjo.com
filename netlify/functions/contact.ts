@@ -22,7 +22,8 @@ export const handler = async (event: any) => {
 
     const webhookUrl = process.env.GSHEET_CONTACT_WEBHOOK_URL;
     if (!webhookUrl) {
-      return { statusCode: 500, body: JSON.stringify({ error: "Missing env var GSHEET_CONTACT_WEBHOOK_URL" }) };
+      console.error("Variable d'environnement manquante : GSHEET_CONTACT_WEBHOOK_URL");
+      return { statusCode: 500, body: JSON.stringify({ error: "Le formulaire de contact n'est pas encore disponible." }) };
     }
 
     const payload = {
@@ -40,11 +41,13 @@ export const handler = async (event: any) => {
       body: JSON.stringify(payload),
     });
 
+    // Détails de l'erreur dans les journaux Netlify uniquement (jamais renvoyés au navigateur)
     const text = await res.text();
     if (!res.ok) {
+      console.error("Erreur du webhook de contact", res.status, text.slice(0, 200));
       return {
-        statusCode: res.status,
-        body: JSON.stringify({ error: "Google Sheet webhook error", details: text }),
+        statusCode: 502,
+        body: JSON.stringify({ error: "Ton message n'a pas pu être envoyé. Réessaie dans un instant." }),
       };
     }
 
@@ -53,6 +56,7 @@ export const handler = async (event: any) => {
       body: JSON.stringify({ ok: true }),
     };
   } catch (e: any) {
-    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+    console.error("Erreur d'envoi du formulaire de contact", e?.name, e?.message);
+    return { statusCode: 500, body: JSON.stringify({ error: "Ton message n'a pas pu être envoyé. Réessaie dans un instant." }) };
   }
 };

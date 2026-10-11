@@ -27,8 +27,17 @@ const NewsletterForm = () => {
         body: JSON.stringify({ email }),
       });
 
-      const txt = await res.text(); // utile si erreur
-      if (!res.ok) throw new Error(txt || "Erreur lors de l’inscription");
+      if (!res.ok) {
+        // Message lisible renvoyé par la fonction, jamais de détail technique
+        let message = "";
+        try {
+          const data = await res.json();
+          if (typeof data?.error === "string") message = data.error;
+        } catch {
+          // réponse non JSON
+        }
+        throw new Error(message);
+      }
 
       toast({
         title: "Bienvenue dans la tribu Dedjo !",

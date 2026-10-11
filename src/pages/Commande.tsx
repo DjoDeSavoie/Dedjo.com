@@ -124,8 +124,14 @@ const Commande = () => {
     if (isLivraison && !adresse)
       errs.push("Choisis ton adresse de livraison dans les suggestions (ou saisis-la à la main avec son code postal).");
     if (!form.date) errs.push(isLivraison ? "Choisis ta date de livraison." : "Choisis ta date de retrait.");
+    // Même règle que le script (apps-script/Code.gs, nomPropre) : lettres, espaces, ' et - uniquement
+    const nomValide = /^[\p{L}\p{M} '’-]+$/u;
     if (!form.prenom.trim()) errs.push("Indique ton prénom.");
+    else if (!nomValide.test(form.prenom.trim()))
+      errs.push("Prénom : utilise uniquement des lettres, espaces, apostrophes ou traits d'union.");
     if (!form.nom.trim()) errs.push("Indique ton nom.");
+    else if (!nomValide.test(form.nom.trim()))
+      errs.push("Nom : utilise uniquement des lettres, espaces, apostrophes ou traits d'union.");
     if (!form.tel.trim()) errs.push("Indique ton téléphone.");
     if (!form.email.trim()) errs.push("Indique ton email : je t'y envoie le récapitulatif de ta commande.");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.push("Vérifie ton email : il semble incomplet.");
@@ -468,11 +474,15 @@ const Commande = () => {
             </label>
             <textarea
               id="message"
-              placeholder="Une envie, une allergie, une occasion à fêter, une indication de livraison…"
+              placeholder="Une envie, une occasion à fêter, une indication de livraison…"
+              aria-describedby="message-aide"
               value={form.message}
               onChange={(e) => set("message", e.target.value)}
               className={`${inputClass} min-h-[80px] resize-y`}
             />
+            <p id="message-aide" className="mt-1.5 text-xs text-muted-foreground">
+              Les recettes ne peuvent pas être adaptées : vérifie les allergènes de chaque produit. N'indique pas d'information de santé.
+            </p>
           </div>
           {/* Piège anti-spam : hors écran, ignoré par les humains et les lecteurs d'écran */}
           <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">

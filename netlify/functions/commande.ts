@@ -5,8 +5,17 @@
      ORDER_SHARED_SECRET       même valeur que la propriété SHARED_SECRET du script
    La validation complète et le calcul du total sont faits par le script (apps-script/Code.gs). */
 
+import { createHmac } from "node:crypto";
+
 const TAILLE_MAX = 10_000; // octets
 const DELAI_MAX_MS = 15_000;
+
+/* Empreinte de l'IP du visiteur, pour les limites anti-abus du script : HMAC-SHA256 avec le
+   secret partagé, tronqué. L'IP elle-même n'est ni transmise ni conservée. */
+const empreinteIp = (headers: Record<string, string | undefined> | undefined, secret: string): string => {
+  const ip = headers?.["x-nf-client-connection-ip"];
+  return typeof ip === "string" && ip ? createHmac("sha256", secret).update(ip).digest("hex").slice(0, 32) : "";
+};
 
 const repondre = (statusCode: number, body: Record<string, unknown>) => ({
   statusCode,
@@ -46,15 +55,15 @@ export const handler = async (event: any) => {
     return repondre(500, { ok: false, error: "Le service de commande n'est pas encore configuré." });
   }
 
-  // Le secret vient uniquement du serveur : on ignore toute valeur envoyée par le navigateur
-  const { secret: _ignore, ...commande } = data;
+  // Le secret et l'empreinte viennent uniquement du serveur : on ignore toute valeur envoyée par le navigateur
+  const { secret: _ignore, empreinteIp: _ignoreEmpreinte, ...commande } = data;
 
   try {
     // Apps Script répond par une redirection vers la page de résultat : fetch la suit
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...commande, secret }),
+      body: JSON.stringify({ ...commande, empreinteIp: empreinteIp(event.headers, secret), secret }),
       redirect: "follow",
       signal: AbortSignal.timeout(DELAI_MAX_MS),
     });

@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
+import ProductLabelModal from "./ProductLabelModal";
 import { BientotDisponible } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { FEUILLETES, estDisponible, eur } from "@/lib/catalog";
+import { FEUILLETES, Product, estDisponible, eur } from "@/lib/catalog";
 
-/** Contenu et prix du sachet, depuis le catalogue. */
+/** Étiquette, sachet et prix viennent du catalogue. */
+const catalogProduct = (id: string) => FEUILLETES.find((f) => f.id === id)!;
+
 const sachetInfo = (id: string) => {
-  const p = FEUILLETES.find((f) => f.id === id)!;
+  const p = catalogProduct(id);
   return `${p.pieces} ${p.unit} · ${eur(p.price)}`;
 };
 
 const SaltyPastriesSection = () => {
-  const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { addFriand } = useCart();
 
@@ -21,21 +23,15 @@ const SaltyPastriesSection = () => {
     toast.success(`1 sachet de ${name} ajouté au panier 🥧`, { description: sachetInfo(id) });
   };
 
-  const fabricationAll = "Façonné à la main dans ma cuisine. Comme si je les avais faits pour moi — parce que c'est le cas.";
-  const whereToBuyAll = "Disponible sur le marché du vendredi de la Ferme de la Goettaz et en livraisons sur Chambéry, Aix-les-Bains, Le Bourget-du-Lac et alentours.";
-  const bonASavoirAll = "Nos oignons proviennent directement de la ferme de la Goettaz, produits par des maraîchers respectueux de la terre et du vivant.";
-
-  const flavors: (ProductDetail & { id: string; color: string })[] = [
+  // Textes de présentation propres à l'accueil ; « Voir les détails » ouvre l'étiquette du
+  // catalogue (même pop-up que la page Commande).
+  const flavors: { id: string; name: string; description: string; emoji: string; color: string }[] = [
     {
       id: "montagne",
       name: "La Montagne",
       description: "Lardons, oignons et reblochon. Un hommage discret à la tartiflette, en une bouchée.",
       emoji: "🏔️",
       color: "bg-product-montagne",
-      ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Lardons", "Oignons", "Reblochon"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
     },
     {
       id: "foret",
@@ -43,10 +39,6 @@ const SaltyPastriesSection = () => {
       description: "Champignons des bois, béchamel douce, fromage à fondue. Le goût de la forêt savoyarde, en format feuilleté.",
       emoji: "🌲",
       color: "bg-product-foret",
-      ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Champignons", "Sauce béchamel", "Mélange de fromage à fondue"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
     },
     {
       id: "goet",
@@ -54,10 +46,6 @@ const SaltyPastriesSection = () => {
       description: "Poireaux cueillis à la Goëttaz, fromage de chèvre frais. Ce qui pousse ici finit dans ta pâte.",
       emoji: "🥬",
       color: "bg-product-goet",
-      ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Poireaux de La Ferme de La Goëttaz", "Fromage de chèvre frais"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
     },
     {
       id: "noix",
@@ -65,10 +53,6 @@ const SaltyPastriesSection = () => {
       description: "Chèvre, miel local, cerneaux de noix. Le sucré-salé qui surprend — et qui revient.",
       emoji: "🐝",
       color: "bg-product-noix",
-      ingredients: ["Pâte feuilletée (farine, eau, beurre, sel)", "Fromage de chèvre frais", "Miel local", "Cerneau de Noix hâchés"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
     },
   ];
 
@@ -85,8 +69,8 @@ const SaltyPastriesSection = () => {
     },
   ];
 
-  const handleProductClick = (product: ProductDetail) => {
-    setSelectedProduct(product);
+  const handleProductClick = (id: string) => {
+    setSelectedProduct(catalogProduct(id));
     setModalOpen(true);
   };
 
@@ -129,7 +113,7 @@ const SaltyPastriesSection = () => {
                 </div>
                 <div className="flex items-center gap-2 mt-4 flex-wrap">
                   <button
-                    onClick={() => handleProductClick(flavor)}
+                    onClick={() => handleProductClick(flavor.id)}
                     className="text-sm text-white font-medium bg-foreground/40 hover:bg-foreground/60 px-3 py-1.5 rounded-full transition-colors"
                   >
                     Voir les détails →
@@ -186,7 +170,7 @@ const SaltyPastriesSection = () => {
         </div>
       </div>
 
-      <ProductDetailModal 
+      <ProductLabelModal
         product={selectedProduct}
         open={modalOpen}
         onOpenChange={setModalOpen}

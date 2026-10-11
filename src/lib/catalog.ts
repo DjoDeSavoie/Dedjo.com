@@ -239,8 +239,10 @@ export const VIENNOISERIES: Product[] = [
 
 /* ===================================================================
    FEUILLETÉS SALÉS — sachet de 2 friands de la même gamme
-   (⚠️ Étiquettes encore provisoires : ingrédients et allergènes à valider
-    avec les vraies recettes avant mise en ligne — sécurité alimentaire.)
+   La Montagne : étiquette validée (allergènes en gras dans les ingrédients).
+   La Forêt, La Noix, La Goët : étiquettes encore provisoires (ingrédients et
+   allergènes à valider avec les vraies recettes — sécurité alimentaire) ;
+   à garder indisponibles dans DISPONIBILITE tant qu'elles ne sont pas validées.
    =================================================================== */
 const PREPARATION_FEUILLETE =
   "Préchauffe ton four à **180 °C**. Enfourne tes friands directement sortis du congélateur, sans décongeler : **30 minutes**.";
@@ -257,9 +259,11 @@ export const FEUILLETES: Product[] = [
     label: {
       description: "Lardons, oignons et reblochon — un clin d'œil à la tartiflette.",
       preparation: PREPARATION_FEUILLETE,
-      ingredients: "Pâte feuilletée (farine, beurre, eau, sel), lardons, oignons, reblochon.",
-      allergenes: "Contient **gluten**, **lait**.",
-      quantite: "2 friands",
+      denomination: "Friand feuilleté pur beurre aux lardons, oignons et reblochon, cru, congelé",
+      ingredients:
+        "pâte feuilletée 63 % (**farine de blé** T45, **beurre**, eau, sel), reblochon 17 % (**lait** cru de vache, sel, présure, ferments), lardons fumés 10 %, oignons 10 %.",
+      traces: "Peut contenir des traces de fruits à coque, œufs.",
+      quantite: "2 friands - 600 g",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
     },

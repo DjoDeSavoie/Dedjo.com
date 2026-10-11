@@ -83,8 +83,8 @@ const ContactForm = () => {
     }
 
     if (!res.ok) {
-      const details = data?.details || data?.error || text || "Erreur inconnue";
-      throw new Error(details);
+      // Message lisible renvoyé par la fonction, jamais de détail technique
+      throw new Error(typeof data?.error === "string" ? data.error : "");
     }
 
     toast({
