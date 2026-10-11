@@ -1,5 +1,15 @@
-import { Info } from "lucide-react";
+import { Clock, Info } from "lucide-react";
 import { Product } from "@/lib/catalog";
+
+/** Remplace l'action « commander » d'un produit pas encore en vente (voir DISPONIBILITE). */
+export const BientotDisponible = ({ className = "" }: { className?: string }) => (
+  <span
+    className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold bg-[#FFF6DB] text-[#7a5a00] border border-[#F5C842] px-3 py-1.5 rounded-full ${className}`}
+  >
+    <Clock className="w-3.5 h-3.5" aria-hidden="true" />
+    Bientôt disponible
+  </span>
+);
 
 /** Pastilles d'un produit : labels qualité, puis mention douce des allergènes présents. */
 const ProductTags = ({ product, className = "" }: { product: Product; className?: string }) => {

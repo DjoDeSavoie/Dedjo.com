@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from "react";
-import { VIENNOISERIES, FEUILLETES, countSachets, sachetsTotal } from "@/lib/catalog";
+import { VIENNOISERIES, FEUILLETES, countSachets, estDisponible, sachetsTotal } from "@/lib/catalog";
 
 /** Nombre de sachets par produit (id → quantité). */
 type Counts = Record<string, number>;
@@ -27,10 +27,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [vienno, setVienno] = useState<Counts>(() => buildInitial(VIENNOISERIES));
   const [friand, setFriand] = useState<Counts>(() => buildInitial(FEUILLETES));
 
+  // Un produit « Bientôt disponible » ne peut pas être ajouté (le retrait reste possible)
   const addVienno = useCallback((id: string, delta: number) => {
+    if (delta > 0 && !estDisponible(id)) return;
     setVienno((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
   }, []);
   const addFriand = useCallback((id: string, delta: number) => {
+    if (delta > 0 && !estDisponible(id)) return;
     setFriand((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
   }, []);
   const clear = useCallback(() => {

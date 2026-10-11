@@ -6,10 +6,57 @@
    ███  CONFIG — À MODIFIER  ███
    =================================================================== */
 export const CONFIG = {
-  whatsapp: "33612345678", // ← TON numéro WhatsApp, format international SANS le « + »
-  email: "bonjour@dedjo.fr", // ← TON email
-  leadDays: 3, // nb de jours mini avant la date souhaitée
+  whatsapp: "33777282023", // ← TON numéro WhatsApp, format international SANS le « + »
+  email: "jonathandegrange123@gmail.com", // ← TON email
+  leadDays: 1, // nb de jours mini avant la date souhaitée
+  livraisonOfferteDes: 3, // Marseille : livraison offerte à partir de ce nombre de sachets
+  fraisLivraison: 5, // Marseille : frais de livraison (en €) en dessous de ce seuil
 };
+
+/* ███  DISPONIBILITÉ — À MODIFIER  ███
+   true  → le produit est commandable
+   false → affiché « Bientôt disponible », impossible à ajouter au panier */
+export const DISPONIBILITE = {
+  lune: true,
+  cabosse: true,
+  grappe: false,
+  rose: false,
+  montagne: true,
+  foret: false,
+  noix: false,
+  goet: false,
+};
+
+export type ProductId = keyof typeof DISPONIBILITE;
+
+export const estDisponible = (id: string): boolean => DISPONIBILITE[id as ProductId] === true;
+
+/* ███  SECTEURS — retrait ou livraison  ███
+   jour : jour de retrait / livraison (0 = dimanche … 5 = vendredi, 6 = samedi) */
+export interface Secteur {
+  id: string;
+  nom: string;
+  detail: string;
+  jour: number;
+  livraison: boolean;
+}
+
+export const SECTEURS: Secteur[] = [
+  {
+    id: "savoie",
+    nom: "Savoie",
+    detail: "Retrait au marché du vendredi, à la Ferme de la Goëttaz.",
+    jour: 5,
+    livraison: false,
+  },
+  {
+    id: "marseille",
+    nom: "Marseille et alentours",
+    detail: "Livraison locale à domicile, tous les samedis.",
+    jour: 6,
+    livraison: true,
+  },
+];
 
 /* --- Tarif : un prix unique par sachet (pas de dégressif pour le moment) --- */
 export const PRIX_SACHET = 10;
@@ -42,7 +89,8 @@ export interface ProductLabel {
 }
 
 export interface Product {
-  id: string;
+  /** Doit figurer dans DISPONIBILITE (vérifié par TypeScript). */
+  id: ProductId;
   name: string;
   emoji: string;
   /** Couleur pastel (pastille, bordure de carte). */

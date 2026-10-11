@@ -119,12 +119,36 @@ export default {
           from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        // Jauge « livraison offerte » (page Commander)
+        "jauge-pop": {
+          "0%": { transform: "scale(0.8)", opacity: "0" },
+          "60%": { transform: "scale(1.12)", opacity: "1" },
+          "100%": { transform: "scale(1)" },
+        },
+        "jauge-bump": {
+          "0%, 100%": { transform: "scaleY(1)" },
+          "40%": { transform: "scaleY(1.8)" },
+        },
+        "jauge-reflet": {
+          from: { transform: "translateX(-100%)" },
+          to: { transform: "translateX(100%)" },
+        },
+        // Particules : chaque grain part dans sa direction (--dx, --dy), puis retombe en s'effaçant
+        "confetti": {
+          "0%": { transform: "translate(-50%, 0) scale(1)", opacity: "1" },
+          "70%": { transform: "translate(calc(-50% + var(--dx)), var(--dy)) scale(1)", opacity: "1" },
+          "100%": { transform: "translate(calc(-50% + var(--dx)), calc(var(--dy) + 18px)) scale(0.5)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "float": "float 3s ease-in-out infinite",
         "fade-in": "fade-in 0.6s ease-out forwards",
+        "jauge-pop": "jauge-pop 0.55s cubic-bezier(.34,1.56,.64,1) both",
+        "jauge-bump": "jauge-bump 0.6s ease-out",
+        "jauge-reflet": "jauge-reflet 0.9s ease-out 0.3s both",
+        "confetti": "confetti 1s cubic-bezier(.2,.7,.3,1) both",
       },
     },
   },

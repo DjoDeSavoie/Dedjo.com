@@ -3,26 +3,45 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
-import Logo from "@/components/Logo";
 import ProductLabelModal from "@/components/ProductLabelModal";
-import ProductTags from "@/components/ProductTags";
+import ProductTags, { BientotDisponible } from "@/components/ProductTags";
+import LivraisonJauge from "@/components/LivraisonJauge";
 import { useCart } from "@/context/CartContext";
 import {
   CONFIG,
   VIENNOISERIES,
   FEUILLETES,
   PRIX_SACHET,
+  SECTEURS,
   Product,
+  estDisponible,
   eur,
   pluralize,
 } from "@/lib/catalog";
 
 const GRAD = "linear-gradient(135deg,#185FA5 0%,#2A7FD0 100%)";
 const RAPPEL_CONGELE = "Tout est livré congelé, à conserver au congélateur, et cuire en direct dans ton four.";
+const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+
+/** « samedi 18 octobre » */
+const formatDate = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+
+/** Les prochaines dates (AAAA-MM-JJ) qui tombent le `jour` voulu, au moins CONFIG.leadDays jours après aujourd'hui. */
+const prochainesDates = (jour: number, nombre = 6): string[] => {
+  const premier = new Date();
+  premier.setHours(12, 0, 0, 0);
+  premier.setDate(premier.getDate() + CONFIG.leadDays);
+  premier.setDate(premier.getDate() + ((jour - premier.getDay() + 7) % 7));
+  return Array.from({ length: nombre }, (_, i) => {
+    const d = new Date(premier);
+    d.setDate(premier.getDate() + 7 * i);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
+};
 
 interface FormState {
   secteur: string;
-  mode: string;
   address: string;
   date: string;
   prenom: string;
@@ -54,7 +73,6 @@ const Commande = () => {
 
   const [form, setForm] = useState<FormState>({
     secteur: "",
-    mode: "",
     address: "",
     date: "",
     prenom: "",
@@ -73,13 +91,16 @@ const Commande = () => {
   const set = (key: keyof FormState, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const isLivraison = /livraison/i.test(form.mode);
+  const secteur = SECTEURS.find((s) => s.id === form.secteur);
+  const isLivraison = secteur?.livraison ?? false;
+  const dates = useMemo(() => (secteur ? prochainesDates(secteur.jour) : []), [secteur]);
+  const livraisonOfferte = totalSachets >= CONFIG.livraisonOfferteDes;
+  const fraisLivraison = isLivraison && totalSachets > 0 && !livraisonOfferte ? CONFIG.fraisLivraison : 0;
+  const totalAPayer = total + fraisLivraison;
+  const sachetsManquants = Math.max(0, CONFIG.livraisonOfferteDes - totalSachets);
 
-  const dateMin = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + CONFIG.leadDays);
-    return d.toISOString().split("T")[0];
-  }, []);
+  // Changer de secteur change le jour possible : on vide la date choisie
+  const choisirSecteur = (id: string) => setForm((f) => ({ ...f, secteur: id, date: "" }));
 
   const openInfo = (p: Product) => {
     setModalProduct(p);
@@ -90,10 +111,9 @@ const Commande = () => {
   const validate = (): string[] => {
     const errs: string[] = [];
     if (totalSachets === 0) errs.push("Ajoute au moins un sachet à ta commande.");
-    if (!form.secteur) errs.push("Choisis ton secteur (Savoie ou Marseille).");
-    if (!form.mode) errs.push("Choisis ton mode de récupération.");
+    if (!secteur) errs.push("Choisis ton secteur : Savoie ou Marseille et alentours.");
     if (isLivraison && !form.address.trim()) errs.push("Indique ton adresse de livraison.");
-    if (!form.date) errs.push("Choisis une date souhaitée.");
+    if (!form.date) errs.push(isLivraison ? "Choisis ta date de livraison." : "Choisis ta date de retrait.");
     if (!form.prenom.trim()) errs.push("Indique ton prénom.");
     if (!form.nom.trim()) errs.push("Indique ton nom.");
     if (!form.tel.trim()) errs.push("Indique ton téléphone.");
@@ -131,13 +151,15 @@ const Commande = () => {
       L.push(`Sous-total : ${eur(friandTotal)}`);
       L.push("");
     }
-    L.push(`TOTAL : ${eur(total)} (à régler au retrait / à la livraison)`);
+    L.push(`TOTAL : ${eur(totalAPayer)}${fraisLivraison ? ` (dont ${eur(fraisLivraison)} de livraison)` : ""} — à régler au retrait / à la livraison`);
     L.push("");
-    L.push("— Récupération —");
-    L.push(`Secteur : ${form.secteur}`);
-    L.push(`Mode : ${form.mode}`);
-    if (isLivraison) L.push(`Adresse : ${form.address}`);
-    L.push(`Date souhaitée : ${form.date}`);
+    L.push("— Retrait / livraison —");
+    L.push(`${secteur?.nom} : ${secteur?.detail}`);
+    if (isLivraison) {
+      L.push(`Livraison : ${livraisonOfferte ? "offerte" : eur(fraisLivraison)}`);
+      L.push(`Adresse : ${form.address}`);
+    }
+    L.push(`Date : ${formatDate(form.date)}`);
     L.push("");
     L.push("— Coordonnées —");
     L.push(`${form.prenom} ${form.nom}`);
@@ -210,31 +232,35 @@ const Commande = () => {
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 mt-auto">
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => add(p.id, -1)}
-              disabled={count <= 0}
-              aria-label={`Retirer un sachet de ${p.name}`}
-              className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              −
-            </button>
-            <span
-              className="min-w-[28px] text-center font-bold text-lg"
-              aria-live="polite"
-            >
-              {count}
-            </span>
-            <button
-              type="button"
-              onClick={() => add(p.id, 1)}
-              aria-label={`Ajouter un sachet de ${p.name}`}
-              className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc]"
-            >
-              +
-            </button>
-          </div>
+          {!estDisponible(p.id) ? (
+            <BientotDisponible />
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => add(p.id, -1)}
+                disabled={count <= 0}
+                aria-label={`Retirer un sachet de ${p.name}`}
+                className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                −
+              </button>
+              <span
+                className="min-w-[28px] text-center font-bold text-lg"
+                aria-live="polite"
+              >
+                {count}
+              </span>
+              <button
+                type="button"
+                onClick={() => add(p.id, 1)}
+                aria-label={`Ajouter un sachet de ${p.name}`}
+                className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc]"
+              >
+                +
+              </button>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => openInfo(p)}
@@ -269,30 +295,24 @@ const Commande = () => {
     }`;
   const sectionTitle = "text-2xl font-bold text-foreground";
 
-  const totalStr = total > 0 ? eur(total) : "—";
+  const totalStr = totalAPayer > 0 ? eur(totalAPayer) : "—";
 
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div className="min-h-screen bg-background pb-36">
       <Navbar />
 
       {/* En-tête */}
-      <header className="pt-24 pb-8 px-6 text-white text-center" style={{ backgroundImage: GRAD }}>
+      <header className="pt-24 pb-7 px-4 text-white" style={{ backgroundImage: GRAD }}>
         <div className="container max-w-3xl mx-auto">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-white/90 hover:text-white text-sm font-medium mb-4"
+            className="inline-flex items-center gap-1.5 text-white/90 hover:text-white text-sm font-medium mb-3"
           >
             <ArrowLeft className="w-4 h-4" /> Retour au site
           </Link>
-          <div className="flex items-center justify-center gap-3 mb-1">
-            <Logo className="w-11 h-11" />
-            <span className="font-brand text-3xl text-brand-cream">Dedjo</span>
-          </div>
-          <p className="font-display italic text-white/95">
-            L'artisanat qui se partage.
-          </p>
-          <p className="mt-3 text-sm text-white/95 max-w-lg mx-auto">
-            Compose ta commande, je la prépare. Tu règles au retrait ou à la livraison — rien à payer en ligne.
+          <h1 className="text-3xl font-bold">Commander</h1>
+          <p className="mt-2 text-white/95">
+            Choisis tes sachets, dis-moi où je te retrouve, puis envoie-moi ta commande : tu règles au retrait ou à la livraison, rien à payer en ligne.
           </p>
         </div>
       </header>
@@ -358,53 +378,26 @@ const Commande = () => {
               Ton secteur <span className="text-destructive">*</span>
             </legend>
             <div className="flex gap-2.5 flex-wrap">
-              {[
-                { v: "Savoie", d: "Retrait au marché du vendredi, Ferme de la Goëttaz" },
-                { v: "Marseille", d: "Livraison locale à domicile" },
-              ].map((o) => (
-                <label key={o.v} className={choiceClass(form.secteur === o.v)}>
+              {SECTEURS.map((s) => (
+                <label key={s.id} className={choiceClass(form.secteur === s.id)}>
                   <input
                     type="radio"
                     name="secteur"
-                    value={o.v}
-                    checked={form.secteur === o.v}
-                    onChange={() => set("secteur", o.v)}
+                    value={s.id}
+                    checked={form.secteur === s.id}
+                    onChange={() => choisirSecteur(s.id)}
                     className="mt-1"
                   />
                   <span>
-                    <span className="font-bold block">{o.v}</span>
-                    <span className="text-sm text-muted-foreground">{o.d}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <fieldset className="mb-4">
-            <legend className="block font-bold mb-1.5 text-sm">
-              Mode de récupération <span className="text-destructive">*</span>
-            </legend>
-            <div className="flex gap-2.5 flex-wrap">
-              {[
-                {
-                  v: "Retrait au marché du vendredi (Ferme de la Goëttaz)",
-                  t: "Retrait au marché",
-                  d: "Le vendredi, à la Ferme de la Goëttaz",
-                },
-                { v: "Livraison à domicile", t: "Livraison à domicile", d: "Je te l'apporte (selon secteur)" },
-              ].map((o) => (
-                <label key={o.v} className={choiceClass(form.mode === o.v)}>
-                  <input
-                    type="radio"
-                    name="mode"
-                    value={o.v}
-                    checked={form.mode === o.v}
-                    onChange={() => set("mode", o.v)}
-                    className="mt-1"
-                  />
-                  <span>
-                    <span className="font-bold block">{o.t}</span>
-                    <span className="text-sm text-muted-foreground">{o.d}</span>
+                    <span className="font-bold block">{s.nom}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {s.detail}
+                      {s.livraison && (
+                        <strong className="block text-foreground/80">
+                          Livraison {eur(CONFIG.fraisLivraison)}, offerte dès {CONFIG.livraisonOfferteDes} sachets.
+                        </strong>
+                      )}
+                    </span>
                   </span>
                 </label>
               ))}
@@ -430,16 +423,25 @@ const Commande = () => {
 
           <div className="mb-4">
             <label htmlFor="date" className="block font-bold mb-1.5 text-sm">
-              Date souhaitée <span className="text-destructive">*</span>
+              {isLivraison ? "Date de livraison" : secteur ? "Date de retrait" : "Date"}{" "}
+              <span className="text-destructive">*</span>
             </label>
-            <input
+            <select
               id="date"
-              type="date"
-              min={dateMin}
               value={form.date}
               onChange={(e) => set("date", e.target.value)}
-              className={inputClass}
-            />
+              disabled={!secteur}
+              className={`${inputClass} disabled:opacity-60 disabled:cursor-not-allowed`}
+            >
+              <option value="">
+                {secteur ? `Choisis un ${JOURS[secteur.jour]}` : "Choisis d'abord ton secteur"}
+              </option>
+              {dates.map((d) => (
+                <option key={d} value={d}>
+                  {formatDate(d)}
+                </option>
+              ))}
+            </select>
             <p className="text-sm text-muted-foreground mt-1.5">
               🗓️ Pense à commander quelques jours à l'avance — je prépare tout à la main.
             </p>
@@ -484,7 +486,7 @@ const Commande = () => {
             </label>
             <textarea
               id="message"
-              placeholder="Une envie, une allergie, une occasion à fêter…"
+              placeholder="Une envie, une allergie, une occasion à fêter, une indication de livraison…"
               value={form.message}
               onChange={(e) => set("message", e.target.value)}
               className={`${inputClass} min-h-[80px] resize-y`}
@@ -516,6 +518,26 @@ const Commande = () => {
                   <span>{eur(friandTotal)}</span>
                 </li>
               )}
+              {isLivraison && totalSachets > 0 && (
+                <li className="flex justify-between gap-3 py-1.5 text-sm">
+                  <span>
+                    🚚 Livraison ({secteur?.nom})
+                    {!livraisonOfferte && (
+                      <span className="block text-xs text-[#8a5a09]">
+                        Ajoute {pluralize(sachetsManquants, "sachet", "sachets")} et elle devient offerte
+                      </span>
+                    )}
+                  </span>
+                  {livraisonOfferte ? (
+                    <span className="whitespace-nowrap font-semibold text-brand-night">
+                      <s className="text-muted-foreground font-normal mr-1.5">{eur(CONFIG.fraisLivraison)}</s>
+                      Offerte
+                    </span>
+                  ) : (
+                    <span className="whitespace-nowrap font-semibold text-[#8a5a09]">{eur(fraisLivraison)}</span>
+                  )}
+                </li>
+              )}
             </ul>
 
             <div className="flex justify-between items-baseline mt-3.5 pt-3 border-t-2 border-border">
@@ -524,6 +546,11 @@ const Commande = () => {
                 {totalStr}
               </b>
             </div>
+            {fraisLivraison > 0 && (
+              <p className="text-right text-xs text-muted-foreground mt-1">
+                dont {eur(fraisLivraison)} de livraison · offerte dès {CONFIG.livraisonOfferteDes} sachets
+              </p>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-4">
               <button
@@ -569,23 +596,29 @@ const Commande = () => {
         </section>
       </main>
 
-      {/* Barre fixe bas */}
-      <div className="fixed left-0 right-0 bottom-0 z-40 bg-white border-t border-border px-4 py-2.5 flex items-center justify-between gap-3 shadow-[0_-6px_20px_-10px_rgba(24,95,165,0.3)]">
-        <div className="flex flex-col">
-          <small className="text-muted-foreground text-xs">
-            {totalSachets > 0 ? pluralize(totalSachets, "sachet", "sachets") : "Panier vide"}
-          </small>
-          <b className="text-xl text-[#185FA5]">
-            {totalStr}
-          </b>
+      {/* Barre fixe bas : jauge livraison offerte (masquée pour la Savoie), total, « Finaliser » */}
+      <div className="fixed left-0 right-0 bottom-0 z-40 bg-white border-t border-border px-4 py-2.5 shadow-[0_-6px_20px_-10px_rgba(24,95,165,0.3)]">
+        <div className="max-w-3xl mx-auto">
+          {(!secteur || secteur.livraison) && <LivraisonJauge sachets={totalSachets} className="mb-2.5" />}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col">
+              <small className="text-muted-foreground text-xs">
+                {totalSachets > 0 ? pluralize(totalSachets, "sachet", "sachets") : "Panier vide"}
+                {fraisLivraison > 0 && <span className="text-[#8a5a09]"> · dont {eur(fraisLivraison)} de livraison</span>}
+              </small>
+              <b className="text-xl text-[#185FA5]">
+                {totalStr}
+              </b>
+            </div>
+            <button
+              onClick={() => recapRef.current?.scrollIntoView({ behavior: "smooth" })}
+              className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
+              style={{ backgroundImage: GRAD }}
+            >
+              Finaliser ↓
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => recapRef.current?.scrollIntoView({ behavior: "smooth" })}
-          className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
-          style={{ backgroundImage: GRAD }}
-        >
-          Finaliser ↓
-        </button>
       </div>
 
       <ProductLabelModal product={modalProduct} open={modalOpen} onOpenChange={setModalOpen} />

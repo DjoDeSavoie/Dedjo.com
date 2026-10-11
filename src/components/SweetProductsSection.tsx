@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import ProductTags from "./ProductTags";
+import ProductTags, { BientotDisponible } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { Product, VIENNOISERIES, eur } from "@/lib/catalog";
+import { Product, VIENNOISERIES, estDisponible, eur } from "@/lib/catalog";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
 const catalogProduct = (id: string) => VIENNOISERIES.find((p) => p.id === id)!;
@@ -106,12 +106,16 @@ const SweetProductsSection = () => {
                 >
                   Voir les détails →
                 </button>
-                <button
-                  onClick={() => handleAdd(product.id)}
-                  className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
-                >
-                  + Panier
-                </button>
+                {estDisponible(product.id) ? (
+                  <button
+                    onClick={() => handleAdd(product.id)}
+                    className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
+                  >
+                    + Panier
+                  </button>
+                ) : (
+                  <BientotDisponible className="ml-auto" />
+                )}
               </div>
             </div>
             );

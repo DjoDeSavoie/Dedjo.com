@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
+import { BientotDisponible } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { FEUILLETES, eur } from "@/lib/catalog";
+import { FEUILLETES, estDisponible, eur } from "@/lib/catalog";
 
 /** Contenu et prix du sachet, depuis le catalogue. */
 const sachetInfo = (id: string) => {
@@ -133,12 +134,16 @@ const SaltyPastriesSection = () => {
                   >
                     Voir les détails →
                   </button>
-                  <button
-                    onClick={() => handleAdd(flavor.id, flavor.name)}
-                    className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
-                  >
-                    + Panier
-                  </button>
+                  {estDisponible(flavor.id) ? (
+                    <button
+                      onClick={() => handleAdd(flavor.id, flavor.name)}
+                      className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
+                    >
+                      + Panier
+                    </button>
+                  ) : (
+                    <BientotDisponible className="ml-auto" />
+                  )}
                 </div>
               </div>
             ))}

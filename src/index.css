@@ -115,6 +115,14 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
   }
+
+  /* La barre de navigation est fixe (73 px de haut) : quand on fait défiler jusqu'à une
+     section (liens du menu, ancres comme /#histoire, « Finaliser » de la page Commander),
+     elle s'arrête juste sous la barre au lieu d'être masquée par elle. */
+  section,
+  [id] {
+    scroll-margin-top: 73px;
+  }
 }
 
 @layer utilities {

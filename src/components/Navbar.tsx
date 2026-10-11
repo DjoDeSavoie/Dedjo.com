@@ -9,8 +9,10 @@ const navLinks = [
   { id: "salty-pastries", label: "Feuilletés Salés" },
   { id: "pizzas", label: "Les Pizzas" },
   { id: "newsletter", label: "Grandir ensemble" },
-  { id: "histoire", label: "Mon histoire" },
 ];
+
+// Affiché à part, à gauche du menu, pour le distinguer des liens produits
+const storyLink = { id: "histoire", label: "Mon histoire" };
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,7 +35,7 @@ const Navbar = () => {
       return;
     }
 
-    const sectionIds = navLinks.map((l) => l.id);
+    const sectionIds = [...navLinks, storyLink].map((l) => l.id);
     const observers: IntersectionObserver[] = [];
 
     sectionIds.forEach((id) => {
@@ -100,17 +102,26 @@ const Navbar = () => {
       <div className="container max-w-6xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
 
-          {/* Logo + nom */}
-          <button
-            onClick={goHome}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-          >
-            <Logo className="w-10 h-10" />
-            <span className="font-brand text-2xl text-brand-night">Dedjo</span>
-          </button>
+          {/* Logo + nom, puis « Mon histoire » isolé à gauche */}
+          <div className="flex items-center gap-4 lg:gap-5">
+            <button
+              onClick={goHome}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <Logo className="w-10 h-10" />
+              <span className="font-brand text-2xl text-brand-night">Dedjo</span>
+            </button>
+            <span className="hidden lg:block w-px h-6 bg-border" aria-hidden="true" />
+            <button
+              onClick={() => goToSection(storyLink.id)}
+              className={`hidden lg:inline-block ${linkClass(activeSection === storyLink.id)}`}
+            >
+              {storyLink.label}
+            </button>
+          </div>
 
           {/* Navigation desktop */}
-          <ul className="hidden md:flex items-center gap-6">
+          <ul className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <li key={link.id}>
                 <button
@@ -144,7 +155,7 @@ const Navbar = () => {
           {/* Bouton menu mobile */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-foreground"
+            className="lg:hidden p-2 text-foreground"
             aria-label="Ouvrir le menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,8 +170,17 @@ const Navbar = () => {
 
         {/* Menu mobile */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 bg-background rounded-lg shadow-soft">
+          <div className="lg:hidden mt-4 pb-4 border-t border-border pt-4 bg-background rounded-lg shadow-soft">
             <ul className="flex flex-col gap-3 px-2">
+              <li>
+                <button
+                  onClick={() => goToSection(storyLink.id)}
+                  className={mobileLinkClass(activeSection === storyLink.id)}
+                >
+                  {storyLink.label}
+                </button>
+              </li>
+              <li role="separator" className="border-t border-border mx-3" />
               {navLinks.map((link) => (
                 <li key={link.id}>
                   <button
