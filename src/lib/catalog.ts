@@ -3,11 +3,15 @@
    Utilisé à la fois par le site principal (boutons « + Panier »,
    pop-ups « Voir les détails ») et par la page de commande (/commande).
 
+   ⚠️ Les prix, pièces par sachet, frais et seuil de livraison et les jours
+   des secteurs sont recopiés dans apps-script/Code.gs (le script recalcule
+   le total de chaque commande) : toute modification doit être faite aux
+   deux endroits, puis le script redéployé.
+
    ███  CONFIG — À MODIFIER  ███
    =================================================================== */
 export const CONFIG = {
-  whatsapp: "33777282023", // ← TON numéro WhatsApp, format international SANS le « + »
-  email: "jonathandegrange123@gmail.com", // ← TON email
+  whatsapp: "33777282023", // ← TON numéro WhatsApp, format international SANS le « + » (lien de secours si l'envoi échoue)
   leadDays: 1, // nb de jours mini avant la date souhaitée
   livraisonOfferteDes: 3, // Marseille : livraison offerte à partir de ce nombre de sachets
   fraisLivraison: 5, // Marseille : frais de livraison (en €) en dessous de ce seuil

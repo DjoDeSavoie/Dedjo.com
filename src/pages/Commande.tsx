@@ -1,12 +1,13 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import AdresseAutocomplete from "@/components/AdresseAutocomplete";
 import ProductLabelModal from "@/components/ProductLabelModal";
 import ProductTags, { BientotDisponible } from "@/components/ProductTags";
 import LivraisonJauge from "@/components/LivraisonJauge";
 import { useCart } from "@/context/CartContext";
+import { AdresseLivraison, CommandePayload, envoyerCommande } from "@/lib/commande";
 import {
   CONFIG,
   VIENNOISERIES,
@@ -42,14 +43,17 @@ const prochainesDates = (jour: number, nombre = 6): string[] => {
 
 interface FormState {
   secteur: string;
-  address: string;
   date: string;
   prenom: string;
   nom: string;
   tel: string;
   email: string;
   message: string;
+  /** Champ piège anti-spam, invisible : rempli uniquement par les robots. */
+  website: string;
 }
+
+type EtatEnvoi = "repos" | "envoi" | "succes" | "erreur";
 
 type Group = "vienno" | "friand";
 
@@ -69,19 +73,24 @@ const Commande = () => {
     viennoTotal,
     friandTotal,
     total,
+    clear,
   } = useCart();
 
   const [form, setForm] = useState<FormState>({
     secteur: "",
-    address: "",
     date: "",
     prenom: "",
     nom: "",
     tel: "",
     email: "",
     message: "",
+    website: "",
   });
+  const [adresse, setAdresse] = useState<AdresseLivraison | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const [envoi, setEnvoi] = useState<EtatEnvoi>("repos");
+  const [erreurEnvoi, setErreurEnvoi] = useState("");
+  const [numero, setNumero] = useState("");
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -112,7 +121,8 @@ const Commande = () => {
     const errs: string[] = [];
     if (totalSachets === 0) errs.push("Ajoute au moins un sachet à ta commande.");
     if (!secteur) errs.push("Choisis ton secteur : Savoie ou Marseille et alentours.");
-    if (isLivraison && !form.address.trim()) errs.push("Indique ton adresse de livraison.");
+    if (isLivraison && !adresse)
+      errs.push("Choisis ton adresse de livraison dans les suggestions (ou saisis-la à la main avec son code postal).");
     if (!form.date) errs.push(isLivraison ? "Choisis ta date de livraison." : "Choisis ta date de retrait.");
     if (!form.prenom.trim()) errs.push("Indique ton prénom.");
     if (!form.nom.trim()) errs.push("Indique ton nom.");
@@ -129,76 +139,54 @@ const Commande = () => {
     return false;
   };
 
-  const buildMessage = (): string => {
-    const L: string[] = [];
-    const lines = (products: Product[], counts: Record<string, number>) =>
-      products
-        .filter((p) => counts[p.id] > 0)
-        .forEach((p) => L.push(`• ${p.name} × ${sachetsLabel(p, counts[p.id])} — ${eur(counts[p.id] * p.price)}`));
+  /* ---------- Envoi de la commande ---------- */
+  const construirePayload = (): CommandePayload => ({
+    website: form.website,
+    secteur: form.secteur,
+    date: form.date,
+    client: {
+      prenom: form.prenom.trim(),
+      nom: form.nom.trim(),
+      tel: form.tel.trim(),
+      email: form.email.trim(),
+    },
+    adresse: isLivraison ? adresse : null,
+    message: form.message.trim(),
+    quantites: Object.fromEntries([...Object.entries(vienno), ...Object.entries(friand)].filter(([, q]) => q > 0)),
+  });
 
-    L.push("🥐 NOUVELLE COMMANDE DEDJO");
-    L.push("L'artisanat qui se partage.");
-    L.push("");
-    if (viennoSachets > 0) {
-      L.push("— Viennoiseries —");
-      lines(VIENNOISERIES, vienno);
-      L.push(`Sous-total : ${eur(viennoTotal)}`);
-      L.push("");
-    }
-    if (friandSachets > 0) {
-      L.push("— Feuilletés salés —");
-      lines(FEUILLETES, friand);
-      L.push(`Sous-total : ${eur(friandTotal)}`);
-      L.push("");
-    }
-    L.push(`TOTAL : ${eur(totalAPayer)}${fraisLivraison ? ` (dont ${eur(fraisLivraison)} de livraison)` : ""} — à régler au retrait / à la livraison`);
-    L.push("");
-    L.push("— Retrait / livraison —");
-    L.push(`${secteur?.nom} : ${secteur?.detail}`);
-    if (isLivraison) {
-      L.push(`Livraison : ${livraisonOfferte ? "offerte" : eur(fraisLivraison)}`);
-      L.push(`Adresse : ${form.address}`);
-    }
-    L.push(`Date : ${formatDate(form.date)}`);
-    L.push("");
-    L.push("— Coordonnées —");
-    L.push(`${form.prenom} ${form.nom}`);
-    L.push(`Tél : ${form.tel}`);
-    if (form.email.trim()) L.push(`Email : ${form.email}`);
-    if (form.message.trim()) L.push(`Message : ${form.message}`);
-    L.push("");
-    L.push(`❄️ ${RAPPEL_CONGELE}`);
-    return L.join("\n");
+  /** Message prérempli pour WhatsApp, proposé en secours si l'envoi échoue. */
+  const resumeSecours = () => {
+    const produits = [...VIENNOISERIES, ...FEUILLETES]
+      .filter((p) => (vienno[p.id] ?? friand[p.id] ?? 0) > 0)
+      .map((p) => `${vienno[p.id] ?? friand[p.id]}× ${p.name}`)
+      .join(", ");
+    const quand = form.date ? `, ${isLivraison ? "livraison" : "retrait"} le ${formatDate(form.date)}` : "";
+    return `Bonjour, je n'arrive pas à valider ma commande sur le site : ${produits} (${eur(totalAPayer)})${quand}. ${form.prenom} ${form.nom}`.trim();
   };
 
-  const sendWhatsApp = () => {
+  const validerCommande = async () => {
+    if (envoi === "envoi") return; // pas de double envoi
     if (showErrors(validate())) return;
-    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(buildMessage())}`, "_blank");
-  };
-  const sendEmail = () => {
-    if (showErrors(validate())) return;
-    const subj = `Commande Dedjo — ${form.prenom} ${form.nom}`;
-    window.location.href = `mailto:${CONFIG.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(buildMessage())}`;
-  };
-  const copyRecap = async () => {
-    if (showErrors(validate())) return;
-    const msg = buildMessage();
-    try {
-      await navigator.clipboard.writeText(msg);
-      toast.success("Récapitulatif copié ✓");
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = msg;
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand("copy");
-        toast.success("Récapitulatif copié ✓");
-      } catch {
-        toast.error("Copie impossible — sélectionne le texte manuellement");
-      }
-      document.body.removeChild(ta);
+    setEnvoi("envoi");
+    setErreurEnvoi("");
+    const resultat = await envoyerCommande(construirePayload());
+    if (resultat.ok) {
+      setNumero(resultat.id);
+      setEnvoi("succes");
+      clear();
+      setTimeout(() => recapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    } else {
+      setErreurEnvoi(resultat.error);
+      setEnvoi("erreur");
     }
+  };
+
+  const nouvelleCommande = () => {
+    setEnvoi("repos");
+    setNumero("");
+    setErrors([]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   /* ---------- Rendu d'une carte produit ----------
@@ -409,15 +397,7 @@ const Commande = () => {
               <label htmlFor="address" className="block font-bold mb-1.5 text-sm">
                 Ton adresse de livraison <span className="text-destructive">*</span>
               </label>
-              <input
-                id="address"
-                type="text"
-                autoComplete="street-address"
-                placeholder="N°, rue, code postal, ville"
-                value={form.address}
-                onChange={(e) => set("address", e.target.value)}
-                className={inputClass}
-              />
+              <AdresseAutocomplete id="address" value={adresse} onChange={setAdresse} inputClass={inputClass} />
             </div>
           )}
 
@@ -492,10 +472,41 @@ const Commande = () => {
               className={`${inputClass} min-h-[80px] resize-y`}
             />
           </div>
+          {/* Piège anti-spam : hors écran, ignoré par les humains et les lecteurs d'écran */}
+          <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+            <label htmlFor="website">Ne pas remplir ce champ</label>
+            <input
+              id="website"
+              name="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={form.website}
+              onChange={(e) => set("website", e.target.value)}
+            />
+          </div>
         </section>
 
         {/* Récap + envoi */}
         <section ref={recapRef} className="my-8">
+          {envoi === "succes" ? (
+            <div role="status" className="bg-card rounded-2xl shadow-soft p-6 text-center border-2 border-[#cfe3f6]">
+              <CheckCircle2 className="w-12 h-12 mx-auto text-[#2A7FD0]" aria-hidden="true" />
+              <h2 className="text-2xl font-bold mt-3">C'est reçu !</h2>
+              <p className="mt-2 text-foreground">Je te recontacte rapidement pour confirmer la livraison.</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                N° de commande : <strong className="text-foreground">{numero}</strong>
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <Link to="/" className="rounded-xl px-4 py-2.5 font-semibold text-white" style={{ backgroundImage: GRAD }}>
+                  Retour au site
+                </Link>
+                <button type="button" onClick={nouvelleCommande} className="rounded-xl px-4 py-2.5 font-semibold border-2 border-border hover:border-[#2A7FD0]">
+                  Nouvelle commande
+                </button>
+              </div>
+            </div>
+          ) : (
           <div className="bg-card rounded-2xl shadow-soft p-5">
             <h2 className="text-xl font-bold mb-2.5">
               🧺 Ma commande
@@ -552,27 +563,25 @@ const Commande = () => {
               </p>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-4">
-              <button
-                onClick={sendWhatsApp}
-                className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 bg-[#25D366] text-[#06371b] transition hover:-translate-y-0.5 hover:shadow-hover"
-              >
-                📲 WhatsApp
-              </button>
-              <button
-                onClick={sendEmail}
-                className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 text-white transition hover:-translate-y-0.5 hover:shadow-hover"
-                style={{ backgroundImage: GRAD }}
-              >
-                ✉️ Email
-              </button>
-              <button
-                onClick={copyRecap}
-                className="rounded-2xl px-3 py-3.5 font-bold text-base flex items-center justify-center gap-2 bg-[#F5C842] text-[#5a4406] transition hover:-translate-y-0.5 hover:shadow-hover"
-              >
-                📋 Copier
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={validerCommande}
+              disabled={envoi === "envoi"}
+              aria-busy={envoi === "envoi"}
+              className="w-full mt-4 rounded-2xl px-4 py-3.5 font-bold text-base text-white flex items-center justify-center gap-2 transition hover:-translate-y-0.5 hover:shadow-hover disabled:opacity-80 disabled:cursor-wait disabled:hover:translate-y-0"
+              style={{ backgroundImage: GRAD }}
+            >
+              {envoi === "envoi" ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /> Envoi en cours…
+                </>
+              ) : (
+                "Valider ma commande"
+              )}
+            </button>
+            <p className="mt-2 text-xs text-muted-foreground text-center">
+              Tes coordonnées servent uniquement à préparer et livrer ta commande : elles ne sont ni revendues ni utilisées à d'autres fins.
+            </p>
 
             {errors.length > 0 && (
               <div
@@ -589,17 +598,41 @@ const Commande = () => {
               </div>
             )}
 
+            {envoi === "erreur" && (
+              <div role="alert" className="mt-3.5 bg-[#fdecea] border-2 border-[#f5c2bd] text-[#a4291c] rounded-xl px-3.5 py-3 text-sm">
+                <strong>Ta commande n'est pas partie.</strong> {erreurEnvoi}
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <button
+                    type="button"
+                    onClick={validerCommande}
+                    className="rounded-xl bg-[#a4291c] text-white font-bold px-3.5 py-2 hover:bg-[#8a2217]"
+                  >
+                    Réessayer
+                  </button>
+                  <a
+                    href={`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(resumeSecours())}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold underline underline-offset-2"
+                  >
+                    ou écris-moi sur WhatsApp
+                  </a>
+                </div>
+              </div>
+            )}
+
             <p className="mt-3.5 text-sm text-muted-foreground text-center">
               Réservation sans paiement en ligne — tu règles en main propre au retrait ou à la livraison. 💛
             </p>
           </div>
+          )}
         </section>
       </main>
 
       {/* Barre fixe bas : jauge livraison offerte (masquée pour la Savoie), total, « Finaliser » */}
       <div className="fixed left-0 right-0 bottom-0 z-40 bg-white border-t border-border px-4 py-2.5 shadow-[0_-6px_20px_-10px_rgba(24,95,165,0.3)]">
         <div className="max-w-3xl mx-auto">
-          {(!secteur || secteur.livraison) && <LivraisonJauge sachets={totalSachets} className="mb-2.5" />}
+          {(!secteur || secteur.livraison) && envoi !== "succes" && <LivraisonJauge sachets={totalSachets} className="mb-2.5" />}
           <div className="flex items-center justify-between gap-3">
             <div className="flex flex-col">
               <small className="text-muted-foreground text-xs">
