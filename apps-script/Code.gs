@@ -3,7 +3,7 @@
  *
  * Appelé uniquement par la fonction Netlify netlify/functions/commande.ts (le navigateur ne
  * connaît pas l'URL de ce script). Pour chaque commande :
- *   1. vérifie le secret partagé, puis revalide toutes les données ;
+ *   1. vérifie le secret partagé, puis revalide toutes les données (dont l'acceptation des CGV) ;
  *   2. recalcule le total (prix ci-dessous, jamais ceux envoyés par le navigateur) ;
  *   3. applique les limites anti-abus (par visiteur, par e-mail, par téléphone : voir LIMITES) ;
  *   4. ajoute une ligne dans l'onglet « Commandes » du Google Sheet ;
@@ -22,9 +22,10 @@
  *   DERNIER_NUMERO  géré automatiquement (dernier n° de commande attribué)
  *   EMAILS_CLIENTS_JOUR  géré automatiquement (nombre d'e-mails de récapitulatif envoyés aujourd'hui)
  *
- * ⚠️ Les prix, pièces par sachet, frais et seuil de livraison et les jours des secteurs sont
- *    recopiés de src/lib/catalog.ts. Toute modification doit être faite aux deux endroits, puis
- *    redéployée : Déployer > Gérer les déploiements > ✏️ > Version : Nouvelle version.
+ * ⚠️ Les prix, pièces par sachet, frais et seuil de livraison, les jours des secteurs, la cuisson
+ *    et les moyens de paiement sont recopiés de src/lib/catalog.ts, et les versions des CGV de
+ *    src/lib/legal.ts. Toute modification doit être faite aux deux endroits, puis redéployée :
+ *    Déployer > Gérer les déploiements > ✏️ > Version : Nouvelle version.
  *
  * Mode d'emploi complet : apps-script/DEPLOIEMENT.md
  */
@@ -52,8 +53,16 @@ const SECTEURS = {
 // Signature des e-mails envoyés aux clients (texte ; les retours à la ligne sont conservés)
 const SIGNATURE = "À très vite,\nJo — Dedjo\nL'artisanat qui se partage · dedjo.com";
 
-// Cuisson (four préchauffé, directement sorti du congélateur), rappelée dans l'e-mail de récapitulatif
-const CUISSON = { temperature: 180, minutes: { viennoiseries: 25, "feuilletés": 30 } };
+// Cuisson (four préchauffé, directement sorti du congélateur), rappelée dans l'e-mail de récapitulatif.
+// Recopiée de CUISSON dans src/lib/catalog.ts.
+const CUISSON = { temperature: 180, minutes: { viennoiseries: 20, "feuilletés": 30 } };
+
+// Moyens de paiement à la remise, recopiés de MOYENS_PAIEMENT dans src/lib/catalog.ts
+const PAIEMENT = "en espèces ou par virement";
+
+// Versions des CGV acceptées (CGV_VERSION dans src/lib/legal.ts). Pour une nouvelle version des CGV :
+// ajouter sa date ici et publier le script AVANT le site ; garder l'ancienne date quelques jours.
+const CGV_VERSIONS = ["2026-10-12"];
 
 // Couleurs Dedjo des e-mails
 const COULEURS = { nuit: "#163F6B", creme: "#FBF5E9", jaune: "#F9E830", bleu: "#7DC3E8", texte: "#2B2B2B" };
@@ -97,6 +106,7 @@ const EN_TETES = [
   "Livrée",
   "Payée",
   "E-mail envoyé",
+  "Version CGV", // ajoutée en dernier : les colonnes existantes ne sont pas décalées
 ];
 const COLONNE_EMAIL = EN_TETES.indexOf("E-mail envoyé") + 1;
 
@@ -184,6 +194,12 @@ function champAdresse(valeur, nom, max) {
 }
 
 function valider(data) {
+  // CGV : case cochée et version connue
+  if (data.cgvAcceptees !== true) throw new ErreurCommande("Coche la case pour accepter les CGV.");
+  if (CGV_VERSIONS.indexOf(data.cgvVersion) === -1) {
+    throw new ErreurCommande("Les conditions générales de vente ont changé : recharge la page, puis renvoie ta commande.");
+  }
+
   const secteur = SECTEURS[data.secteur];
   if (!secteur) throw new ErreurCommande("Secteur inconnu.");
 
@@ -256,6 +272,7 @@ function valider(data) {
     total: sousTotal + frais,
     dateLettres,
     creneau: `${dateLettres} · ${secteur.mode}`,
+    cgvVersion: data.cgvVersion,
   };
 }
 
@@ -377,6 +394,7 @@ function enregistrer(c) {
       "", // Livrée
       "", // Payée
       "", // E-mail envoyé (rempli juste après l'envoi)
+      enTexte(c.cgvVersion), // en texte : sinon le Sheet en ferait une date
     ]);
     SpreadsheetApp.flush();
     proprietes.setProperty("DERNIER_NUMERO", String(numero));
@@ -393,6 +411,12 @@ function enregistrer(c) {
 
 function euros(n) {
   return Number.isInteger(n) ? `${n} €` : `${n.toFixed(2).replace(".", ",")} €`;
+}
+
+/** « 2026-10-12 » → « 12 octobre 2026 » */
+function dateLongue(iso) {
+  const [annee, mois, jour] = String(iso).split("-").map(Number);
+  return `${jour} ${MOIS[mois - 1]} ${annee}`;
 }
 
 /** Échappe les caractères spéciaux HTML (&, <, >, ") : Telegram et e-mails. */
@@ -444,11 +468,13 @@ function emailClient(c, id) {
   ];
   // Le commentaire (texte libre) n'est jamais recopié dans l'e-mail : on confirme seulement sa réception
   if (c.message) infos.push(["Ton commentaire", "bien reçu"]);
+  infos.push(["Conditions générales de vente", `version du ${dateLongue(c.cgvVersion)}, acceptée avec ta commande : dedjo.com/cgv`]);
 
   const objet = `Ta commande Dedjo ${id} est bien reçue`;
   const intro = "Merci pour ta commande, elle est bien arrivée !";
   const suite =
-    "Je te recontacte rapidement pour confirmer le créneau. Le paiement se fait en espèces, quand tu récupères ta commande : rien à régler en ligne.";
+    "Je te recontacte rapidement sur WhatsApp pour confirmer le créneau : ta commande devient ferme à ce moment-là. " +
+    `Le paiement se fait ${PAIEMENT}, quand tu récupères ta commande : rien à régler en ligne.`;
   const cuisson = rappelCuisson(c);
 
   const texte = [
@@ -511,7 +537,7 @@ function emailClient(c, id) {
   return { objet, texte, html };
 }
 
-/** « Préchauffe ton four à 180 °C… : 25 min pour les viennoiseries, 30 min pour les feuilletés. » */
+/** « Préchauffe ton four à 180 °C… : N min pour les viennoiseries, N min pour les feuilletés. » (durées : CUISSON) */
 function rappelCuisson(c) {
   const familles = Object.keys(CUISSON.minutes).filter((f) => c.lignes.some((l) => l.quantite > 0 && l.produit.famille === f));
   const durees = familles.map((f) => `${CUISSON.minutes[f]} min pour les ${f}`).join(", ");
@@ -725,6 +751,7 @@ function commandeExemple() {
     dateLettres: "samedi 17 octobre",
     creneau: "samedi 17 octobre · livraison Marseille",
     message: "Message de test : les caractères < > & doivent s'afficher tels quels",
+    cgvVersion: CGV_VERSIONS[CGV_VERSIONS.length - 1],
   };
 }
 
@@ -762,6 +789,8 @@ function testerCommande() {
         adresse: { ligne: "32 Avenue de la Croix Rouge", codePostal: "13013", ville: "Marseille", manuelle: false },
         message: "Commande de test : à supprimer",
         quantites: { lune: 1, montagne: 1 },
+        cgvAcceptees: true,
+        cgvVersion: CGV_VERSIONS[CGV_VERSIONS.length - 1],
       }),
     },
   });

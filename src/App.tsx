@@ -7,6 +7,9 @@ import { CartProvider } from "./context/CartContext";
 import Index from "./pages/Index";
 import Discover from "./pages/Discover";
 import Commande from "./pages/Commande";
+import MentionsLegales from "./pages/MentionsLegales";
+import Cgv from "./pages/Cgv";
+import Confidentialite from "./pages/Confidentialite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +27,9 @@ const App = () => (
             {/* L'histoire est désormais une section en bas de la page d'accueil */}
             <Route path="/histoire" element={<Navigate to="/#histoire" replace />} />
             <Route path="/commande" element={<Commande />} />
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
+            <Route path="/cgv" element={<Cgv />} />
+            <Route path="/confidentialite" element={<Confidentialite />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -45,6 +45,8 @@ export interface Secteur {
   livraison: boolean;
 }
 
+export const JOURS_SEMAINE = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+
 export const SECTEURS: Secteur[] = [
   {
     id: "savoie",
@@ -65,6 +67,24 @@ export const SECTEURS: Secteur[] = [
 /* --- Tarif : un prix unique par sachet (pas de dégressif pour le moment) --- */
 export const PRIX_SACHET = 10;
 
+/* --- Paiement : uniquement à la remise (retrait ou livraison), jamais en ligne ---
+   Recopié dans apps-script/Code.gs (PAIEMENT, e-mail de récapitulatif). */
+export const MOYENS_PAIEMENT = "en espèces ou par virement";
+
+/* --- Cuisson : four préchauffé, produits directement sortis du congélateur, sans décongeler ---
+   Même valeur partout : fiches produits, sections de l'accueil, et CUISSON dans
+   apps-script/Code.gs (rappel de l'e-mail de récapitulatif), et étiquettes imprimées. */
+export const CUISSON = {
+  temperature: 180,
+  minutes: { viennoiseries: 20, feuilletes: 30 },
+};
+
+/* --- Exploitant du secteur alimentaire, affiché sur toutes les fiches produits (INCO) --- */
+export const EXPLOITANT = "Dedjo — Jonathan Degrange, 32 avenue de la Croix Rouge, 13013 Marseille";
+
+/* Pas de tableau nutritionnel pour le moment : exemption des denrées artisanales fournies
+   directement au consommateur final en faibles quantités (règlement INCO, annexe V, point 19). */
+
 /* ===================================================================
    TYPES
    =================================================================== */
@@ -78,16 +98,19 @@ export interface ProductLabel {
   tip?: { title: string; text: string };
   /** Encadré phrase d'accroche. */
   tagline?: string;
-  /** Dénomination du produit. */
-  denomination?: string;
+  /** Dénomination du produit (mention obligatoire, INCO). */
+  denomination: string;
   /** Allergènes en gras entre **doubles astérisques**. */
   ingredients: string;
   /** Mention allergènes séparée (si non indiqués en gras dans les ingrédients). */
   allergenes?: string;
   traces?: string;
-  quantite?: string;
+  /** Contenu du sachet avec son poids net (mention obligatoire, INCO). */
+  quantite: string;
   ddm?: string;
   conservation: string;
+  /** Nom et adresse de l'exploitant (mention obligatoire, INCO). */
+  exploitant: string;
   /** Mention artisanale imprimée sur l'étiquette. */
   mention?: string;
 }
@@ -118,10 +141,9 @@ export interface Product {
 /* ===================================================================
    MENTIONS COMMUNES AUX ÉTIQUETTES VIENNOISERIES
    =================================================================== */
-const PREPARATION_VIENNOISERIE =
-  "Préchauffe ton four à **180 °C**. Enfourne tes viennoiseries **faites main** directement sorties du congélateur, sans décongeler : **25 minutes**. Régale-toi !";
+const PREPARATION_VIENNOISERIE = `Préchauffe ton four à **${CUISSON.temperature} °C**. Enfourne tes viennoiseries **faites main** directement sorties du congélateur, sans décongeler : **${CUISSON.minutes.viennoiseries} minutes**. Régale-toi !`;
 const MENTION_ARTISANALE =
-  "Viennoiseries artisanales et locales, produites à la main, avec des ingrédients de qualité et le sourire d'un boulanger passionné.";
+  "Viennoiseries artisanales et locales, produites à la main, avec des ingrédients de qualité et le sourire d'un artisan passionné, titulaire du CAP Boulanger.";
 const DDM_SACHET = "À consommer de préférence avant la date indiquée sur le sachet.";
 const CONSERVATION_SURGELE = "À conserver à −18 °C. Ne jamais recongeler après décongélation.";
 
@@ -153,6 +175,7 @@ export const VIENNOISERIES: Product[] = [
       quantite: "6 pièces - 480 g",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
       mention: MENTION_ARTISANALE,
     },
   },
@@ -178,6 +201,7 @@ export const VIENNOISERIES: Product[] = [
       quantite: "6 pièces - 480 g",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
       mention: MENTION_ARTISANALE,
     },
   },
@@ -206,6 +230,7 @@ export const VIENNOISERIES: Product[] = [
       quantite: "4 pièces - 440 g",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
       mention: MENTION_ARTISANALE,
     },
   },
@@ -232,6 +257,7 @@ export const VIENNOISERIES: Product[] = [
       quantite: "4 pièces - 440 g",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
       mention: MENTION_ARTISANALE,
     },
   },
@@ -239,13 +265,11 @@ export const VIENNOISERIES: Product[] = [
 
 /* ===================================================================
    FEUILLETÉS SALÉS — sachet de 2 friands de la même gamme
-   La Montagne : étiquette validée (allergènes en gras dans les ingrédients).
-   La Forêt, La Noix, La Goët : étiquettes encore provisoires (ingrédients et
-   allergènes à valider avec les vraies recettes — sécurité alimentaire) ;
-   à garder indisponibles dans DISPONIBILITE tant qu'elles ne sont pas validées.
+   Allergènes en gras dans les ingrédients. Un produit ne passe à true dans
+   DISPONIBILITE qu'avec son étiquette complète (dénomination, ingrédients,
+   allergènes, poids net) — sécurité alimentaire.
    =================================================================== */
-const PREPARATION_FEUILLETE =
-  "Préchauffe ton four à **180 °C**. Enfourne tes friands directement sortis du congélateur, sans décongeler : **30 minutes**.";
+const PREPARATION_FEUILLETE = `Préchauffe ton four à **${CUISSON.temperature} °C**. Enfourne tes friands directement sortis du congélateur, sans décongeler : **${CUISSON.minutes.feuilletes} minutes**.`;
 
 export const FEUILLETES: Product[] = [
   {
@@ -253,6 +277,7 @@ export const FEUILLETES: Product[] = [
     name: "La Montagne",
     emoji: "🏔️",
     color: "#ffaa8c",
+    labels: ["Pour tenir l'hiver"],
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
@@ -261,11 +286,12 @@ export const FEUILLETES: Product[] = [
       preparation: PREPARATION_FEUILLETE,
       denomination: "Friand feuilleté pur beurre aux lardons, oignons et reblochon, cru, congelé",
       ingredients:
-        "pâte feuilletée 63 % (**farine de blé** T45, **beurre**, eau, sel), reblochon 17 % (**lait** cru de vache, sel, présure, ferments), lardons fumés 10 %, oignons 10 %.",
+        "pâte feuilletée 63 % (**farine de blé** T45, **beurre**, eau, sel), reblochon AOP 17 % (**lait** cru de vache, sel, présure, ferments), lardons fumés 10 %, oignons 10 %.",
       traces: "Peut contenir des traces de fruits à coque, œufs.",
       quantite: "2 friands - 600 g",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
     },
   },
   {
@@ -273,6 +299,7 @@ export const FEUILLETES: Product[] = [
     name: "La Forêt",
     emoji: "🌲",
     color: "#ffb84d",
+    labels: ["La balade en Savoie"],
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
@@ -282,9 +309,11 @@ export const FEUILLETES: Product[] = [
       ingredients:
         "Pâte feuilletée (farine, beurre, eau, sel), champignons, béchamel (lait, beurre, farine), fromage à fondue.",
       allergenes: "Contient **gluten**, **lait**.",
+      denomination: "",
       quantite: "2 friands",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
     },
   },
   {
@@ -293,6 +322,7 @@ export const FEUILLETES: Product[] = [
     emoji: "🐝",
     color: "#c9a67a",
     allergens: ["Fruits à coque"],
+    labels: ["Le sucré/salé réconfortant"],
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
@@ -301,9 +331,11 @@ export const FEUILLETES: Product[] = [
       preparation: PREPARATION_FEUILLETE,
       ingredients: "Pâte feuilletée (farine, beurre, eau, sel), fromage de chèvre frais, miel local, cerneaux de noix.",
       allergenes: "Contient **gluten**, **lait**, **fruits à coque (noix)**.",
+      denomination: "",
       quantite: "2 friands",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
     },
   },
   {
@@ -311,6 +343,7 @@ export const FEUILLETES: Product[] = [
     name: "La Goët",
     emoji: "🥬",
     color: "#7bc98a",
+    labels: ["Aux légumes de saison"],
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
@@ -319,9 +352,11 @@ export const FEUILLETES: Product[] = [
       preparation: PREPARATION_FEUILLETE,
       ingredients: "Pâte feuilletée (farine, beurre, eau, sel), poireaux de la Goëttaz, fromage de chèvre frais.",
       allergenes: "Contient **gluten**, **lait**.",
+      denomination: "",
       quantite: "2 friands",
       ddm: DDM_SACHET,
       conservation: CONSERVATION_SURGELE,
+      exploitant: EXPLOITANT,
     },
   },
 ];

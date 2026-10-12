@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { DUREE_CONSERVATION_MENTIONS, EDITEUR, FREQUENCE_NEWSLETTER } from "@/lib/legal";
 
 const NewsletterForm = () => {
   const [email, setEmail] = useState("");
@@ -58,23 +60,36 @@ const NewsletterForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-      <input
-        type="email"
-        placeholder="Entrez votre email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="input-newsletter flex-1"
-        disabled={isLoading}
-      />
-      <button
-        type="submit"
-        className="btn-newsletter disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={isLoading}
-      >
-        {isLoading ? "Inscription..." : "S'inscrire"}
-      </button>
-    </form>
+    <div className="max-w-md mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+        <input
+          type="email"
+          placeholder="Entrez votre email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="input-newsletter flex-1"
+          disabled={isLoading}
+        />
+        <button
+          type="submit"
+          className="btn-newsletter disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading}
+        >
+          {isLoading ? "Inscription..." : "S'inscrire"}
+        </button>
+      </form>
+      <p className="mt-3 text-xs text-muted-foreground text-center">
+        En t'inscrivant, tu acceptes de recevoir la newsletter Dedjo
+        {FREQUENCE_NEWSLETTER && ` (environ ${FREQUENCE_NEWSLETTER} par mois)`}. Désinscription en un clic dans chaque
+        e-mail.
+        {DUREE_CONSERVATION_MENTIONS && ` Ton adresse est conservée ${DUREE_CONSERVATION_MENTIONS}.`}
+        {EDITEUR.email && ` Tes droits : ${EDITEUR.email}.`} En savoir plus :{" "}
+        <Link to="/confidentialite" className="underline underline-offset-2 hover:text-foreground">
+          politique de confidentialité
+        </Link>
+        .
+      </p>
+    </div>
   );
 };
 

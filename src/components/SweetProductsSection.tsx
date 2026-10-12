@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
 import ProductTags, { BientotDisponible } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { Product, VIENNOISERIES, estDisponible, eur } from "@/lib/catalog";
+import { CUISSON, Product, VIENNOISERIES, estDisponible, eur } from "@/lib/catalog";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
 const catalogProduct = (id: string) => VIENNOISERIES.find((p) => p.id === id)!;
@@ -53,7 +53,7 @@ const SweetProductsSection = () => {
           {[
             { icon: "🧈", title: "Beurre de qualité", desc: "Façonnées à la main" },
             { icon: "🏠", title: "Cuites chez toi", desc: "Dans ton propre four" },
-            { icon: "☀️", title: "Prêtes en 25 min", desc: "Le matin au réveil" },
+            { icon: "☀️", title: `Prêtes en ${CUISSON.minutes.viennoiseries} min`, desc: "Le matin au réveil" },
             { icon: "🥂", title: "Petit dej' et brunch", desc: "Par toi, pour eux" },
           ].map((arg) => (
             <div key={arg.title} className="bg-card rounded-2xl p-4 text-center shadow-soft">
@@ -130,11 +130,11 @@ const SweetProductsSection = () => {
           <div className="space-y-5 text-foreground leading-relaxed">
             <div className="flex items-start gap-3">
               <span className="text-xl flex-shrink-0">1️⃣</span>
-              <p>Préchauffe ton four à <strong>180 °C</strong>.</p>
+              <p>Préchauffe ton four à <strong>{CUISSON.temperature} °C</strong>.</p>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-xl flex-shrink-0">2️⃣</span>
-              <p>Sors tes viennoiseries du congélateur, dispose-les sur une plaque recouverte de papier cuisson et enfourne-les directement, sans décongeler : <strong>25 minutes</strong>.</p>
+              <p>Sors tes viennoiseries du congélateur, dispose-les sur une plaque recouverte de papier cuisson et enfourne-les directement, sans décongeler : <strong>{CUISSON.minutes.viennoiseries} minutes</strong>.</p>
             </div>
           </div>
           <p className="text-center mt-6 text-lg">Régale-toi. 🥐</p>
@@ -170,7 +170,7 @@ const SweetProductsSection = () => {
               <div className="flex items-start gap-3">
                 <span className="text-lg flex-shrink-0">🧈</span>
                 <div>
-                  <p className="font-semibold mb-1">3 — L'enchâssage du beurre AOP</p>
+                  <p className="font-semibold mb-1">3 — L'enchâssage du beurre</p>
                   <p>Un bloc de beurre de tourage — le meilleur que je trouve — est enfermé dans la détrempe. Tout commence ici : c'est ce beurre qui va créer le feuilletage.</p>
                 </div>
               </div>
@@ -192,7 +192,7 @@ const SweetProductsSection = () => {
                 <span className="text-lg flex-shrink-0">❄️</span>
                 <div>
                   <p className="font-semibold mb-1">6 — La pré-pousse, puis la congélation</p>
-                  <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. La congélation préserve toute la fraîcheur du beurre AOP, conserve les arômes de fermentation et stoppe la fermentation au bon moment. Quand tu les sors chez toi, elles reprennent leur pousse dans la chaleur du four. Le résultat est le même qu'à la sortie de mon labo — mais chez toi, à l'heure qui te convient.</p>
+                  <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. La congélation préserve toute la fraîcheur du beurre, conserve les arômes de fermentation et stoppe la fermentation au bon moment. Quand tu les sors chez toi, elles reprennent leur pousse dans la chaleur du four. Le résultat est le même qu'à la sortie de mon labo — mais chez toi, à l'heure qui te convient.</p>
                 </div>
               </div>
               <div className="pt-4 border-t border-muted text-center">

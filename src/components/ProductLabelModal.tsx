@@ -78,11 +78,9 @@ const ProductLabelModal = ({ product, open, onOpenChange }: ProductLabelModalPro
             </Section>
           )}
 
-          {label.quantite && (
-            <Section title="📦 Quantité">
-              <p>{label.quantite}</p>
-            </Section>
-          )}
+          <Section title="📦 Quantité">
+            <p>{label.quantite}</p>
+          </Section>
 
           <Section title="🧊 Conservation">
             <p>{label.conservation}</p>
@@ -93,6 +91,10 @@ const ProductLabelModal = ({ product, open, onOpenChange }: ProductLabelModalPro
               <p>{label.ddm}</p>
             </Section>
           )}
+
+          <Section title="🏷️ Fabriqué par">
+            <p>{label.exploitant}</p>
+          </Section>
 
           {product.note && (
             <Section title="ℹ️ Bon à savoir">

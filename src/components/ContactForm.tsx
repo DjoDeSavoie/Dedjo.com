@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { DUREE_CONSERVATION_MENTIONS, EDITEUR } from "@/lib/legal";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -185,6 +187,15 @@ const ContactForm = () => {
       >
         {isLoading ? "Envoi en cours..." : "Envoyer mon message 🌱"}
       </button>
+      <p className="text-xs text-muted-foreground text-center">
+        Ton message sert uniquement à te répondre.
+        {DUREE_CONSERVATION_MENTIONS && ` Il est conservé ${DUREE_CONSERVATION_MENTIONS}.`}
+        {EDITEUR.email && ` Tes droits : ${EDITEUR.email}.`} En savoir plus :{" "}
+        <Link to="/confidentialite" className="underline underline-offset-2 hover:text-foreground">
+          politique de confidentialité
+        </Link>
+        .
+      </p>
     </form>
   );
 };

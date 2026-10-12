@@ -25,6 +25,10 @@ export interface CommandePayload {
   message: string;
   /** Nombre de sachets par produit (uniquement ceux commandés). */
   quantites: Record<string, number>;
+  /** Case « J'ai lu et j'accepte les CGV » cochée. */
+  cgvAcceptees: boolean;
+  /** Version des CGV acceptées (CGV_VERSION, src/lib/legal.ts). */
+  cgvVersion: string;
 }
 
 /** ok: true → id renseigné ; ok: false → error renseigné. */

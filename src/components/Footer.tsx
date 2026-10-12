@@ -1,8 +1,10 @@
 import { Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 import Logo from "./Logo";
+import { LIENS_LEGAUX } from "@/lib/legal";
 
 const instagramPreviews = [
-  { emoji: "🥐", label: "La Lune", desc: "Croissant au beurre AOP", bg: "bg-product-croissant" },
+  { emoji: "🥐", label: "La Lune", desc: "Croissant pur beurre", bg: "bg-product-croissant" },
   { emoji: "🍫", label: "La Cabosse", desc: "Pain au chocolat", bg: "bg-[#d4a87a]" },
   { emoji: "🌹", label: "La Rose", desc: "Praline rose & vanille", bg: "bg-product-rose" },
   { emoji: "🍇", label: "La Grappe", desc: "Roulé aux raisins", bg: "bg-product-raisin" },
@@ -57,6 +59,17 @@ const Footer = () => {
           <p className="text-muted-foreground text-center text-sm">
             © 2026 Dedjo. Fait avec amour. 🥖
           </p>
+          <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
+            {LIENS_LEGAUX.map((lien) => (
+              <Link
+                key={lien.to}
+                to={lien.to}
+                className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+              >
+                {lien.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </footer>
     </>

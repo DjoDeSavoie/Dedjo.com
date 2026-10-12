@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, CheckCircle2, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
 import ProductLabelModal from "@/components/ProductLabelModal";
@@ -12,6 +12,8 @@ import {
   CONFIG,
   VIENNOISERIES,
   FEUILLETES,
+  JOURS_SEMAINE,
+  MOYENS_PAIEMENT,
   PRIX_SACHET,
   SECTEURS,
   Product,
@@ -19,10 +21,13 @@ import {
   eur,
   pluralize,
 } from "@/lib/catalog";
+import { CGV_VERSION, DUREE_CONSERVATION_MENTIONS, EDITEUR, LIENS_LEGAUX } from "@/lib/legal";
 
 const GRAD = "linear-gradient(135deg,#185FA5 0%,#2A7FD0 100%)";
 const RAPPEL_CONGELE = "Tout est livré congelé, à conserver au congélateur, et cuire en direct dans ton four.";
-const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const SECTEUR_LIVRAISON = SECTEURS.find((s) => s.livraison)!;
+const SEUIL_LIVRAISON = pluralize(CONFIG.livraisonOfferteDes, "sachet", "sachets");
+const lienClass = "font-semibold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0]";
 
 /** « samedi 18 octobre » */
 const formatDate = (iso: string) =>
@@ -56,6 +61,14 @@ interface FormState {
 type EtatEnvoi = "repos" | "envoi" | "succes" | "erreur";
 
 type Group = "vienno" | "friand";
+
+/** Les onglets de la commande, dans l'ordre. */
+type Etape = 1 | 2 | 3;
+const ETAPES: { numero: Etape; titre: string }[] = [
+  { numero: 1, titre: "Tes produits" },
+  { numero: 2, titre: "Où je te retrouve" },
+  { numero: 3, titre: "Tes coordonnées" },
+];
 
 /** « 2 sachets · 12 pièces » */
 const sachetsLabel = (p: Product, qty: number) =>
@@ -93,9 +106,12 @@ const Commande = () => {
   const [numero, setNumero] = useState("");
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [cgvAcceptees, setCgvAcceptees] = useState(false);
+  const [etape, setEtape] = useState<Etape>(1);
 
   const errorsRef = useRef<HTMLDivElement>(null);
   const recapRef = useRef<HTMLDivElement>(null);
+  const ongletsRef = useRef<HTMLElement>(null);
 
   const set = (key: keyof FormState, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -116,25 +132,30 @@ const Commande = () => {
     setModalOpen(true);
   };
 
-  /* ---------- Validation & message ---------- */
-  const validate = (): string[] => {
+  /* ---------- Validation, onglet par onglet ---------- */
+  const erreursEtape = (n: Etape): string[] => {
     const errs: string[] = [];
-    if (totalSachets === 0) errs.push("Ajoute au moins un sachet à ta commande.");
-    if (!secteur) errs.push("Choisis ton secteur : Savoie ou Marseille et alentours.");
-    if (isLivraison && !adresse)
-      errs.push("Choisis ton adresse de livraison dans les suggestions (ou saisis-la à la main avec son code postal).");
-    if (!form.date) errs.push(isLivraison ? "Choisis ta date de livraison." : "Choisis ta date de retrait.");
-    // Même règle que le script (apps-script/Code.gs, nomPropre) : lettres, espaces, ' et - uniquement
-    const nomValide = /^[\p{L}\p{M} '’-]+$/u;
-    if (!form.prenom.trim()) errs.push("Indique ton prénom.");
-    else if (!nomValide.test(form.prenom.trim()))
-      errs.push("Prénom : utilise uniquement des lettres, espaces, apostrophes ou traits d'union.");
-    if (!form.nom.trim()) errs.push("Indique ton nom.");
-    else if (!nomValide.test(form.nom.trim()))
-      errs.push("Nom : utilise uniquement des lettres, espaces, apostrophes ou traits d'union.");
-    if (!form.tel.trim()) errs.push("Indique ton téléphone.");
-    if (!form.email.trim()) errs.push("Indique ton email : je t'y envoie le récapitulatif de ta commande.");
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.push("Vérifie ton email : il semble incomplet.");
+    if (n === 1) {
+      if (totalSachets === 0) errs.push("Ajoute au moins un sachet à ta commande.");
+    } else if (n === 2) {
+      if (!secteur) errs.push("Choisis ton secteur : Savoie ou Marseille et alentours.");
+      if (isLivraison && !adresse)
+        errs.push("Choisis ton adresse de livraison dans les suggestions (ou saisis-la à la main avec son code postal).");
+      if (!form.date) errs.push(isLivraison ? "Choisis ta date de livraison." : "Choisis ta date de retrait.");
+    } else {
+      // Même règle que le script (apps-script/Code.gs, nomPropre) : lettres, espaces, ' et - uniquement
+      const nomValide = /^[\p{L}\p{M} '’-]+$/u;
+      if (!form.prenom.trim()) errs.push("Indique ton prénom.");
+      else if (!nomValide.test(form.prenom.trim()))
+        errs.push("Prénom : utilise uniquement des lettres, espaces, apostrophes ou traits d'union.");
+      if (!form.nom.trim()) errs.push("Indique ton nom.");
+      else if (!nomValide.test(form.nom.trim()))
+        errs.push("Nom : utilise uniquement des lettres, espaces, apostrophes ou traits d'union.");
+      if (!form.tel.trim()) errs.push("Indique ton téléphone.");
+      if (!form.email.trim()) errs.push("Indique ton email : je t'y envoie le récapitulatif de ta commande.");
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.push("Vérifie ton email : il semble incomplet.");
+      if (!cgvAcceptees) errs.push("Coche la case pour accepter les CGV.");
+    }
     return errs;
   };
 
@@ -145,6 +166,39 @@ const Commande = () => {
       return true;
     }
     return false;
+  };
+
+  /* ---------- Navigation entre les onglets ---------- */
+  const afficherEtape = (n: Etape) => {
+    setEtape(n);
+    setErrors([]);
+    setTimeout(() => ongletsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
+
+  /**
+   * Va à l'onglet `n` : en arrière, toujours possible ; en avant, seulement si les onglets
+   * précédents sont complets. Sinon, ouvre le premier onglet incomplet avec ses erreurs.
+   * Renvoie true si l'onglet `n` est atteint.
+   */
+  const allerA = (n: Etape): boolean => {
+    if (n < etape) {
+      afficherEtape(n);
+      return true;
+    }
+    for (const k of ETAPES.map((e) => e.numero).filter((k) => k < n)) {
+      const errs = erreursEtape(k);
+      if (errs.length > 0) {
+        if (k !== etape) afficherEtape(k);
+        showErrors(errs);
+        return false;
+      }
+    }
+    if (n !== etape) afficherEtape(n);
+    return true;
+  };
+
+  const etapeSuivante = () => {
+    if (etape < 3) allerA((etape + 1) as Etape);
   };
 
   /* ---------- Envoi de la commande ---------- */
@@ -161,6 +215,8 @@ const Commande = () => {
     adresse: isLivraison ? adresse : null,
     message: form.message.trim(),
     quantites: Object.fromEntries([...Object.entries(vienno), ...Object.entries(friand)].filter(([, q]) => q > 0)),
+    cgvAcceptees,
+    cgvVersion: CGV_VERSION,
   });
 
   /** Message prérempli pour WhatsApp, proposé en secours si l'envoi échoue. */
@@ -175,13 +231,15 @@ const Commande = () => {
 
   const validerCommande = async () => {
     if (envoi === "envoi") return; // pas de double envoi
-    if (showErrors(validate())) return;
+    // Onglets 1 et 2 complets (sinon on y retourne), puis l'onglet 3
+    if (!allerA(3) || showErrors(erreursEtape(3))) return;
     setEnvoi("envoi");
     setErreurEnvoi("");
     const resultat = await envoyerCommande(construirePayload());
     if (resultat.ok) {
       setNumero(resultat.id);
       setEnvoi("succes");
+      setCgvAcceptees(false); // chaque commande demande une nouvelle acceptation
       clear();
       setTimeout(() => recapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     } else {
@@ -194,6 +252,7 @@ const Commande = () => {
     setEnvoi("repos");
     setNumero("");
     setErrors([]);
+    setEtape(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -293,6 +352,88 @@ const Commande = () => {
 
   const totalStr = totalAPayer > 0 ? eur(totalAPayer) : "—";
 
+  /* ---------- Onglets : 1 produits, 2 lieu et date, 3 coordonnées et validation ---------- */
+  const renderOnglets = () => (
+    <nav ref={ongletsRef} aria-label="Étapes de la commande" className="my-6 scroll-mt-24">
+      <ol className="grid grid-cols-3 gap-2">
+        {ETAPES.map(({ numero, titre }) => {
+          const actif = etape === numero;
+          const fait = numero < etape;
+          return (
+            <li key={numero}>
+              <button
+                type="button"
+                onClick={() => allerA(numero)}
+                aria-current={actif ? "step" : undefined}
+                aria-label={`Étape ${numero} sur ${ETAPES.length} : ${titre}${fait ? " (complète)" : ""}`}
+                className={`w-full h-full rounded-2xl border-2 px-2 py-2.5 flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2.5 text-center sm:text-left transition ${
+                  actif ? "border-[#2A7FD0] bg-[#eef5fc]" : "border-border bg-white hover:border-[#2A7FD0]"
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold ${
+                    actif || fait ? "text-white" : "bg-[#eef5fc] text-[#185FA5]"
+                  }`}
+                  style={actif || fait ? { backgroundImage: GRAD } : undefined}
+                >
+                  {fait ? <Check className="w-4 h-4" /> : numero}
+                </span>
+                <span className={`text-xs sm:text-sm font-bold leading-tight ${actif ? "text-[#185FA5]" : "text-foreground"}`}>
+                  {titre}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+
+  const renderErreurs = () =>
+    errors.length > 0 && (
+      <div
+        ref={errorsRef}
+        role="alert"
+        className="mt-3.5 bg-[#fdecea] border-2 border-[#f5c2bd] text-[#a4291c] rounded-xl px-3.5 py-3 text-sm"
+      >
+        <strong>Il manque quelques infos :</strong>
+        <ul className="mt-1.5 pl-5 list-disc">
+          {errors.map((e, i) => (
+            <li key={i}>{e}</li>
+          ))}
+        </ul>
+      </div>
+    );
+
+  /** Boutons « Retour » et « Suivant » des onglets 1 et 2. */
+  const renderNavigation = () => (
+    <div className="my-8">
+      {renderErreurs()}
+      <div className="mt-4 flex items-center justify-between gap-3">
+        {etape > 1 ? (
+          <button
+            type="button"
+            onClick={() => afficherEtape((etape - 1) as Etape)}
+            className="rounded-2xl px-4 py-3 font-semibold border-2 border-border bg-white hover:border-[#2A7FD0]"
+          >
+            ← Retour
+          </button>
+        ) : (
+          <span />
+        )}
+        <button
+          type="button"
+          onClick={etapeSuivante}
+          className="rounded-2xl px-5 py-3 font-bold text-white text-right transition hover:-translate-y-0.5 hover:shadow-hover"
+          style={{ backgroundImage: GRAD }}
+        >
+          Suivant : {ETAPES[etape].titre.toLowerCase()} →
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background pb-36">
       <Navbar />
@@ -308,7 +449,7 @@ const Commande = () => {
           </Link>
           <h1 className="text-3xl font-bold">Commander</h1>
           <p className="mt-2 text-white/95">
-            Choisis tes sachets, dis-moi où je te retrouve, puis envoie-moi ta commande : tu règles en espèces quand tu la récupères, rien à payer en ligne.
+            Choisis tes sachets, dis-moi où je te retrouve, puis envoie-moi ta commande : rien à payer en ligne, tu règles quand tu la récupères.
           </p>
         </div>
       </header>
@@ -320,6 +461,34 @@ const Commande = () => {
           <p>{RAPPEL_CONGELE}</p>
         </div>
 
+        {envoi === "succes" ? (
+          <section ref={recapRef} className="my-8 scroll-mt-24">
+            <div role="status" className="bg-card rounded-2xl shadow-soft p-6 text-center border-2 border-[#cfe3f6]">
+              <CheckCircle2 className="w-12 h-12 mx-auto text-[#2A7FD0]" aria-hidden="true" />
+              <h2 className="text-2xl font-bold mt-3">C'est reçu !</h2>
+              <p className="mt-2 text-foreground">
+                Je te recontacte rapidement sur WhatsApp pour confirmer le créneau : ta commande devient ferme à ce moment-là.
+              </p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                N° de commande : <strong className="text-foreground">{numero}</strong>
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <Link to="/" className="rounded-xl px-4 py-2.5 font-semibold text-white" style={{ backgroundImage: GRAD }}>
+                  Retour au site
+                </Link>
+                <button type="button" onClick={nouvelleCommande} className="rounded-xl px-4 py-2.5 font-semibold border-2 border-border hover:border-[#2A7FD0]">
+                  Nouvelle commande
+                </button>
+              </div>
+            </div>
+          </section>
+        ) : (
+        <>
+        {renderOnglets()}
+
+        {/* ===== Onglet 1 : les produits ===== */}
+        {etape === 1 && (
+        <>
         {/* Viennoiseries */}
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-1">
@@ -357,12 +526,15 @@ const Commande = () => {
           <div className="bg-card rounded-2xl shadow-soft p-4 flex gap-3.5 items-start border-l-4 border-[#F5C842]">
             <span className="text-3xl leading-none">🔥</span>
             <p className="text-foreground text-sm leading-relaxed">
-              Mes pizzas au feu de bois, c'est <strong>uniquement sur place</strong>, les vendredis dédiés à la Ferme de la Goëttaz. <strong>Sans réservation</strong> — on se retrouve là-bas, on garnit, on enfourne. À très vite !
+              Mes pizzas au feu de bois, c'est <strong>uniquement sur place</strong>, les vendredis dédiés à la Ferme de la Goëttaz. <strong>À commander sur place</strong> — on se retrouve là-bas, on garnit, on enfourne. À très vite !
             </p>
           </div>
         </section>
+        </>
+        )}
 
-        {/* Récupération */}
+        {/* ===== Onglet 2 : où je te retrouve ===== */}
+        {etape === 2 && (
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="text-2xl">📍</span>
@@ -406,6 +578,9 @@ const Commande = () => {
                 Ton adresse de livraison <span className="text-destructive">*</span>
               </label>
               <AdresseAutocomplete id="address" value={adresse} onChange={setAdresse} inputClass={inputClass} />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                L'aide à la saisie interroge le service public de géocodage de l'IGN.
+              </p>
             </div>
           )}
 
@@ -422,7 +597,7 @@ const Commande = () => {
               className={`${inputClass} disabled:opacity-60 disabled:cursor-not-allowed`}
             >
               <option value="">
-                {secteur ? `Choisis un ${JOURS[secteur.jour]}` : "Choisis d'abord ton secteur"}
+                {secteur ? `Choisis un ${JOURS_SEMAINE[secteur.jour]}` : "Choisis d'abord ton secteur"}
               </option>
               {dates.map((d) => (
                 <option key={d} value={d}>
@@ -435,7 +610,13 @@ const Commande = () => {
             </p>
           </div>
         </section>
+        )}
 
+        {etape < 3 && renderNavigation()}
+
+        {/* ===== Onglet 3 : coordonnées, récapitulatif et validation ===== */}
+        {etape === 3 && (
+        <>
         {/* Coordonnées */}
         <section className="my-8">
           <div className="flex items-center gap-2.5 mb-4">
@@ -500,25 +681,7 @@ const Commande = () => {
         </section>
 
         {/* Récap + envoi */}
-        <section ref={recapRef} className="my-8">
-          {envoi === "succes" ? (
-            <div role="status" className="bg-card rounded-2xl shadow-soft p-6 text-center border-2 border-[#cfe3f6]">
-              <CheckCircle2 className="w-12 h-12 mx-auto text-[#2A7FD0]" aria-hidden="true" />
-              <h2 className="text-2xl font-bold mt-3">C'est reçu !</h2>
-              <p className="mt-2 text-foreground">Je te recontacte rapidement pour confirmer la livraison.</p>
-              <p className="mt-3 text-sm text-muted-foreground">
-                N° de commande : <strong className="text-foreground">{numero}</strong>
-              </p>
-              <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <Link to="/" className="rounded-xl px-4 py-2.5 font-semibold text-white" style={{ backgroundImage: GRAD }}>
-                  Retour au site
-                </Link>
-                <button type="button" onClick={nouvelleCommande} className="rounded-xl px-4 py-2.5 font-semibold border-2 border-border hover:border-[#2A7FD0]">
-                  Nouvelle commande
-                </button>
-              </div>
-            </div>
-          ) : (
+        <section ref={recapRef} className="my-8 scroll-mt-24">
           <div className="bg-card rounded-2xl shadow-soft p-5">
             <h2 className="text-xl font-bold mb-2.5">
               🧺 Ma commande
@@ -564,7 +727,7 @@ const Commande = () => {
             </ul>
 
             <div className="flex justify-between items-baseline mt-3.5 pt-3 border-t-2 border-border">
-              <span className="text-sm">Total à régler en espèces</span>
+              <span className="text-sm">Total à régler à la remise</span>
               <b className="text-2xl text-[#185FA5]">
                 {totalStr}
               </b>
@@ -575,12 +738,59 @@ const Commande = () => {
               </p>
             )}
 
+            {/* Informations avant la commande (C. conso L221-5), juste au-dessus du bouton */}
+            <div className="mt-4 rounded-xl bg-[#f4f8fc] border border-[#cfe3f6] px-3.5 py-3 text-sm space-y-1.5">
+              <p>
+                <strong>Total : {totalStr}</strong>
+                {" · "}
+                {!secteur
+                  ? `livraison (${SECTEUR_LIVRAISON.nom}) ${eur(CONFIG.fraisLivraison)}, offerte dès ${SEUIL_LIVRAISON} ; retrait sans frais.`
+                  : isLivraison
+                    ? fraisLivraison > 0
+                      ? `dont ${eur(fraisLivraison)} de frais de livraison (offerte dès ${SEUIL_LIVRAISON}).`
+                      : "livraison offerte."
+                    : "retrait sans frais."}
+              </p>
+              <p>Paiement à la remise de ta commande : {MOYENS_PAIEMENT}. Rien à payer en ligne.</p>
+              <p>
+                Pas de droit de rétractation : les produits sont crus et congelés, donc susceptibles de se détériorer
+                rapidement (article L221-28, 4° du Code de la consommation).
+              </p>
+              <p>Ta commande devient ferme quand je te confirme le créneau sur WhatsApp.</p>
+              <p>
+                Tout est détaillé dans les{" "}
+                <Link to="/cgv" target="_blank" rel="noopener" className={lienClass}>
+                  conditions générales de vente
+                </Link>
+                .
+              </p>
+            </div>
+
+            <label className="mt-4 flex items-start gap-2.5 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={cgvAcceptees}
+                onChange={(e) => setCgvAcceptees(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[#185FA5]"
+              />
+              <span>
+                J'ai lu et j'accepte les{" "}
+                <Link to="/cgv" target="_blank" rel="noopener" className={lienClass}>
+                  CGV
+                </Link>{" "}
+                <span className="text-destructive">*</span>
+              </span>
+            </label>
+
             <button
               type="button"
               onClick={validerCommande}
-              disabled={envoi === "envoi"}
+              disabled={envoi === "envoi" || !cgvAcceptees}
               aria-busy={envoi === "envoi"}
-              className="w-full mt-4 rounded-2xl px-4 py-3.5 font-bold text-base text-white flex items-center justify-center gap-2 transition hover:-translate-y-0.5 hover:shadow-hover disabled:opacity-80 disabled:cursor-wait disabled:hover:translate-y-0"
+              aria-describedby={cgvAcceptees ? undefined : "cgv-aide"}
+              className={`w-full mt-4 rounded-2xl px-4 py-3.5 font-bold text-base text-white flex items-center justify-center gap-2 transition hover:-translate-y-0.5 hover:shadow-hover disabled:hover:translate-y-0 disabled:hover:shadow-none ${
+                cgvAcceptees ? "disabled:opacity-80 disabled:cursor-wait" : "disabled:opacity-50 disabled:cursor-not-allowed"
+              }`}
               style={{ backgroundImage: GRAD }}
             >
               {envoi === "envoi" ? (
@@ -588,27 +798,28 @@ const Commande = () => {
                   <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /> Envoi en cours…
                 </>
               ) : (
-                "Valider ma commande"
+                "Commander avec obligation de paiement"
               )}
             </button>
+            {!cgvAcceptees && (
+              <p id="cgv-aide" className="mt-1.5 text-xs text-muted-foreground text-center">
+                Coche la case ci-dessus pour pouvoir commander.
+              </p>
+            )}
             <p className="mt-2 text-xs text-muted-foreground text-center">
-              Tes coordonnées servent uniquement à préparer et livrer ta commande : elles ne sont ni revendues ni utilisées à d'autres fins.
+              Dedjo ({EDITEUR.nom}) utilise tes coordonnées pour traiter ta commande, t'envoyer le récapitulatif et te
+              recontacter.{" "}
+              {DUREE_CONSERVATION_MENTIONS ? `Elles sont conservées ${DUREE_CONSERVATION_MENTIONS} et passent` : "Elles passent"}{" "}
+              par nos prestataires (Google, Netlify, Telegram, WhatsApp), dont certains sont hors de l'Union européenne.{" "}
+              {EDITEUR.email && `Tes droits : ${EDITEUR.email}. `}
+              En savoir plus :{" "}
+              <Link to="/confidentialite" target="_blank" rel="noopener" className={lienClass}>
+                politique de confidentialité
+              </Link>
+              .
             </p>
 
-            {errors.length > 0 && (
-              <div
-                ref={errorsRef}
-                role="alert"
-                className="mt-3.5 bg-[#fdecea] border-2 border-[#f5c2bd] text-[#a4291c] rounded-xl px-3.5 py-3 text-sm"
-              >
-                <strong>Il manque quelques infos :</strong>
-                <ul className="mt-1.5 pl-5 list-disc">
-                  {errors.map((e, i) => (
-                    <li key={i}>{e}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {renderErreurs()}
 
             {envoi === "erreur" && (
               <div role="alert" className="mt-3.5 bg-[#fdecea] border-2 border-[#f5c2bd] text-[#a4291c] rounded-xl px-3.5 py-3 text-sm">
@@ -634,14 +845,42 @@ const Commande = () => {
             )}
 
             <p className="mt-3.5 text-sm text-muted-foreground text-center">
-              Réservation sans paiement en ligne : tu règles en espèces quand tu récupères ta commande. 💛
+              Aucun paiement en ligne : tu règles quand tu récupères ta commande. 💛
             </p>
           </div>
-          )}
         </section>
+
+        <div className="my-6">
+          <button
+            type="button"
+            onClick={() => afficherEtape(2)}
+            className="rounded-2xl px-4 py-3 font-semibold border-2 border-border bg-white hover:border-[#2A7FD0]"
+          >
+            ← Retour : {ETAPES[1].titre.toLowerCase()}
+          </button>
+        </div>
+        </>
+        )}
+        </>
+        )}
+
+        {/* Liens légaux (nouvel onglet : le panier et le formulaire restent remplis) */}
+        <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm pb-6">
+          {LIENS_LEGAUX.map((lien) => (
+            <Link
+              key={lien.to}
+              to={lien.to}
+              target="_blank"
+              rel="noopener"
+              className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
+              {lien.label}
+            </Link>
+          ))}
+        </nav>
       </main>
 
-      {/* Barre fixe bas : jauge livraison offerte (masquée pour la Savoie), total, « Finaliser » */}
+      {/* Barre fixe bas : jauge livraison offerte (masquée pour la Savoie), total, onglet suivant ou « Finaliser » */}
       <div className="fixed left-0 right-0 bottom-0 z-40 bg-white border-t border-border px-4 py-2.5 shadow-[0_-6px_20px_-10px_rgba(24,95,165,0.3)]">
         <div className="max-w-3xl mx-auto">
           {(!secteur || secteur.livraison) && envoi !== "succes" && <LivraisonJauge sachets={totalSachets} className="mb-2.5" />}
@@ -655,13 +894,16 @@ const Commande = () => {
                 {totalStr}
               </b>
             </div>
-            <button
-              onClick={() => recapRef.current?.scrollIntoView({ behavior: "smooth" })}
-              className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
-              style={{ backgroundImage: GRAD }}
-            >
-              Finaliser ↓
-            </button>
+            {envoi !== "succes" && (
+              <button
+                type="button"
+                onClick={() => (etape < 3 ? etapeSuivante() : recapRef.current?.scrollIntoView({ behavior: "smooth" }))}
+                className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
+                style={{ backgroundImage: GRAD }}
+              >
+                {etape < 3 ? "Suivant →" : "Finaliser ↓"}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 # Commandes Dedjo : mise en place
 
-Quand un client clique sur « Valider ma commande » :
+Quand un client clique sur « Commander avec obligation de paiement » :
 
 ```
 Site (/commande) ──▶ Fonction Netlify (/api/commande) ──▶ Google Apps Script ──▶ Google Sheet « Commandes »
@@ -10,6 +10,8 @@ Site (/commande) ──▶ Fonction Netlify (/api/commande) ──▶ Google App
 ```
 
 Compte environ 20 minutes. Il te faut : ton compte Google, l'accès à Netlify, ton téléphone avec Telegram.
+
+> **Mise à jour « CGV »** (lot 2) : le script refuse désormais toute commande sans acceptation des CGV. Publie donc **d'abord le site** (fusion dans `main`, déploiement Netlify terminé), **puis** recolle **tout** le nouveau `Code.gs`, 💾 Enregistrer, et publie une **nouvelle version** du déploiement. Dans l'autre ordre, toutes les commandes seraient refusées en attendant le site. La colonne « Version CGV » s'ajoute toute seule, en dernière position, à la commande suivante.
 
 > **Mise à jour « limites anti-abus »** (octobre 2026) : recolle **tout** le nouveau `Code.gs`, 💾 Enregistrer, puis publie une **nouvelle version** du déploiement (point 3 ci-dessous). Aucune propriété à ajouter : le script crée lui-même `EMAILS_CLIENTS_JOUR`. Détails : « Limites anti-abus », plus bas.
 
@@ -115,10 +117,10 @@ Dans Apps Script, choisis la fonction à lancer dans la liste en haut, puis **�
 
 ## L'e-mail de récapitulatif au client
 
-Après chaque commande, le script envoie au client un e-mail « Ta commande Dedjo D-000X est bien reçue » : numéro, détail des sachets, livraison (offerte ou 5 €), total, adresse, créneau souhaité, paiement en espèces à la récupération de la commande, et un rappel de cuisson. Si le client a laissé un commentaire, l'e-mail indique seulement « Ton commentaire : bien reçu » : le texte libre n'est jamais recopié (voir « Limites anti-abus »).
+Après chaque commande, le script envoie au client un e-mail « Ta commande Dedjo D-000X est bien reçue » : numéro, détail des sachets, livraison (offerte ou 5 €), total, adresse, créneau souhaité, version des CGV acceptée, confirmation du créneau sur WhatsApp (moment où la commande devient ferme), paiement à la récupération de la commande (constante `PAIEMENT`), et un rappel de cuisson. Si le client a laissé un commentaire, l'e-mail indique seulement « Ton commentaire : bien reçu » : le texte libre n'est jamais recopié (voir « Limites anti-abus »).
 
 - **Expéditeur** : l'e-mail part de ton compte Gmail, avec le nom affiché **« Dedjo »**. Si le client répond, sa réponse arrive à ton adresse (`ALERT_EMAIL` si défini, sinon celle de ton compte).
-- **Personnaliser le texte** : la signature est la constante `SIGNATURE`, en haut de `Code.gs`. Le rappel de cuisson (four préchauffé à 180 °C : 25 min pour les viennoiseries, 30 min pour les feuilletés) s'adapte aux produits commandés ; températures et durées se règlent dans la constante `CUISSON`. Après modification : nouvelle version du déploiement.
+- **Personnaliser le texte** : la signature est la constante `SIGNATURE`, en haut de `Code.gs`. Le rappel de cuisson (four préchauffé, une durée pour les viennoiseries et une pour les feuilletés) s'adapte aux produits commandés ; température et durées se règlent dans la constante `CUISSON`, avec les **mêmes valeurs** que `CUISSON` dans `src/lib/catalog.ts`. Après modification : nouvelle version du déploiement.
 - **Suivi** : la colonne **E-mail envoyé** du Sheet indique `oui` ou `non`. En cas d'échec, la commande est quand même enregistrée, et le message Telegram l'indique (« ⚠️ Récapitulatif NON envoyé au client », avec la raison).
 - **Quota** : Google limite les envois à environ **100 e-mails par jour** avec un compte Gmail gratuit (1 500 avec Google Workspace). Le script n'envoie pas plus de **40 récapitulatifs par jour**, et garde toujours **10 envois** de côté pour l'e-mail de secours (voir « Limites anti-abus »).
 
@@ -176,9 +178,9 @@ Ouvre ensuite `http://localhost:8888/commande`. `npm run dev` seul ne fait pas t
 
 ## 9. Test de bout en bout, sur le site en ligne
 
-1. Sur `dedjo.com/commande` : ajoute 1 sachet, choisis **Marseille**, sélectionne une adresse dans les suggestions, une date et tes coordonnées.
-2. **Valider ma commande** doit afficher « C'est reçu ! » avec un numéro de commande.
-3. Vérifie la ligne dans le Sheet (5 € de livraison, total correct), puis le message Telegram. Touche le numéro de téléphone pour vérifier qu'il lance l'appel.
+1. Sur `dedjo.com/commande` : ajoute 1 sachet, choisis **Marseille**, sélectionne une adresse dans les suggestions, une date et tes coordonnées, puis coche la case des CGV.
+2. **Commander avec obligation de paiement** doit afficher « C'est reçu ! » avec un numéro de commande.
+3. Vérifie la ligne dans le Sheet (5 € de livraison, total correct, version des CGV dans la dernière colonne), puis le message Telegram. Touche le numéro de téléphone pour vérifier qu'il lance l'appel.
 4. Supprime la ligne de test, et ajuste `DERNIER_NUMERO` si tu veux repartir de `D-0001`.
 
 ---
@@ -188,6 +190,8 @@ Ouvre ensuite `http://localhost:8888/commande`. `npm run dev` seul ne fait pas t
 - **Suivi** : les colonnes **Confirmée / Livrée / Payée** sont à toi. Pour en faire des cases à cocher, sélectionne-les puis **Insertion > Case à cocher**.
 - **Modifier le script** : après chaque modification, **Déployer > Gérer les déploiements > ✏️ > Version : Nouvelle version > Déployer**. L'URL ne change pas, mais sans nouvelle version, l'ancien code continue de tourner.
 - **Changer un prix, le nombre de pièces, les frais ou le seuil de livraison** : modifie **à la fois** `src/lib/catalog.ts` (le site) **et** les constantes `CATALOGUE` / `LIVRAISON` / `SECTEURS` en haut de `Code.gs` (le script, qui recalcule le total), puis redéploie les deux.
+- **Changer les moyens de paiement ou la durée de cuisson** : même chose, `MOYENS_PAIEMENT` et `CUISSON` dans `src/lib/catalog.ts`, `PAIEMENT` et `CUISSON` dans `Code.gs`.
+- **Modifier les CGV** : donne une nouvelle date à `CGV_VERSION` dans `src/lib/legal.ts`, et **ajoute** cette date à `CGV_VERSIONS` en haut de `Code.gs` (garde l'ancienne quelques jours, pour les visiteurs qui ont encore l'ancienne page ouverte). Publie **d'abord le script** (nouvelle version), **puis** le site : sinon le script refuserait la nouvelle version.
 - **Ajouter un produit** : même chose. Ajoute-le aux deux endroits ; une nouvelle colonne apparaîtra dans un **nouvel** onglet « Commandes » (renomme l'ancien en « Commandes (archive) » avant la première commande, pour que les en-têtes se recréent).
 
 ## Dépannage
@@ -198,6 +202,8 @@ Les erreurs du script se lisent dans Apps Script, menu de gauche **Exécutions**
 |---|---|---|
 | « Le service de commande n'est pas encore configuré. » | Variables absentes sur Netlify | Étape 8, puis redéployer le site |
 | « Accès refusé. » | `ORDER_SHARED_SECRET` (Netlify) ≠ `SHARED_SECRET` (script) | Recopier exactement la même valeur, redéployer le site |
+| « Coche la case pour accepter les CGV. » alors que la case est cochée | Le site publié est plus ancien que le script (il n'envoie pas l'acceptation des CGV) | Publier le site, ou attendre la fin du déploiement Netlify |
+| « Les conditions générales de vente ont changé… » | `CGV_VERSION` (site) absente de `CGV_VERSIONS` (script), ou page ouverte avant une mise à jour des CGV | Ajouter la date à `CGV_VERSIONS`, nouvelle version du script ; sinon, recharger la page |
 | « …a répondu de façon inattendue. » | Mauvaise URL (pas celle en `/exec`), ou accès qui n'est pas « Tout le monde » | Étape 7 |
 | Pas de message Telegram, mais un e-mail « notification Telegram en échec » | Telegram a refusé l'envoi : la raison est à la fin de l'e-mail | Voir les lignes ci-dessous |
 | Raison : « TELEGRAM_TOKEN ou TELEGRAM_CHAT_ID non défini » | Propriété manquante ou mal nommée | Étape 4 |

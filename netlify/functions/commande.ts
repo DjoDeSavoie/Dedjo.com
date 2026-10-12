@@ -6,6 +6,7 @@
    La validation complète et le calcul du total sont faits par le script (apps-script/Code.gs). */
 
 import { createHmac } from "node:crypto";
+import { CGV_VERSION } from "../../src/lib/legal";
 
 const TAILLE_MAX = 10_000; // octets
 const DELAI_MAX_MS = 15_000;
@@ -46,6 +47,17 @@ export const handler = async (event: any) => {
   // Champ piège rempli : c'est un robot. On répond « ok » sans rien transmettre.
   if (typeof data.website === "string" && data.website.trim() !== "") {
     return repondre(200, { ok: true, id: "D-0000" });
+  }
+
+  // CGV : case cochée et version en vigueur (revérifié par le script, qui enregistre la version)
+  if (data.cgvAcceptees !== true) {
+    return repondre(422, { ok: false, error: "Coche la case pour accepter les CGV." });
+  }
+  if (data.cgvVersion !== CGV_VERSION) {
+    return repondre(422, {
+      ok: false,
+      error: "Les conditions générales de vente ont changé : recharge la page, puis renvoie ta commande.",
+    });
   }
 
   const url = process.env.GSHEET_ORDER_WEBHOOK_URL;

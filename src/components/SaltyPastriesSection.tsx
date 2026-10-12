@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import { BientotDisponible } from "./ProductTags";
+import ProductTags, { BientotDisponible } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { FEUILLETES, Product, estDisponible, eur } from "@/lib/catalog";
+import { CUISSON, FEUILLETES, Product, estDisponible, eur } from "@/lib/catalog";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
 const catalogProduct = (id: string) => FEUILLETES.find((f) => f.id === id)!;
@@ -108,6 +108,7 @@ const SaltyPastriesSection = () => {
                   <div>
                     <h4 className="font-display text-xl mb-2">{flavor.name}</h4>
                     <p className="text-foreground/80">{flavor.description}</p>
+                    <ProductTags product={catalogProduct(flavor.id)} className="mt-2.5" />
                     <p className="text-xs font-semibold text-foreground/70 mt-2">Sachet de {sachetInfo(flavor.id)}</p>
                   </div>
                 </div>
@@ -139,8 +140,8 @@ const SaltyPastriesSection = () => {
           <h3 className="text-2xl mb-2">🍽️ <span className="font-display font-bold text-2xl md:text-3xl text-foreground">La cuisson</span></h3>
           <p className="text-muted-foreground italic mb-5">Simple. Direct. Bon.</p>
           <p className="text-foreground leading-relaxed">
-            Direct du congélateur, dans ton four préchauffé à <strong>180 °C</strong>.<br />
-            Laisse cuire <strong>30 minutes</strong>.
+            Direct du congélateur, dans ton four préchauffé à <strong>{CUISSON.temperature} °C</strong>.<br />
+            Laisse cuire <strong>{CUISSON.minutes.feuilletes} minutes</strong>.
           </p>
           <p className="font-display italic text-lg text-handmade-dark mt-4">
             Laisse ton four faire le reste, et régale-toi.
