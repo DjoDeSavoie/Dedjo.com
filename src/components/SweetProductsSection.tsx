@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import ProductTags, { BientotDisponible } from "./ProductTags";
+import ProductTags, { BientotDisponible, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
 import { CUISSON, Product, VIENNOISERIES, estDisponible, eur } from "@/lib/catalog";
 
@@ -79,19 +79,23 @@ const SweetProductsSection = () => {
               className={`${card.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {card.badge && (
-                <div
-                  className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-full text-sm font-medium flex items-center gap-1 shadow-soft"
-                  title={card.badge.tooltip}
-                >
-                  <span>{card.badge.icon}</span>
-                  <span className="text-foreground">{card.badge.label}</span>
-                </div>
-              )}
+              <Tampons product={product} />
               <div className="flex items-start gap-4">
                 <span className="text-4xl">{product.emoji}</span>
                 <div>
-                  <h3 className="font-display text-xl mb-2 text-foreground">{product.name}</h3>
+                  {/* Titre, et pastille « Classique » / « Favorite du chef » à côté (le coin est aux tampons) */}
+                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mb-2">
+                    <h3 className="font-display text-xl text-foreground">{product.name}</h3>
+                    {card.badge && (
+                      <span
+                        className="bg-white/90 px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1 shadow-soft"
+                        title={card.badge.tooltip}
+                      >
+                        <span>{card.badge.icon}</span>
+                        <span className="text-foreground">{card.badge.label}</span>
+                      </span>
+                    )}
+                  </div>
                   <p className="text-foreground/80 text-sm leading-relaxed">{product.label.description}</p>
                   <ProductTags product={product} className="mt-2.5" />
                   <p className="text-xs font-semibold text-foreground/70 mt-2">

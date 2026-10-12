@@ -4,7 +4,7 @@ import { ArrowLeft, Check, CheckCircle2, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
 import ProductLabelModal from "@/components/ProductLabelModal";
-import ProductTags, { BientotDisponible } from "@/components/ProductTags";
+import ProductTags, { BientotDisponible, Tampons } from "@/components/ProductTags";
 import LivraisonJauge from "@/components/LivraisonJauge";
 import { useCart } from "@/context/CartContext";
 import { AdresseLivraison, CommandePayload, envoyerCommande } from "@/lib/commande";
@@ -265,9 +265,10 @@ const Commande = () => {
     return (
       <div
         key={p.id}
-        className="bg-card rounded-2xl shadow-soft p-4 flex flex-col gap-3 border-t-4"
+        className={`relative bg-card rounded-2xl shadow-soft p-4 ${p.labels?.length ? "pt-7" : ""} flex flex-col gap-3 border-t-4`}
         style={{ borderTopColor: p.color }}
       >
+        <Tampons product={p} />
         <div className="flex items-center gap-3">
           <span
             className="w-9 h-9 rounded-full flex items-center justify-center text-xl flex-shrink-0"

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import ProductTags, { BientotDisponible } from "./ProductTags";
+import ProductTags, { BientotDisponible, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
 import { CUISSON, FEUILLETES, Product, estDisponible, eur } from "@/lib/catalog";
 
@@ -100,9 +100,10 @@ const SaltyPastriesSection = () => {
             {flavors.map((flavor, index) => (
               <div
                 key={flavor.name}
-                className={`${flavor.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left flex flex-col`}
+                className={`${flavor.color} relative rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left flex flex-col`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
+                <Tampons product={catalogProduct(flavor.id)} />
                 <div className="flex items-start gap-4">
                   <span className="text-4xl">{flavor.emoji}</span>
                   <div>

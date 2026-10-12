@@ -299,7 +299,7 @@ export const FEUILLETES: Product[] = [
     name: "La Forêt",
     emoji: "🌲",
     color: "#ffb84d",
-    labels: ["La balade en Savoie"],
+    labels: ["La cueillette en Savoie"],
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
