@@ -56,11 +56,13 @@ const SaltyPastriesSection = () => {
     },
   ];
 
-  const sizes = [
+  // bientot : format pas encore en vente, signalé par la pastille « Bientôt disponible ».
+  const sizes: { name: string; description: string; emoji: string; bientot?: boolean }[] = [
     {
       name: "Bouchées Apéritives",
       description: "Vingt petites bouchées à partager debout, au coin du buffet, entre ceux qu'on aime. Parfaites pour que tout le monde s'y mette. Format : sachet de 20 bouchées.",
       emoji: "🎉",
+      bientot: true,
     },
     {
       name: "Le Friand",
@@ -151,7 +153,7 @@ const SaltyPastriesSection = () => {
 
         {/* Sizes */}
         <div>
-          <h3 className="font-display text-2xl text-center mb-6">Formats Disponibles</h3>
+          <h3 className="font-display text-2xl text-center mb-6">Les Formats</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {sizes.map((size, index) => (
               <div 
@@ -162,7 +164,11 @@ const SaltyPastriesSection = () => {
                 <div className="flex items-start gap-4">
                   <span className="text-4xl">{size.emoji}</span>
                   <div>
-                    <h4 className="font-display text-xl mb-2">{size.name}</h4>
+                    {/* Titre, et pastille « Bientôt disponible » à côté pour un format pas encore en vente */}
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mb-2">
+                      <h4 className="font-display text-xl">{size.name}</h4>
+                      {size.bientot && <BientotDisponible />}
+                    </div>
                     <p className="text-muted-foreground">{size.description}</p>
                   </div>
                 </div>
