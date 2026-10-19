@@ -15,3 +15,6 @@ dist/
 
 # Config locale Claude Code
 .claude/
+
+# Briefs et maquettes de travail de l'Atelier (non publiés)
+docs/atelier/

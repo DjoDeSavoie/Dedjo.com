@@ -1,73 +1,40 @@
-# Welcome to your Lovable project
+# Dedjo.com
 
-## Project info
+Site de Dedjo, « L'artisanat qui se partage » : viennoiseries et feuilletés salés façonnés à la main, livrés congelés à Marseille ou à retirer au marché de la Ferme de la Goëttaz, en Savoie.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Technique
 
-## How can I edit this code?
+- **Site** : Vite, React, TypeScript, Tailwind CSS et composants shadcn/ui (`src/`).
+- **Hébergement** : Netlify, qui publie la branche `main`.
+- **Fonctions serveur** : `netlify/functions/` (commandes, contact, newsletter), appelées par le site via `/api/*` (voir `netlify.toml`).
+- **Commandes** : Google Apps Script et Google Sheet (`apps-script/`). Mise en place pas à pas : [`apps-script/DEPLOIEMENT.md`](apps-script/DEPLOIEMENT.md).
+- **Catalogue** : `src/lib/catalog.ts` (produits, prix, disponibilité, secteurs). Les prix et secteurs sont recopiés dans `apps-script/Code.gs` : toute modification se fait aux deux endroits.
 
-There are several ways of editing your application.
+## Travailler en local
 
-**Use Lovable**
+Il faut Node.js 22 et npm.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Le site s'ouvre sur `http://localhost:5173`. Ce mode ne fait pas tourner les fonctions Netlify : pour tester `/api/commande` et les formulaires, copie `.env.example` en `.env`, renseigne les variables, puis lance :
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npx netlify dev
+```
 
-**Use GitHub Codespaces**
+et ouvre `http://localhost:8888`.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Autres commandes
 
-## What technologies are used for this project?
+| Commande | Rôle |
+|---|---|
+| `npm run build` | construit le site dans `dist/` |
+| `npm run preview` | sert la version construite |
+| `npm run lint` | vérifie le code avec ESLint |
 
-This project is built with:
+## Secrets
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Aucun secret dans le dépôt : les clés et URL sont dans les variables d'environnement Netlify (modèle : `.env.example`) et dans les propriétés du script Apps Script.

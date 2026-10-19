@@ -30,7 +30,7 @@ const App = () => (
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/cgv" element={<Cgv />} />
             <Route path="/confidentialite" element={<Confidentialite />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* Nouvelles routes au-dessus de la route « * » (page introuvable) */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
