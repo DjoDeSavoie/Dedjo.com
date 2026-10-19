@@ -13,6 +13,10 @@
  *      d'échec, un e-mail de secours. Aucun échec d'envoi ne remet en cause l'enregistrement ;
  *   7. renvoie { ok: true, id } ou { ok: false, error }.
  *
+ * doPost aiguille selon data.action : sans action, c'est une commande (secret SHARED_SECRET) ;
+ * les actions « stock.* » de l'Atelier vont à Stock.gs, avec leur propre secret STOCK_SECRET.
+ * Avec STOCK_ACTIF à « oui », chaque commande réserve ses sachets sur le stock de Marseille.
+ *
  * Propriétés du script (Paramètres du projet ⚙️ > Propriétés du script) :
  *   SHARED_SECRET   obligatoire : même valeur que ORDER_SHARED_SECRET sur Netlify
  *   TELEGRAM_TOKEN    jeton du bot donné par @BotFather (123456789:AA…)
@@ -21,6 +25,7 @@
  *                     e-mails clients (par défaut, celle du compte Google qui exécute le script)
  *   DERNIER_NUMERO  géré automatiquement (dernier n° de commande attribué)
  *   EMAILS_CLIENTS_JOUR  géré automatiquement (nombre d'e-mails de récapitulatif envoyés aujourd'hui)
+ *   STOCK_SECRET, STOCK_SPREADSHEET_ID, STOCK_ACTIF, STOCK_VERSION : Atelier, voir Stock.gs
  *
  * ⚠️ Les prix, pièces par sachet, frais et seuil de livraison, les jours des secteurs, la cuisson
  *    et les moyens de paiement sont recopiés de src/lib/catalog.ts, et les versions des CGV de
@@ -124,6 +129,11 @@ function doPost(e) {
   } catch (err) {
     return repondre({ ok: false, error: "Format de commande invalide." });
   }
+
+  // Atelier : actions « stock.* », vérifiées avec leur propre secret (Stock.gs)
+  const action = data && typeof data.action === "string" ? data.action : "commande";
+  if (action.indexOf("stock.") === 0) return repondre(traiterActionStock(data));
+  if (action !== "commande") return repondre({ ok: false, error: "Action inconnue." });
 
   const secret = PropertiesService.getScriptProperties().getProperty("SHARED_SECRET");
   if (!secret || !data || data.secret !== secret) {
@@ -356,6 +366,14 @@ function enregistrer(c) {
   const verrou = LockService.getScriptLock();
   verrou.waitLock(20000); // deux commandes simultanées ne peuvent pas recevoir le même numéro
   try {
+    const proprietes = PropertiesService.getScriptProperties();
+    const numero = Number(proprietes.getProperty("DERNIER_NUMERO") || "0") + 1;
+    const id = `D-${String(numero).padStart(4, "0")}`;
+
+    // Atelier, avec STOCK_ACTIF à « oui » : refuse la commande si un produit manque à Marseille,
+    // sinon réserve ses sachets, sous ce même verrou et avant d'écrire la commande (Stock.gs)
+    if (stockActif()) reserverStockCommande(c, id);
+
     const classeur = SpreadsheetApp.getActiveSpreadsheet();
     const feuille = classeur.getSheetByName(ONGLET) || classeur.insertSheet(ONGLET);
     if (feuille.getLastRow() === 0) {
@@ -369,10 +387,6 @@ function enregistrer(c) {
         entetes.setValues([EN_TETES]).setFontWeight("bold");
       }
     }
-
-    const proprietes = PropertiesService.getScriptProperties();
-    const numero = Number(proprietes.getProperty("DERNIER_NUMERO") || "0") + 1;
-    const id = `D-${String(numero).padStart(4, "0")}`;
 
     feuille.appendRow([
       new Date(),

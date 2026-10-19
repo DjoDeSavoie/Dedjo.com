@@ -11,6 +11,8 @@ Site (/commande) ──▶ Fonction Netlify (/api/commande) ──▶ Google App
 
 Compte environ 20 minutes. Il te faut : ton compte Google, l'accès à Netlify, ton téléphone avec Telegram.
 
+> **Mise à jour « Atelier (stock) »** (lot 1, octobre 2026) : un second fichier, `Stock.gs`, rejoint `Code.gs` dans l'éditeur, et `Code.gs` change. Suis la section « [Atelier (stock)](#atelier-stock) », en bas de ce document. Tant que la propriété `STOCK_ACTIF` est absente, les commandes fonctionnent exactement comme avant.
+
 > **Mise à jour « CGV »** (lot 2) : le script refuse désormais toute commande sans acceptation des CGV. Publie donc **d'abord le site** (fusion dans `main`, déploiement Netlify terminé), **puis** recolle **tout** le nouveau `Code.gs`, 💾 Enregistrer, et publie une **nouvelle version** du déploiement. Dans l'autre ordre, toutes les commandes seraient refusées en attendant le site. La colonne « Version CGV » s'ajoute toute seule, en dernière position, à la commande suivante.
 
 > **Mise à jour « limites anti-abus »** (octobre 2026) : recolle **tout** le nouveau `Code.gs`, 💾 Enregistrer, puis publie une **nouvelle version** du déploiement (point 3 ci-dessous). Aucune propriété à ajouter : le script crée lui-même `EMAILS_CLIENTS_JOUR`. Détails : « Limites anti-abus », plus bas.
@@ -188,11 +190,11 @@ Ouvre ensuite `http://localhost:8888/commande`. `npm run dev` seul ne fait pas t
 ## Au quotidien
 
 - **Suivi** : les colonnes **Confirmée / Livrée / Payée** sont à toi. Pour en faire des cases à cocher, sélectionne-les puis **Insertion > Case à cocher**.
-- **Modifier le script** : après chaque modification, **Déployer > Gérer les déploiements > ✏️ > Version : Nouvelle version > Déployer**. L'URL ne change pas, mais sans nouvelle version, l'ancien code continue de tourner.
+- **Modifier le script** : il tient en deux fichiers, `Code.gs` (commandes) et `Stock.gs` (Atelier) ; recolle **tout** le fichier qui a changé. Après chaque modification, **Déployer > Gérer les déploiements > ✏️ > Version : Nouvelle version > Déployer**. L'URL ne change pas, mais sans nouvelle version, l'ancien code continue de tourner.
 - **Changer un prix, le nombre de pièces, les frais ou le seuil de livraison** : modifie **à la fois** `src/lib/catalog.ts` (le site) **et** les constantes `CATALOGUE` / `LIVRAISON` / `SECTEURS` en haut de `Code.gs` (le script, qui recalcule le total), puis redéploie les deux.
 - **Changer les moyens de paiement ou la durée de cuisson** : même chose, `MOYENS_PAIEMENT` et `CUISSON` dans `src/lib/catalog.ts`, `PAIEMENT` et `CUISSON` dans `Code.gs`.
 - **Modifier les CGV** : donne une nouvelle date à `CGV_VERSION` dans `src/lib/legal.ts`, et **ajoute** cette date à `CGV_VERSIONS` en haut de `Code.gs` (garde l'ancienne quelques jours, pour les visiteurs qui ont encore l'ancienne page ouverte). Publie **d'abord le script** (nouvelle version), **puis** le site : sinon le script refuserait la nouvelle version.
-- **Ajouter un produit** : même chose. Ajoute-le aux deux endroits ; une nouvelle colonne apparaîtra dans un **nouvel** onglet « Commandes » (renomme l'ancien en « Commandes (archive) » avant la première commande, pour que les en-têtes se recréent).
+- **Ajouter un produit** : même chose. Ajoute-le aux deux endroits ; une nouvelle colonne apparaîtra dans un **nouvel** onglet « Commandes » (renomme l'ancien en « Commandes (archive) » avant la première commande, pour que les en-têtes se recréent). Relance ensuite `initialiserStock` : il ajoute le produit au classeur Stock, avec le même id.
 
 ## Dépannage
 
@@ -227,3 +229,131 @@ Quand seuls Telegram ou l'e-mail échouent, **la commande est quand même enregi
 - L'e-mail de récapitulatif part de ton compte Gmail : le client voit ton adresse comme expéditeur, sous le nom « Dedjo ».
 - Les messages Telegram contiennent le prénom, le téléphone, le code postal et le commentaire du client, mais pas son adresse e-mail (elle n'est que dans le Sheet). Les journaux d'exécution du script ne contiennent pas non plus l'adresse. Les messages restent dans ta conversation Telegram : supprime-les quand tu n'en as plus besoin.
 - Le Sheet contient des données personnelles : limite son partage, et supprime les commandes anciennes quand tu n'en as plus besoin.
+
+---
+
+## Atelier (stock)
+
+L'Atelier gère le stock par lot à Marseille et à la Ferme de la Goëttaz : produits finis, matières premières et emballages. Il relève aussi le congélateur de la ferme à chaque passage, et en déduit les ventes à comparer à l'argent encaissé.
+
+```
+Atelier (page privée, lot 3) ──▶ Fonction Netlify (lot 2) ──▶ Google Apps Script (Stock.gs) ──▶ Google Sheet « Dedjo — Stock »
+                                  STOCK_SHARED_SECRET          vérifie STOCK_SECRET              privé, jamais partagé
+```
+
+Le **lot 1** installe le script seul : rien n'est encore visible sur le site, et les commandes ne changent pas. Compte environ 10 minutes.
+
+### 1. Créer le fichier `Stock.gs`
+
+1. Dans l'éditeur Apps Script, à côté de `Code.gs` : **➕ (Ajouter un fichier) > Script**. Nomme-le `Stock` : l'éditeur ajoute `.gs` tout seul.
+2. Colle **tout** le contenu de `apps-script/Stock.gs` dans ce nouveau fichier.
+3. Ouvre `Code.gs`, supprime son contenu et colle **tout** le nouveau `apps-script/Code.gs` : il aiguille désormais les actions du stock vers `Stock.gs`.
+4. **💾 Enregistrer.**
+
+### 2. Ajouter la propriété `STOCK_SECRET`
+
+1. Dans le Terminal, génère une **nouvelle** valeur :
+
+   ```bash
+   openssl rand -hex 24
+   ```
+
+2. **⚙️ Paramètres du projet > Propriétés du script > Ajouter une propriété du script** : `STOCK_SECRET`, avec cette valeur.
+3. Garde-la : au lot 2, elle ira sur Netlify sous le nom `STOCK_SHARED_SECRET`.
+
+> Ce secret est **distinct** de `SHARED_SECRET` : une fuite de l'un ne donne pas l'autre. Le script refuse toute action du stock (« Accès refusé. ») si `STOCK_SECRET` manque, fait moins de 24 caractères, ou a la même valeur que `SHARED_SECRET`.
+
+### 3. Lancer `initialiserStock`
+
+1. Choisis **`initialiserStock`** dans la liste en haut de l'éditeur, puis **▶ Exécuter**.
+2. Si Google demande une nouvelle autorisation (créer et modifier des classeurs dans ton Drive), accepte-la : même procédure qu'à l'étape 6.
+3. Le journal d'exécution affiche « Classeur « Dedjo — Stock » créé dans ton Drive. Ne le partage pas. ».
+4. Vérifie :
+   - ton Drive contient le classeur « Dedjo — Stock », avec 7 onglets : `Articles`, `Emplacements`, `Lots`, `Mouvements`, `Reservations`, `Passages`, `PassagesDetail` ;
+   - `Articles` compte 29 lignes : les 8 produits du site, 19 matières premières et 2 emballages ;
+   - `Emplacements` compte 3 lignes : `marseille` (compte pour le site), `ferme` et `route` ;
+   - la propriété `STOCK_SPREADSHEET_ID` est apparue dans les propriétés du script.
+5. Lance **`testerStock`**. Le journal doit afficher `{"ok":true,"actif":false,…,"produits":{"lune":"bientot",…}}` : les 8 produits sont « bientot », puisque rien n'est encore en stock.
+
+> **Ne partage jamais ce classeur**, et ne recopie son identifiant nulle part : il n'est que dans `STOCK_SPREADSHEET_ID`. Le classeur des commandes peut être partagé sans exposer le stock.
+>
+> Relancer `initialiserStock` est sans risque : il n'ajoute que les onglets, articles et emplacements manquants.
+
+**Codes lot** : `1` pour La Lune, repris de l'étiquette réelle. Les codes `2` à `8` des autres produits sont proposés par défaut et **restent à confirmer** : la colonne « Code lot confirmé » vaut `non`. Tu les confirmeras dans les Réglages de l'Atelier (lot 3).
+
+**Conservation** : 4 mois pour La Lune, La Cabosse, La Grappe et La Rose ; 2 mois pour les feuilletés salés. La DDM proposée à la production en découle, et se règle par produit dans la colonne « Conservation (mois) ».
+
+### 4. Déployer une nouvelle version
+
+**Déployer > Gérer les déploiements > ✏️ > Version : Nouvelle version > Déployer.** L'URL ne change pas.
+
+### 5. Ne pas mettre `STOCK_ACTIF` avant le lot 5
+
+Tant que la propriété `STOCK_ACTIF` est absente, les commandes du site fonctionnent **exactement comme avant** : le script n'ouvre même pas le classeur Stock. Au lot 5, `STOCK_ACTIF` à `oui` fera réserver les sachets de chaque commande sur le stock de Marseille.
+
+### Vérifier
+
+1. Lance **`testerCommande`** (étape 6) : le journal affiche `{"ok":true,"id":"D-000X"}`, la ligne de test arrive dans l'onglet « Commandes », comme avant. Nettoie ensuite la ligne et `DERNIER_NUMERO` (étape 6, point 4).
+2. Sur ton ordinateur, à la racine du dépôt, lance les tests du stock (aucune installation nécessaire) :
+
+   ```bash
+   node --test apps-script/tests/stock.test.mjs
+   ```
+
+   La fin doit afficher `# pass 24` et `# fail 0`. Les tests utilisent un faux classeur en mémoire et des données inventées : ils ne touchent ni Google ni ton stock.
+
+### Les propriétés du stock
+
+| Propriété | Valeur |
+|---|---|
+| `STOCK_SECRET` | la valeur générée au point 2 ; même valeur que `STOCK_SHARED_SECRET` sur Netlify (lot 2) |
+| `STOCK_SPREADSHEET_ID` | remplie par `initialiserStock` : l'identifiant du classeur Stock |
+| `STOCK_ACTIF` | `oui` au lot 5 seulement : les commandes réservent leurs sachets |
+| `STOCK_VERSION` | gérée automatiquement : change à chaque écriture, pour rafraîchir le cache |
+
+### Comment le stock est tenu
+
+- **Aucune quantité n'est écrite dans le classeur** : le stock d'un lot à un emplacement est la somme de ses mouvements non annulés. Ne modifie pas l'onglet `Mouvements` à la main : passe par l'Atelier.
+- **Rien ne s'efface** : une saisie erronée s'annule (colonne « Annulé »). L'annulation est refusée si le stock a déjà servi, par exemple un transfert déjà vendu : il faut alors corriger par une nouvelle saisie.
+- **N° de lot d'un produit fini** : code lot + date de fabrication `JJMMAA` + mois et année de DDM `MMAA`. La Lune fabriquée le 12/09/2026, DDM le 12/01/2027 : `11209260127`. Une production au même n° s'ajoute au lot existant.
+- **N° de lot d'une réception** : celui du fournisseur, sinon `R` + `JJMMAA` + `-` + 3 lettres de l'article (`R150926-FAR`).
+- **Ordre de sortie** : toujours le lot dont la DDM est la plus proche, puis la fabrication la plus ancienne.
+- **Écritures sûres** : sous le même verrou que les commandes. Une saisie qui rendrait un lot négatif est refusée en entier. Une saisie envoyée deux fois (réseau coupé à la ferme, double appui) n'est enregistrée qu'une fois.
+- **Statuts du site**, calculés sur Marseille seulement : `disponible` (au moins 1 sachet hors réservations et réserve hors site), `victime` (plus rien, mais déjà entré en stock à Marseille), `bientot` (jamais en stock). La réponse publique ne contient que ces statuts.
+
+### Actions du script (pour la fonction Netlify du lot 2)
+
+Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures portent un `idOperation` généré par le navigateur.
+
+| Action | Rôle |
+|---|---|
+| `stock.dispo` | statuts du site par produit, et `actif` (valeur de `STOCK_ACTIF`) |
+| `stock.etat` | catalogue, emplacements, lots et quantités, réservations ouvertes, 300 derniers mouvements groupés par opération, passages |
+| `stock.operation` | `type` : `production`, `reception`, `sortie`, `envoi` (Marseille vers « En route »), `transfert`, `inventaire` |
+| `stock.passage` | passage à la ferme ; avec `apercu: true`, renvoie le récapitulatif sans rien écrire |
+| `stock.encaissement` | compléter ou corriger l'encaissé d'un passage |
+| `stock.commande` | `decision` : `remise` (sortie du stock, « Livrée » cochée) ou `annulee` (sachets libérés) |
+| `stock.annuler` | annuler une opération du journal |
+| `stock.catalogue` | articles (dont la réserve hors site) et emplacements |
+| `stock.lot` | fiche d'un lot : historique, matières utilisées, « utilisé dans » |
+| `stock.journal` | journal par page, avec `recherche` et `genre` |
+| `stock.import` | reprise du CSV « Stock par lot » exporté par la maquette |
+
+### Dépannage du stock
+
+| Symptôme | Cause probable | Solution |
+|---|---|---|
+| « Accès refusé. » sur une action du stock | `STOCK_SECRET` absent, trop court, identique à `SHARED_SECRET`, ou différent de `STOCK_SHARED_SECRET` (Netlify) | Point 2, puis nouvelle version du déploiement |
+| « Le classeur Stock n'est pas encore créé… » | `initialiserStock` jamais lancé | Point 3 |
+| « Onglet … introuvable » ou « en-têtes inattendus » | Onglet renommé, ou en-têtes modifiés à la main | Rétablir le nom ou les en-têtes, puis relancer `initialiserStock` |
+| « STOCK_SPREADSHEET_ID ne correspond à aucun classeur… » | Classeur supprimé, ou propriété mal recopiée | Restaurer le classeur depuis la corbeille du Drive, ou corriger la propriété |
+| « Erreur interne (STK-…) » | Erreur inattendue du script | Menu **Exécutions** : cherche ce code. Le journal ne contient jamais de quantité ni de lot |
+| « Le stock est occupé, réessaie dans un instant. » | Une autre écriture ou une commande est en cours | Réessayer : la saisie ne sera pas enregistrée deux fois |
+| Avec `STOCK_ACTIF` à `oui`, toutes les commandes échouent en « Erreur interne » | Classeur Stock inaccessible | Supprimer `STOCK_ACTIF` le temps de corriger : les commandes repartent comme avant |
+
+### Sécurité du stock
+
+- Le classeur Stock n'est jamais partagé, et son identifiant n'est que dans les propriétés du script.
+- Le secret du stock est distinct de celui des commandes, et comparé en temps constant.
+- Les journaux d'exécution ne contiennent ni quantité, ni lot, ni montant : une erreur inattendue n'y laisse qu'un code.
+- Le site public ne reçoit que les statuts `disponible`, `victime` et `bientot` : jamais de quantité, de lot, de date, ni rien sur la ferme ou la caisse.
