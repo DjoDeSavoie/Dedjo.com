@@ -12,6 +12,45 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
+# Application à page unique : chaque page du site (routes de src/App.tsx) sert index.html, et
+# React Router affiche la bonne page ; sans ces règles, ouvrir directement /commande ou /cgv
+# donne une erreur 404. Une règle par page plutôt qu'un « /* » : sous `netlify dev`, « /* »
+# réécrirait aussi les fichiers de Vite (/src/…). Ajouter ici toute nouvelle page.
+[[redirects]]
+  from = "/commande"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cgv"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/mentions-legales"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/confidentialite"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/discover"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/histoire"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/atelier"
+  to = "/index.html"
+  status = 200
+
 # Atelier : jamais indexé. Ces en-têtes valent pour la page ; les fonctions /api/atelier*
 # posent elles-mêmes X-Robots-Tag et Cache-Control (Netlify n'applique pas [[headers]]
 # aux réponses des fonctions). L'adresse n'est citée ni dans robots.txt ni dans le site.

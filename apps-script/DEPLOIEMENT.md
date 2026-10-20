@@ -367,6 +367,41 @@ La connexion avec le bon code se vérifiera depuis la page de l'Atelier, au lot 
 - **Changer le code d'accès** : modifie `STOCK_ACCESS_CODE`, puis redéploie. Les appareils déjà connectés le restent : change aussi `STOCK_SESSION_SECRET` pour les déconnecter.
 - Une session dure **30 jours** sur chaque appareil, puis le code est redemandé.
 
+### Lot 3 : la page de l'Atelier
+
+La page **dedjo.com/atelier** est l'outil du quotidien, pensé pour le téléphone :
+
+- **barre du bas** : Stock · Saisir (+) · Ferme · Commandes · Journal ; **Réglages** par la roue dentée, en haut à droite. Ferme et Commandes arrivent aux lots 4 et 5 ;
+- **Stock** : filtre Tout / Marseille / Ferme / En route, alertes (sous le seuil, DDM à moins de 30 jours ou dépassée), puis fiche produit et fiche lot (historique, matières utilisées, « utilisé dans ») ;
+- **Saisir** : production, réception, sortie, envoi vers la ferme, transfert, inventaire ; depuis une fiche lot, sortie ou transfert de ce lot précis ;
+- **Journal** : recherche par n° de lot, article ou note, filtre par type, et annulation en deux temps (« Annuler », puis « Confirmer l'annulation » dans les 5 secondes) ;
+- **Réglages** : articles et emplacements, réserve hors site et codes lot, reprise du fichier « Stock par lot » de l'ancienne app, exports CSV du stock par lot et du journal, déconnexion.
+
+La page n'est citée nulle part sur le site : ni menu, ni pied de page, ni `robots.txt`. Elle est marquée `noindex` dans la page et dans l'en-tête `X-Robots-Tag`, et son code est chargé à part : un visiteur du site ne le télécharge jamais.
+
+**Réseau fragile** (la ferme en partage de connexion) : si l'envoi échoue, le formulaire garde ce que tu as saisi et propose **Réessayer**, et un bandeau « Hors ligne » s'affiche. Une saisie partie mais dont la réponse s'est perdue n'est jamais comptée deux fois : au nouvel essai, l'Atelier affiche « (saisie déjà reçue) ».
+
+#### Mettre en service le lot 3
+
+1. Le script change un peu (ordre du journal, qui suit désormais la date des opérations) : recolle **tout** `apps-script/Stock.gs` dans l'éditeur, 💾 Enregistrer, puis **nouvelle version** du déploiement.
+2. Publie le site : fusion de la branche dans `main` (les lots 1 et 2 doivent être en place).
+
+#### Vérifier le lot 3
+
+1. Ouvre `https://dedjo.com/atelier` sur ton téléphone : l'écran du code s'affiche. Entre ta phrase de passe : la vue Stock apparaît, avec le catalogue initial (tout à 0 avant la reprise).
+2. Ajoute la page à l'écran d'accueil : Safari, **Partager > Sur l'écran d'accueil** (Chrome : menu **⋮ > Ajouter à l'écran d'accueil**).
+3. Reprends ton stock : **Réglages > Reprise du stock**, choisis le fichier « Stock par lot » exporté par l'ancienne app, puis **Importer**. Vérifie les quantités dans Stock, emplacement par emplacement.
+4. Essai d'écriture : une réception de test (par exemple 1 kg de sel), puis annule-la dans le Journal. Elle reste visible, barrée, avec « Annulé ».
+5. Ouvre directement `https://dedjo.com/cgv` : la page s'affiche. Avant ce lot, ouvrir directement une page autre que l'accueil donnait une erreur 404 (règles par page dans `netlify.toml`).
+
+#### Essayer l'Atelier sur ton ordinateur, sans toucher au vrai stock
+
+```bash
+npm run atelier:local
+```
+
+Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google.
+
 ### Les propriétés du stock
 
 | Propriété | Valeur |

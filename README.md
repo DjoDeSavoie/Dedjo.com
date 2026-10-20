@@ -6,7 +6,7 @@ Site de Dedjo, « L'artisanat qui se partage » : viennoiseries et feuilletés s
 
 - **Site** : Vite, React, TypeScript, Tailwind CSS et composants shadcn/ui (`src/`).
 - **Hébergement** : Netlify, qui publie la branche `main`.
-- **Fonctions serveur** : `netlify/functions/` (commandes, contact, newsletter, stock), appelées par le site via `/api/*` (voir `netlify.toml`). Tests : `node --test apps-script/tests/stock.test.mjs netlify/tests/atelier.test.mjs`.
+- **Fonctions serveur** : `netlify/functions/` (commandes, contact, newsletter, stock), appelées par le site via `/api/*` (voir `netlify.toml`).
 - **Commandes** : Google Apps Script et Google Sheet (`apps-script/`). Mise en place pas à pas : [`apps-script/DEPLOIEMENT.md`](apps-script/DEPLOIEMENT.md).
 - **Catalogue** : `src/lib/catalog.ts` (produits, prix, disponibilité, secteurs). Les prix et secteurs sont recopiés dans `apps-script/Code.gs` : toute modification se fait aux deux endroits.
 
@@ -34,6 +34,8 @@ et ouvre `http://localhost:8888`.
 | `npm run build` | construit le site dans `dist/` |
 | `npm run preview` | sert la version construite |
 | `npm run lint` | vérifie le code avec ESLint |
+| `npm run test:atelier` | tests du stock (script Apps Script et fonctions Netlify), sans Google ni Netlify |
+| `npm run atelier:local` | Atelier complet en local, sur un faux classeur et un stock de démonstration inventé (voir `apps-script/DEPLOIEMENT.md`) |
 
 ## Secrets
 

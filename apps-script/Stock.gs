@@ -1287,7 +1287,8 @@ const StockRegles = (() => {
 
   /* ---------- Lectures : état, fiche lot, journal, rapprochement ---------- */
 
-  /** Mouvements groupés par opération, les plus récentes d'abord. */
+  /** Mouvements groupés par opération, les plus récentes d'abord (date et heure de l'opération, qui
+      peut être saisie après coup ; à égalité, la dernière saisie d'abord). */
   function grouperOperations(mouvements, idx, base) {
     const passages = new Set(base.passages.map((p) => p.id));
     const groupes = new Map();
@@ -1312,12 +1313,17 @@ const StockRegles = (() => {
       });
     }
     return Array.from(groupes.values())
-      .map((g) => Object.assign(g, {
+      .map((g, rang) => Object.assign(g, {
         genre: genreOperation(g.lignes, passages.has(g.operation)),
         motif: g.lignes[0].motif,
         annule: g.lignes.every((l) => l.annule),
+        rang,
       }))
-      .reverse();
+      .sort((a, b) => (b.horodatage || 0) - (a.horodatage || 0) || b.rang - a.rang)
+      .map((g) => {
+        delete g.rang;
+        return g;
+      });
   }
 
   /** Passages non annulés, du plus ancien au plus récent : période, vendus, attendu, encaissé, écarts. */

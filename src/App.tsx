@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,9 @@ import MentionsLegales from "./pages/MentionsLegales";
 import Cgv from "./pages/Cgv";
 import Confidentialite from "./pages/Confidentialite";
 import NotFound from "./pages/NotFound";
+
+// Atelier (stock privé) : chargé à part, son code n'est pas dans le paquet du site
+const Atelier = lazy(() => import("./pages/Atelier"));
 
 const queryClient = new QueryClient();
 
@@ -30,6 +34,14 @@ const App = () => (
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/cgv" element={<Cgv />} />
             <Route path="/confidentialite" element={<Confidentialite />} />
+            <Route
+              path="/atelier"
+              element={
+                <Suspense fallback={<div className="min-h-screen bg-[#FBF5E9]" />}>
+                  <Atelier />
+                </Suspense>
+              }
+            />
             {/* Nouvelles routes au-dessus de la route « * » (page introuvable) */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -133,6 +133,11 @@ export default {
           from: { transform: "translateX(-100%)" },
           to: { transform: "translateX(100%)" },
         },
+        // Atelier : feuille qui monte du bas de l'écran
+        "feuille": {
+          from: { transform: "translateY(24px)", opacity: "0.6" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
         // Particules : chaque grain part dans sa direction (--dx, --dy), puis retombe en s'effaçant
         "confetti": {
           "0%": { transform: "translate(-50%, 0) scale(1)", opacity: "1" },
@@ -149,6 +154,7 @@ export default {
         "jauge-bump": "jauge-bump 0.6s ease-out",
         "jauge-reflet": "jauge-reflet 0.9s ease-out 0.3s both",
         "confetti": "confetti 1s cubic-bezier(.2,.7,.3,1) both",
+        "feuille": "feuille 0.2s ease-out",
       },
     },
   },
