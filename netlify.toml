@@ -5,10 +5,43 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Les fonctions qui déclarent leur propre chemin (config.path : /api/atelier*, /api/dispo)
+# passent avant cette réécriture
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+# Atelier : jamais indexé. Ces en-têtes valent pour la page ; les fonctions /api/atelier*
+# posent elles-mêmes X-Robots-Tag et Cache-Control (Netlify n'applique pas [[headers]]
+# aux réponses des fonctions). L'adresse n'est citée ni dans robots.txt ni dans le site.
+[[headers]]
+  for = "/atelier"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/atelier/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/api/atelier"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/api/atelier-connexion"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/api/atelier-deconnexion"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
 
 [dev]
 command = "npm run dev"

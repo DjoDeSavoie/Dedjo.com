@@ -67,8 +67,9 @@ export const handler = async (event: any) => {
     return repondre(500, { ok: false, error: "Le service de commande n'est pas encore configuré." });
   }
 
-  // Le secret et l'empreinte viennent uniquement du serveur : on ignore toute valeur envoyée par le navigateur
-  const { secret: _ignore, empreinteIp: _ignoreEmpreinte, ...commande } = data;
+  // Le secret et l'empreinte viennent uniquement du serveur : on ignore toute valeur envoyée par le navigateur.
+  // L'action aussi : le script réserve les actions « stock.* » à l'Atelier.
+  const { secret: _ignore, empreinteIp: _ignoreEmpreinte, action: _ignoreAction, ...commande } = data;
 
   try {
     // Apps Script répond par une redirection vers la page de résultat : fetch la suit

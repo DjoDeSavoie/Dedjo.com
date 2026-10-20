@@ -6,7 +6,7 @@ Site de Dedjo, « L'artisanat qui se partage » : viennoiseries et feuilletés s
 
 - **Site** : Vite, React, TypeScript, Tailwind CSS et composants shadcn/ui (`src/`).
 - **Hébergement** : Netlify, qui publie la branche `main`.
-- **Fonctions serveur** : `netlify/functions/` (commandes, contact, newsletter), appelées par le site via `/api/*` (voir `netlify.toml`).
+- **Fonctions serveur** : `netlify/functions/` (commandes, contact, newsletter, stock), appelées par le site via `/api/*` (voir `netlify.toml`). Tests : `node --test apps-script/tests/stock.test.mjs netlify/tests/atelier.test.mjs`.
 - **Commandes** : Google Apps Script et Google Sheet (`apps-script/`). Mise en place pas à pas : [`apps-script/DEPLOIEMENT.md`](apps-script/DEPLOIEMENT.md).
 - **Catalogue** : `src/lib/catalog.ts` (produits, prix, disponibilité, secteurs). Les prix et secteurs sont recopiés dans `apps-script/Code.gs` : toute modification se fait aux deux endroits.
 

@@ -302,6 +302,71 @@ Tant que la propriété `STOCK_ACTIF` est absente, les commandes du site fonctio
 
    La fin doit afficher `# pass 24` et `# fail 0`. Les tests utilisent un faux classeur en mémoire et des données inventées : ils ne touchent ni Google ni ton stock.
 
+### Lot 2 : brancher Netlify
+
+Le lot 2 ajoute quatre fonctions Netlify (logique commune dans `netlify/lib/atelier.ts`) :
+
+| Route | Rôle |
+|---|---|
+| `POST /api/atelier-connexion` | vérifie le code d'accès, puis pose un cookie de session de 30 jours sur l'appareil |
+| `POST /api/atelier-deconnexion` | efface le cookie de cet appareil |
+| `POST /api/atelier` | relaie les actions « stock.* » vers le script, seulement avec une session valide |
+| `GET /api/dispo` | public : le statut de chaque produit, mis en cache une minute, et rien d'autre |
+
+Le lot 1 doit être en place (points 1 à 4 ci-dessus). Compte environ 10 minutes.
+
+1. **Génère le secret de session**, dans le Terminal :
+
+   ```bash
+   openssl rand -hex 32
+   ```
+
+2. **Choisis le code d'accès** : une phrase de passe de **16 caractères au moins**, par exemple quatre ou cinq mots que toi seul associes, facile à taper sur ton téléphone. Ne la réutilise nulle part ailleurs.
+3. **Netlify : Site configuration > Environment variables > Add a variable.** Ajoute :
+
+   | Variable | Valeur |
+   |---|---|
+   | `STOCK_SHARED_SECRET` | **la même valeur** que la propriété `STOCK_SECRET` du script (lot 1, point 2) |
+   | `STOCK_ACCESS_CODE` | ta phrase de passe (point 2) |
+   | `STOCK_SESSION_SECRET` | la valeur générée au point 1 |
+
+   `GSHEET_ORDER_WEBHOOK_URL` est déjà là : l'Atelier utilise le même script que les commandes. Si Netlify te propose de marquer une valeur comme secrète (« Contains secret values »), coche-le pour les trois.
+4. **Publie le site** avec ce code (fusion de la branche dans `main`). Les fonctions ne lisent les variables qu'au déploiement : si tu ajoutes ou changes une variable après coup, relance **Deploys > Trigger deploy > Deploy site**.
+
+Rien à activer pour Netlify Blobs : le compteur des tentatives de connexion (magasin « atelier-tentatives ») se crée tout seul au premier code faux.
+
+#### Vérifier le lot 2
+
+1. Statuts publics : ouvre `https://dedjo.com/api/dispo` dans ton navigateur. Il doit afficher `{"actif":false}` : le stock n'est pas encore actif (`STOCK_ACTIF` absent). Au lot 5, la réponse deviendra `{"actif":true,"maj":"…","produits":{"lune":"disponible",…}}`, sans aucun nombre.
+2. Atelier fermé sans session, dans le Terminal :
+
+   ```bash
+   curl -i -X POST https://dedjo.com/api/atelier -H "X-Atelier: 1" -d '{"action":"stock.etat"}'
+   ```
+
+   La réponse commence par `HTTP/2 401`, contient `x-robots-tag: noindex, nofollow` et se termine par `{"ok":false}`.
+3. *(Facultatif)* Limite des tentatives : lance six fois la commande ci-dessous. Les cinq premières répondent « Code incorrect. », la sixième « Trop d'essais, réessaie dans quelques minutes. ». Ta connexion est alors bloquée 15 minutes, même avec le bon code.
+
+   ```bash
+   curl -X POST https://dedjo.com/api/atelier-connexion -H "X-Atelier: 1" -d '{"code":"essai-faux-0000000"}'
+   ```
+
+4. Tests sur ton ordinateur, sans Netlify :
+
+   ```bash
+   node --test netlify/tests/atelier.test.mjs
+   ```
+
+   La fin doit afficher `# pass 11` et `# fail 0`.
+
+La connexion avec le bon code se vérifiera depuis la page de l'Atelier, au lot 3.
+
+#### Sessions et code d'accès
+
+- **Déconnecter tous les appareils** (téléphone perdu, code divulgué) : remplace `STOCK_SESSION_SECRET` sur Netlify par une nouvelle valeur (`openssl rand -hex 32`), puis **Deploys > Trigger deploy > Deploy site**. Tous les cookies existants deviennent invalides.
+- **Changer le code d'accès** : modifie `STOCK_ACCESS_CODE`, puis redéploie. Les appareils déjà connectés le restent : change aussi `STOCK_SESSION_SECRET` pour les déconnecter.
+- Une session dure **30 jours** sur chaque appareil, puis le code est redemandé.
+
 ### Les propriétés du stock
 
 | Propriété | Valeur |
@@ -350,10 +415,18 @@ Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures port
 | « Erreur interne (STK-…) » | Erreur inattendue du script | Menu **Exécutions** : cherche ce code. Le journal ne contient jamais de quantité ni de lot |
 | « Le stock est occupé, réessaie dans un instant. » | Une autre écriture ou une commande est en cours | Réessayer : la saisie ne sera pas enregistrée deux fois |
 | Avec `STOCK_ACTIF` à `oui`, toutes les commandes échouent en « Erreur interne » | Classeur Stock inaccessible | Supprimer `STOCK_ACTIF` le temps de corriger : les commandes repartent comme avant |
+| `/api/dispo` répond `{"actif":false}` avec une erreur 503 | Variable manquante sur Netlify, `STOCK_SHARED_SECRET` ≠ `STOCK_SECRET`, ou lot 1 pas encore déployé | Netlify : **Logs > Functions > dispo**, la ligne « Atelier DSP-… » donne la raison |
+| « L'Atelier n'est pas encore configuré (ATL-CONF-…) » | `STOCK_ACCESS_CODE` (moins de 16 caractères) ou `STOCK_SESSION_SECRET` (moins de 32) manquant ou trop court | Lot 2, point 3, puis redéployer |
+| « Le script refuse l'accès au stock : vérifie STOCK_SHARED_SECRET » | `STOCK_SHARED_SECRET` (Netlify) ≠ `STOCK_SECRET` (script) | Recopier exactement la même valeur, puis redéployer |
+| « Trop d'essais, réessaie dans quelques minutes. » | 5 codes faux en 15 minutes depuis cette connexion | Attendre 15 minutes |
+| « Connexion impossible pour le moment (ATL-BLOBS-…) » | Netlify Blobs indisponible : la connexion est refusée plutôt que laissée sans limite | Réessayer plus tard ; consulter **Logs > Functions > atelier-connexion** |
 
 ### Sécurité du stock
 
 - Le classeur Stock n'est jamais partagé, et son identifiant n'est que dans les propriétés du script.
 - Le secret du stock est distinct de celui des commandes, et comparé en temps constant.
 - Les journaux d'exécution ne contiennent ni quantité, ni lot, ni montant : une erreur inattendue n'y laisse qu'un code.
-- Le site public ne reçoit que les statuts `disponible`, `victime` et `bientot` : jamais de quantité, de lot, de date, ni rien sur la ferme ou la caisse.
+- Le site public ne reçoit que les statuts `disponible`, `victime` et `bientot` : jamais de quantité, de lot, de date, ni rien sur la ferme ou la caisse. La fonction `dispo` refiltre la réponse du script : seuls ces trois mots peuvent passer.
+- L'Atelier s'ouvre avec un code d'accès, comparé en temps constant. Après 5 codes faux en 15 minutes, la connexion est bloquée ; le compteur, dans Netlify Blobs, ne garde qu'une empreinte de l'adresse IP, jamais l'adresse elle-même ni le code saisi.
+- Le cookie de session est signé, illisible par le JavaScript de la page (`HttpOnly`), envoyé seulement en HTTPS (`Secure`) et seulement depuis dedjo.com (`SameSite=Strict`). Chaque écriture exige en plus l'en-tête `X-Atelier: 1`.
+- Les routes `/api/atelier*` ne sont jamais mises en cache ni indexées, et n'acceptent qu'une liste fermée d'actions du script.
