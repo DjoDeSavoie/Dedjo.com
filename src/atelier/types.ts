@@ -90,6 +90,47 @@ export interface Etat {
   recettes: Record<string, Recette>;
   /** Id des lots bloqués. */
   bloques: string[];
+  /** Passages à la ferme non annulés, du plus ancien au plus récent (rapprochement de caisse). */
+  passages: Passage[];
+}
+
+export interface LignePassage {
+  article: string;
+  attendu: number;
+  compte: number;
+  retire: number;
+  ajoute: number;
+  /** attendu − compté ; négatif si le compte dépasse le stock attendu. */
+  vendu: number;
+  prix: number;
+  montant: number;
+}
+
+export interface Passage {
+  id: string;
+  horodatage: number;
+  note: string;
+  annule: boolean;
+  encaisseLe: number | null;
+  lignes: LignePassage[];
+  vendus: number;
+  /** Chiffre d'affaires attendu, en euros. */
+  attendu: number;
+  /** null : « à compléter ». */
+  encaisse: number | null;
+  ecart: number | null;
+  /** Rapprochement seulement : passage précédent et écart cumulé. */
+  depuis?: number | null;
+  ecartCumule?: number;
+}
+
+export interface ResultatPassage {
+  ok: true;
+  message: string;
+  deja?: boolean;
+  apercu?: boolean;
+  passage: Passage;
+  avertissements: string[];
 }
 
 export interface Recette {
@@ -230,4 +271,6 @@ export type Feuille =
   | { type: "articleEdition"; id?: string }
   | { type: "emplacementEdition"; id?: string }
   | { type: "blocage"; lot: string; decision: "bloque" | "leve"; tous?: string[] }
-  | { type: "rappel"; lot: string };
+  | { type: "rappel"; lot: string }
+  | { type: "nouveauPassage" }
+  | { type: "passage"; id: string };

@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClipboardList, Layers, Plus, Settings, ShoppingBag, Tractor, WifiOff } from "lucide-react";
 import { appeler, ErreurAtelier } from "./api";
 import { Contexte, ContexteAtelier, NiveauFeuille } from "./contexte";
-import { BOUTON_PRINCIPAL, BOUTON_SECONDAIRE, CARTE, DISCRET, Puce, Squelette } from "./composants";
+import { BOUTON_PRINCIPAL, CARTE, DISCRET, Puce, Squelette } from "./composants";
 import type { Filtre } from "./outils";
 import type { Etat, Feuille } from "./types";
 import Connexion from "./Connexion";
@@ -16,6 +16,7 @@ import VueSaisir, { FormInventaire, FormLignes, FormLot, FormProduction, FormRec
 import VueJournal from "./VueJournal";
 import VueReglages, { FormArticle, FormEmplacement } from "./VueReglages";
 import { FormBlocage, VueRappel } from "./tracabilite";
+import VueFerme, { FichePassage, FormPassage } from "./VueFerme";
 
 type Vue = "stock" | "saisir" | "ferme" | "commandes" | "journal" | "reglages";
 
@@ -191,7 +192,7 @@ export default function AtelierApp() {
             <Contexte.Provider value={valeur}>
               {vue === "stock" ? <VueStock /> : null}
               {vue === "saisir" ? <VueSaisir /> : null}
-              {vue === "ferme" ? <AVenir lot={4} texte="Le relevé du congélateur à chaque passage et le rapprochement de caisse arrivent au lot 4. En attendant, le stock de la ferme se lit dans Stock, filtre « Ferme »." action={{ libelle: "Voir le stock de la ferme", faire: () => { setFiltre("ferme"); allerA("stock"); } }} /> : null}
+              {vue === "ferme" ? <VueFerme /> : null}
               {vue === "commandes" ? <AVenir lot={5} texte="Les commandes du site, leurs réservations, la remise au client et l'annulation arrivent au lot 5, avec la disponibilité des produits calculée depuis le stock." /> : null}
               {vue === "journal" ? <VueJournal /> : null}
               {vue === "reglages" ? <VueReglages /> : null}
@@ -277,21 +278,20 @@ function FeuilleCourante({ feuille: f }: { feuille: Feuille }) {
       return <FormBlocage lot={f.lot} decision={f.decision} tous={f.tous} />;
     case "rappel":
       return <VueRappel lot={f.lot} />;
+    case "nouveauPassage":
+      return <FormPassage />;
+    case "passage":
+      return <FichePassage id={f.id} />;
     default:
       return null;
   }
 }
 
-function AVenir({ lot, texte, action }: { lot: number; texte: string; action?: { libelle: string; faire: () => void } }) {
+function AVenir({ lot, texte }: { lot: number; texte: string }) {
   return (
     <div className="mt-7 grid justify-items-start gap-3 rounded-xl border border-dashed border-[#E6DCC6] p-5">
       <h2 className="font-display text-xl font-semibold text-[#163F6B]">Bientôt (lot {lot})</h2>
       <p className="max-w-[52ch] text-[#5E6A78]">{texte}</p>
-      {action ? (
-        <button type="button" className={BOUTON_SECONDAIRE} onClick={action.faire}>
-          {action.libelle}
-        </button>
-      ) : null}
     </div>
   );
 }

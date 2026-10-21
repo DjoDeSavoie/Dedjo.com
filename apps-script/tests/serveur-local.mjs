@@ -4,6 +4,8 @@
    2. lance `netlify dev` (site + fonctions) branché sur ce faux script, avec des secrets inventés.
    Puis ouvrir http://localhost:8888/atelier, code « atelier-local-0000 ». Ctrl+C arrête tout.
    Option --sans-netlify : seulement le faux script (port 8790). Rien n'est écrit sur le disque.
+   Option --sans-demo : congélateur de la ferme vide et aucun passage, seulement 12 Lune et
+   10 Montagne à Marseille, pour rejouer l'exemple du passage à la ferme (§ 4.7 du brief).
    Deux copies en même temps : ATELIER_PORT=8889 npm run atelier:local (site sur 8889, faux script
    sur 8791, Vite sur 5174). */
 
@@ -30,26 +32,35 @@ function operation(type, champs) {
   if (!r.ok) throw new Error(`Stock de démonstration : ${type} refusé (${r.error})`);
 }
 
+if (process.argv.includes("--sans-demo")) {
+  operation("production", { article: "lune", quantite: 12, fabrication: ilYa(5) });
+  operation("production", { article: "montagne", quantite: 10, fabrication: ilYa(5) });
+} else {
+  demo();
+}
+
 // Stock de démonstration (inventé)
-env.appeler("stock.catalogue", { articles: [{ id: "cabosse", seuilMarseille: 10 }, { id: "lune", reserveHorsSite: 2 }] });
-operation("reception", { article: "mp-farine", quantite: 25, reception: ilYa(30), ddm: ilYa(-200), fournisseur: "Moulin d'exemple", numero: "FAR-2026-01" });
-operation("reception", { article: "mp-beurre", quantite: 10, reception: ilYa(12), ddm: ilYa(-40), fournisseur: "Laiterie d'exemple" });
-operation("reception", { article: "emb-sacs", quantite: 200, reception: ilYa(60) });
-operation("production", {
-  article: "lune",
-  quantite: 12,
-  fabrication: ilYa(20),
-  intrants: [
-    { article: "mp-farine", quantite: 3 },
-    { article: "mp-beurre", quantite: 1.5 },
-  ],
-});
-operation("production", { article: "cabosse", quantite: 8, fabrication: ilYa(15) });
-operation("production", { article: "grappe", quantite: 4, fabrication: ilYa(100) });
-operation("production", { article: "montagne", quantite: 6, fabrication: ilYa(10) });
-operation("envoi", { lignes: [{ article: "lune", quantite: 4 }] });
-env.appeler("stock.passage", { ajouts: { lune: 4, montagne: 2 }, horodatage: Date.now() - 2 * JOUR });
-operation("sortie", { emplacement: "marseille", motif: "Dégustation / offert", lignes: [{ article: "montagne", quantite: 1 }], note: "Marché d'essai" });
+function demo() {
+  env.appeler("stock.catalogue", { articles: [{ id: "cabosse", seuilMarseille: 10 }, { id: "lune", reserveHorsSite: 2 }] });
+  operation("reception", { article: "mp-farine", quantite: 25, reception: ilYa(30), ddm: ilYa(-200), fournisseur: "Moulin d'exemple", numero: "FAR-2026-01" });
+  operation("reception", { article: "mp-beurre", quantite: 10, reception: ilYa(12), ddm: ilYa(-40), fournisseur: "Laiterie d'exemple" });
+  operation("reception", { article: "emb-sacs", quantite: 200, reception: ilYa(60) });
+  operation("production", {
+    article: "lune",
+    quantite: 12,
+    fabrication: ilYa(20),
+    intrants: [
+      { article: "mp-farine", quantite: 3 },
+      { article: "mp-beurre", quantite: 1.5 },
+    ],
+  });
+  operation("production", { article: "cabosse", quantite: 8, fabrication: ilYa(15) });
+  operation("production", { article: "grappe", quantite: 4, fabrication: ilYa(100) });
+  operation("production", { article: "montagne", quantite: 6, fabrication: ilYa(10) });
+  operation("envoi", { lignes: [{ article: "lune", quantite: 4 }] });
+  env.appeler("stock.passage", { ajouts: { lune: 4, montagne: 2 }, horodatage: Date.now() - 2 * JOUR });
+  operation("sortie", { emplacement: "marseille", motif: "Dégustation / offert", lignes: [{ article: "montagne", quantite: 1 }], note: "Marché d'essai" });
+}
 
 // Faux Apps Script : POST → doPost, GET → doGet, comme le déploiement en application web
 const serveur = http.createServer((req, res) => {

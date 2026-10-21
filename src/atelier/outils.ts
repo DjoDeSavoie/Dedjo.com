@@ -67,6 +67,24 @@ export function lireNombre(texte: string): number {
   return v === "" ? NaN : Number(v);
 }
 
+/* ---------- Euros (caisse de la ferme) ---------- */
+
+const EUROS = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+/** 110 → « 110 € », −10 → « −10 € », 12.5 → « 12,50 € » */
+export function euros(n: number): string {
+  const arrondiCentimes = Math.round(n * 100) / 100;
+  const texte = Number.isInteger(arrondiCentimes) ? EUROS.format(Math.abs(arrondiCentimes)) : Math.abs(arrondiCentimes).toFixed(2).replace(".", ",");
+  return `${arrondiCentimes < 0 ? "−" : ""}${texte} €`;
+}
+/** Écart signé : « +5 € », « −10 € », « 0 € ». */
+export const euroSigne = (n: number) => (n > 0.004 ? `+${euros(n)}` : euros(n));
+/** Couleur d'un écart de caisse : nul en vert, manque en rouge, surplus en orange, vide à compléter. */
+export function teinteEcart(ecart: number | null): "ok" | "bad" | "warn" | "mute" {
+  if (ecart === null) return "mute";
+  if (Math.abs(ecart) < 0.005) return "ok";
+  return ecart < 0 ? "bad" : "warn";
+}
+
 /* ---------- Dates ---------- */
 
 const deux = (n: number) => String(n).padStart(2, "0");
@@ -133,6 +151,13 @@ const JOUR = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric",
 const JOUR_ISO = new Intl.DateTimeFormat("fr-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Europe/Paris" });
 
 export const dateCourte = (iso: string) => (iso ? DATE.format(new Date(`${iso}T00:00:00Z`)) : "—");
+
+/** Valeur d'un champ date et heure (heure de l'appareil) : « 2026-10-21T14:32 ». */
+export function versChampDateHeure(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${deux(d.getMonth() + 1)}-${deux(d.getDate())}T${deux(d.getHours())}:${deux(d.getMinutes())}`;
+}
+export const depuisChampDateHeure = (valeur: string) => new Date(valeur).getTime();
 export const heure = (ms: number) => HEURE.format(new Date(ms));
 export const jourIso = (ms: number) => JOUR_ISO.format(new Date(ms));
 export function jourLong(ms: number): string {

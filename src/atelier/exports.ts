@@ -114,3 +114,32 @@ export function exporterRegistre(r: Registre): void {
   );
   telecharger(`registre-tracabilite-${r.du}-au-${r.au}.csv`, csv(lignes));
 }
+
+/** Passages à la ferme : rapprochement de caisse, puis détail par produit. */
+export function exporterPassages(etat: Etat): void {
+  const lignes: (string | number)[][] = [
+    ["Rapprochement caisse"],
+    ["Date", "Heure", "Depuis le passage du", "Sachets vendus", "Attendu (€)", "Encaissé (€)", "Écart (€)", "Écart cumulé (€)", "Note"],
+  ];
+  etat.passages.forEach((p) =>
+    lignes.push([
+      jourIso(p.horodatage),
+      heure(p.horodatage),
+      p.depuis ? `${jourIso(p.depuis)} ${heure(p.depuis)}` : "",
+      p.vendus,
+      p.attendu,
+      p.encaisse === null ? "à compléter" : p.encaisse,
+      p.ecart === null ? "" : p.ecart,
+      p.ecartCumule || 0,
+      p.note,
+    ])
+  );
+  lignes.push([], ["Détail par produit"], ["Date", "Heure", "Produit", "Attendu", "Compté", "Vendu", "Retiré", "Ajouté", "Prix du sachet (€)", "Montant (€)"]);
+  etat.passages.forEach((p) =>
+    p.lignes.forEach((l) => {
+      const a = etat.articles.find((x) => x.id === l.article);
+      lignes.push([jourIso(p.horodatage), heure(p.horodatage), a ? a.nom : l.article, l.attendu, l.compte, l.vendu, l.retire, l.ajoute, l.prix, l.montant]);
+    })
+  );
+  telecharger(`passages-ferme-dedjo-${jourIso(Date.now())}.csv`, csv(lignes));
+}

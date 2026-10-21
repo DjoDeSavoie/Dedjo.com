@@ -400,7 +400,7 @@ La page n'est citée nulle part sur le site : ni menu, ni pied de page, ni `robo
 npm run atelier:local
 ```
 
-Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google. Le faux script charge `Stock.gs` au démarrage : après une mise à jour du script, relance la commande. Pour une seconde copie en même temps : `ATELIER_PORT=8889 npm run atelier:local`.
+Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google. Le faux script charge `Stock.gs` au démarrage : après une mise à jour du script, relance la commande. Pour une seconde copie en même temps : `ATELIER_PORT=8889 npm run atelier:local`. Pour partir d'un congélateur vide, sans aucun passage (12 Lune et 10 Montagne à Marseille, rien d'autre) : `npm run atelier:local -- --sans-demo`.
 
 ### Lot 3 bis : traçabilité complète des ingrédients
 
@@ -433,6 +433,39 @@ Le script crée seul, au premier appel après sa mise à jour, les onglets `Rece
 3. Bloque un lot de test, vérifie qu'il n'est plus proposé en sortie « Vente », puis lève le blocage.
 4. Réglages › Exporter › **Exporter le registre** : le fichier contient les couples de la période.
 5. Tests sur ton ordinateur : `npm run test:atelier`, la fin doit afficher `# fail 0`.
+
+### Lot 4 : ferme et caisse
+
+L'onglet **Ferme** de l'Atelier remplace l'écran « Bientôt » :
+
+- **Congélateur de la ferme** : le stock actuel, produit par produit (dernier compte, plus les ajouts), la date et l'heure du dernier passage, ce qui est « en route », et le bouton **Nouveau passage**.
+- **Nouveau passage**, en cinq étapes :
+  1. **Compter** : la date et l'heure sont celles du moment, modifiables si tu saisis après coup (jamais avant le dernier passage). Les champs sont vides et le stock attendu n'est **pas** affiché. Chaque produit encore présent au congélateur doit être compté : mets 0 s'il n'en reste plus.
+  2. **Retirer** : les sachets abîmés ou à date dépassée, au plus ce que tu as compté. Ils deviennent une sortie « Perte ».
+  3. **Ajouter** : les sachets mis dans le congélateur, au plus ce qui est disponible en route et à Marseille. Ils sont pris d'abord sur « En route », puis sur Marseille, lots à la DDM la plus proche ; les lots bloqués ne partent pas.
+  4. **Encaissé** : l'argent remis par la caisse de la ferme pour la période, en €. Il peut rester vide.
+  5. **Récapitulatif**, calculé par le script sans rien écrire : par produit, attendu, compté, vendu, retiré, ajouté ; puis sachets vendus, chiffre d'affaires attendu, encaissé et écart. Un compte supérieur au stock attendu est signalé (« vérifie le passage précédent ») sans bloquer. **Valider le passage** enregistre le tout en une seule opération.
+- **Rapprochement caisse** : les passages, du plus récent au plus ancien, avec la période (« depuis le passage du… »), les sachets vendus, l'attendu, l'encaissé, l'écart du passage et l'écart cumulé. Écart nul en vert (« Juste »), manque en rouge, surplus en orange, « À compléter » si l'encaissé est vide. **Exporter les passages (CSV)** : le rapprochement, puis le détail par produit.
+- **Fiche d'un passage** (touche une carte) : détail par produit, **encaissé modifiable** (pour le compléter ou le corriger), et **Annuler ce passage**, en deux temps. L'annulation marque annulées toutes les lignes du passage (ventes, pertes, ajouts) sans rien effacer ; elle est refusée si les sachets ajoutés ont déjà été vendus à un passage suivant.
+
+Les calculs sont ceux du script depuis le lot 1 : **attendu** = stock « ferme » juste avant le passage, **vendu** = attendu − compté, **chiffre d'affaires attendu** = vendus × prix du sachet (figé dans le passage), **écart** = encaissé − attendu.
+
+#### Mettre en service le lot 4
+
+1. Rien à faire dans le script : `Stock.gs` et `Code.gs` ne changent pas (les lots 1 à 3 bis doivent être en place).
+2. Publie le site : fusion de la branche dans `main`.
+
+#### Vérifier le lot 4
+
+1. Ouvre l'Atelier, onglet **Ferme** : le congélateur affiche le stock « ferme » actuel et le rapprochement est vide (ou liste les passages déjà saisis).
+2. Sur ton ordinateur, l'exemple du brief, sur un congélateur vide : `npm run atelier:local -- --sans-demo`, puis `http://localhost:8888/atelier`, code `atelier-local-0000`.
+   - **Passage 1** : rien à compter, ajoute 10 Lune et 8 Montagne, laisse l'encaissé vide, valide. Le congélateur affiche 10 Lune et 8 Montagne.
+   - **Passage 2** : compte 4 Lune et 3 Montagne, retire 1 Montagne, encaissé 100. Le récapitulatif affiche 11 sachets vendus, **110 €** attendus, **100 €** encaissés et un écart de **−10 €** (en rouge). Après validation, il reste 4 Lune et 2 Montagne.
+   - Ouvre le passage 2, mets 110 dans l'encaissé : l'écart passe à « Juste », en vert, et l'écart cumulé à 0 €.
+   - **Annuler ce passage**, puis **Confirmer l'annulation** : le congélateur revient à 10 Lune et 8 Montagne, et le Journal garde le passage, marqué « Annulé ».
+3. Tests sur ton ordinateur : `npm run test:atelier`, la fin doit afficher `# fail 0`.
+
+Les montants de caisse ne vivent que dans ton classeur Stock (onglet `Passages`) et dans l'Atelier. Le fichier exporté se télécharge sur ton appareil : garde-le pour toi.
 
 ### Les propriétés du stock
 
@@ -495,6 +528,11 @@ Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures port
 | « Stock insuffisant … Les lots bloqués ne sont pas utilisés. » | Le stock restant est bloqué | Lever le blocage si le lot est sûr, sinon le sortir en « Perte » ou « Retour fournisseur » |
 | « Une préparation reste au labo. » | Envoi, transfert ou vente d'une préparation | Une préparation se consomme dans une production ; seule une sortie « Perte » ou « Autre » est possible |
 | « Trop de niveaux de préparations : 3 au plus… » | Une préparation faite d'une préparation, elle-même faite de deux autres niveaux | Saisir la préparation intermédiaire à partir de matières |
+| « Compte aussi … : mets 0 s'il n'en reste plus. » | Un produit présent au congélateur n'a pas été compté | Saisir son compte, 0 compris |
+| « Le passage doit être daté après le dernier… » | Date d'un passage antérieure au dernier passage : l'attendu est le stock actuel, le rapprochement serait faux | Dater après le dernier passage ; si c'est le dernier qui est faux, l'annuler et le ressaisir |
+| « Date et heure invalides. » | Date du passage à plus de 10 minutes dans le futur, ou à plus de 400 jours | Corriger la date et l'heure (heure du téléphone comprise) |
+| « compte supérieur au stock attendu, vérifie le passage précédent » | Un ajout oublié au passage précédent, ou une erreur de compte | Vérifier le passage précédent ; le passage s'enregistre quand même |
+| Écart « À compléter » | Encaissé laissé vide | Ouvrir la fiche du passage et saisir l'encaissé |
 
 ### Sécurité du stock
 
