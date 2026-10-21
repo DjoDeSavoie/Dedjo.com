@@ -241,6 +241,71 @@ Atelier (page privée, lot 3) ──▶ Fonction Netlify (lot 2) ──▶ Googl
                                   STOCK_SHARED_SECRET          vérifie STOCK_SECRET              privé, jamais partagé
 ```
 
+### Mise en service de l'Atelier, tout en une fois
+
+Les lots 1 à 5 partent ensemble : la branche `atelier/mise-en-service` contient tout (et la mise en ligne de La Forêt déjà faite sur `main`). Les sections des lots, plus bas, donnent le détail de chaque geste ; cette liste en donne l'**ordre**. Compte environ une heure, à faire d'une traite de préférence.
+
+À chaque étape, le site reste utilisable par les clients. Jusqu'à l'étape 13, les commandes et la disponibilité affichée sont **exactement celles d'aujourd'hui**.
+
+**Avant de commencer**
+
+- Exporte le fichier « Stock par lot » à jour depuis l'ancienne app (il servira à l'étape 9).
+- Si tu as modifié `Code.gs` directement dans l'éditeur Apps Script depuis le dernier dépôt, garde-en une copie : il sera remplacé en entier.
+
+**A. Le script (environ 15 minutes ; rien ne change pour les clients)**
+
+1. Éditeur Apps Script : crée le fichier `Stock`, colle **tout** `apps-script/Stock.gs`, remplace **tout** `Code.gs` par `apps-script/Code.gs`, puis 💾 Enregistrer (lot 1, point 1).
+2. Ajoute la propriété `STOCK_SECRET` (`openssl rand -hex 24`) et garde la valeur pour l'étape 6 (lot 1, point 2).
+3. Lance **`initialiserStock`**, puis **`testerStock`** : le classeur « Dedjo — Stock » apparaît dans ton Drive avec ses 9 onglets, et les 8 produits sont « bientot » (lot 1, point 3).
+4. **Nouvelle version** du déploiement (lot 1, point 4). L'URL ne change pas.
+5. Contrôle : note la valeur de la propriété `DERNIER_NUMERO`, puis lance **`testerCommande`** : la commande de test arrive comme avant. Supprime sa ligne dans l'onglet « Commandes » et **remets `DERNIER_NUMERO` à la valeur notée** (pas à `0` : de vraies commandes existent déjà, leurs numéros ne doivent pas resservir).
+
+Ne crée **pas** `STOCK_ACTIF` à ce stade.
+
+**B. Netlify (environ 10 minutes)**
+
+6. *Site configuration > Environment variables* : ajoute `STOCK_SHARED_SECRET` (la valeur de `STOCK_SECRET`), `STOCK_ACCESS_CODE` (ta phrase de passe, 16 caractères au moins) et `STOCK_SESSION_SECRET` (`openssl rand -hex 32`) (lot 2, points 1 à 3). Pas besoin de redéployer : la mise en ligne de l'étape 7 lira ces variables.
+
+**C. La mise en ligne du site**
+
+7. Fusionne `atelier/mise-en-service` dans `main`, ou demande-le-moi (« fusionne ») :
+
+   ```bash
+   git switch main
+   git merge --ff-only atelier/mise-en-service
+   git push origin main
+   ```
+
+   Netlify publie en une à deux minutes. Comme `STOCK_ACTIF` est absent, le site garde la disponibilité de `DISPONIBILITE_SECOURS`, comme aujourd'hui.
+8. Contrôles :
+   - `https://dedjo.com/api/dispo` affiche `{"actif":false}` ;
+   - `https://dedjo.com/cgv`, ouvert directement, s'affiche (fini la page 404) ;
+   - la commande `curl` du lot 2 (« Vérifier le lot 2 », point 2) répond `HTTP/2 401`.
+
+**D. L'Atelier, sur ton téléphone (environ 20 minutes)**
+
+9. Ouvre `https://dedjo.com/atelier`, entre ta phrase de passe et ajoute la page à l'écran d'accueil. **Réglages › Reprise du stock** : importe le fichier « Stock par lot », puis vérifie les quantités emplacement par emplacement (lot 3).
+10. **Réglages › Articles** :
+    - confirme les codes lot des produits 2 à 8 ;
+    - règle la réserve hors site (par exemple les Lune gardées pour la ferme) ;
+    - si tu veux, crée tes préparations et saisis tes recettes (lot 3 bis). Elles peuvent aussi venir plus tard.
+11. Essai d'écriture : une réception de test (1 kg de sel), puis son annulation dans le **Journal**.
+
+**E. Brancher le site sur le stock**
+
+12. Onglet **Commandes › Sur le site** (bandeau orange) : vérifie le statut et le nombre de sachets commandables de chaque produit. **Tout produit en stock à Marseille deviendra commandable** : La Noix et La Goët ne doivent pas avoir de stock à Marseille tant que leur étiquette n'est pas complète.
+13. Ajoute la propriété du script **`STOCK_ACTIF`** = `oui`, puis Enregistrer. Pas de nouvelle version à déployer : la propriété est lue à chaque commande.
+14. Contrôles (lot 5, « Vérifier le lot 5 ») :
+    - le bandeau de l'onglet Commandes passe au vert ;
+    - `https://dedjo.com/api/dispo` affiche `"actif":true` ;
+    - une vraie commande d'un sachet apparaît dans **Réservations ouvertes** ; **Commande annulée** la libère.
+
+**En cas de souci**
+
+- Après l'étape 13 : supprime `STOCK_ACTIF`. Les commandes et le site repartent comme avant, en une minute au plus.
+- Après l'étape 7 : Netlify › **Deploys**, choisis le déploiement précédent puis **Publish deploy**. Le nouveau script fonctionne aussi avec l'ancien site.
+- Après l'étape 4 : le nouveau `Code.gs` traite les commandes comme avant tant que `STOCK_ACTIF` est absent. Au besoin, recolle l'ancien `Code.gs` et publie une nouvelle version.
+
 Le **lot 1** installe le script seul : rien n'est encore visible sur le site, et les commandes ne changent pas. Compte environ 10 minutes.
 
 ### 1. Créer le fichier `Stock.gs`
@@ -269,7 +334,7 @@ Le **lot 1** installe le script seul : rien n'est encore visible sur le site, et
 2. Si Google demande une nouvelle autorisation (créer et modifier des classeurs dans ton Drive), accepte-la : même procédure qu'à l'étape 6.
 3. Le journal d'exécution affiche « Classeur « Dedjo — Stock » créé dans ton Drive. Ne le partage pas. ».
 4. Vérifie :
-   - ton Drive contient le classeur « Dedjo — Stock », avec 7 onglets : `Articles`, `Emplacements`, `Lots`, `Mouvements`, `Reservations`, `Passages`, `PassagesDetail` ;
+   - ton Drive contient le classeur « Dedjo — Stock », avec 9 onglets : `Articles`, `Emplacements`, `Lots`, `Mouvements`, `Reservations`, `Passages`, `PassagesDetail`, `Recettes`, `Blocages` (les deux derniers depuis le lot 3 bis) ;
    - `Articles` compte 29 lignes : les 8 produits du site, 19 matières premières et 2 emballages ;
    - `Emplacements` compte 3 lignes : `marseille` (compte pour le site), `ferme` et `route` ;
    - la propriété `STOCK_SPREADSHEET_ID` est apparue dans les propriétés du script.
@@ -293,7 +358,7 @@ Tant que la propriété `STOCK_ACTIF` est absente, les commandes du site fonctio
 
 ### Vérifier
 
-1. Lance **`testerCommande`** (étape 6) : le journal affiche `{"ok":true,"id":"D-000X"}`, la ligne de test arrive dans l'onglet « Commandes », comme avant. Nettoie ensuite la ligne et `DERNIER_NUMERO` (étape 6, point 4).
+1. Note la valeur de `DERNIER_NUMERO`, puis lance **`testerCommande`** (étape 6) : le journal affiche `{"ok":true,"id":"D-000X"}`, la ligne de test arrive dans l'onglet « Commandes », comme avant. Supprime ensuite la ligne et remets `DERNIER_NUMERO` à la valeur notée (pas à `0` si de vraies commandes existent déjà).
 2. Sur ton ordinateur, à la racine du dépôt, lance les tests du stock (aucune installation nécessaire) :
 
    ```bash
