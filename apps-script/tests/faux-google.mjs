@@ -244,6 +244,8 @@ export function creerEnvironnement() {
   env.ctx = contexte;
   env.regles = vm.runInContext("StockRegles", contexte);
   env.stock = () => classeurs.get(proprietes.get("STOCK_SPREADSHEET_ID"));
+  /** Vrai si une valeur du cache contient ce texte (pour vérifier qu'aucune donnée client n'y est gardée). */
+  env.cacheContient = (texte) => Array.from(cache.values()).some((v) => String(v).includes(texte));
   env.onglet = (nom) => env.stock().getSheetByName(nom).objets();
 
   /** Appel d'une action « stock.* » comme le fera Netlify : POST JSON vers doPost. */

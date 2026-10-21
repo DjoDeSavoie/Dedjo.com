@@ -1,9 +1,9 @@
 /* Briques de l'interface de l'Atelier : feuilles qui montent, puces, pas à pas +/−, pied de formulaire.
    Pensé pour le téléphone : zones tactiles de 44 px au moins. */
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useContext, useEffect, useRef } from "react";
 import { ChevronLeft, X } from "lucide-react";
-import { useAtelier } from "./contexte";
+import { NiveauFeuille, useAtelier } from "./contexte";
 import { couleur, lireNombre, arrondi } from "./outils";
 import type { Article } from "./types";
 
@@ -175,16 +175,20 @@ export function Squelette({ lignes = 3 }: { lignes?: number }) {
 /** Feuille plein écran (fiche ou formulaire), au-dessus de la vue. Échap ou × la ferme. */
 export function Feuille({ titre, children, pied }: { titre: ReactNode; children: ReactNode; pied?: ReactNode }) {
   const { retour, fermer, profondeur } = useAtelier();
+  const niveau = useContext(NiveauFeuille);
+  // Les feuilles du dessous restent montées (leur saisie est gardée) mais seule la dernière réagit
+  const active = niveau === profondeur - 1;
   const fermerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (!active) return;
     fermerRef.current?.focus({ preventScroll: true });
     const touche = (e: KeyboardEvent) => {
       if (e.key === "Escape") retour();
     };
     document.addEventListener("keydown", touche);
     return () => document.removeEventListener("keydown", touche);
-  }, [retour]);
+  }, [active, retour]);
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-[rgba(12,26,43,0.42)]" onClick={(e) => e.target === e.currentTarget && fermer()}>
@@ -195,7 +199,7 @@ export function Feuille({ titre, children, pied }: { titre: ReactNode; children:
         className="flex h-[calc(100%-14px)] w-full max-w-[720px] motion-safe:animate-feuille flex-col rounded-t-[18px] bg-[#FBF5E9] shadow-2xl"
       >
         <div className="flex items-center gap-2 border-b border-[#E6DCC6] px-4 py-2.5">
-          {profondeur > 1 ? (
+          {niveau > 0 ? (
             <button type="button" onClick={retour} className="-ml-2 flex min-h-11 items-center gap-0.5 pr-2 text-[15px] font-bold text-[#163F6B]">
               <ChevronLeft className="h-5 w-5" aria-hidden="true" />
               Retour

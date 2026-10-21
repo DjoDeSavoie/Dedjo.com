@@ -10,6 +10,7 @@ export const arrondi = (n: number) => Math.round(n * 1e6) / 1e6;
 
 export const CATEGORIES: { id: Categorie; nom: string; court: string }[] = [
   { id: "produit", nom: "Produits finis", court: "Produits" },
+  { id: "preparation", nom: "Préparations", court: "Préparations" },
   { id: "matiere", nom: "Matières premières", court: "Matières" },
   { id: "emballage", nom: "Emballages", court: "Emballages" },
 ];
@@ -23,7 +24,12 @@ export const UNITES: [string, string][] = [
   ["unité", "unité"],
 ];
 
-export const MOTIFS_SORTIE = ["Vente", "Dégustation / offert", "Utilisé en production", "Perte", "Autre"];
+export const MOTIFS_SORTIE = ["Vente", "Dégustation / offert", "Utilisé en production", "Perte", "Retour fournisseur", "Autre"];
+/** Sorties possibles pour un lot bloqué (apps-script/Stock.gs, MOTIFS_LOT_BLOQUE). */
+export const MOTIFS_LOT_BLOQUE = ["Perte", "Retour fournisseur"];
+/** Sorties possibles pour une préparation : sa consommation se saisit dans une production. */
+export const MOTIFS_PREPARATION = ["Perte", "Autre"];
+export const MOTIFS_BLOCAGE = ["Rappel fournisseur", "Doute qualité", "Date dépassée", "Autre"];
 
 /** Genres d'opération du journal (apps-script/Stock.gs, genreOperation). */
 export const GENRES: Record<string, string> = {
@@ -103,14 +109,22 @@ export function joursAvant(iso: string): number {
 
 export type Alerte = "bad" | "warn";
 
-/** DDM dépassée (bad) ou à moins de 30 jours (warn). */
+/** DDM dépassée (bad) ou proche (warn) : moins de 30 jours, ou moins de 2 jours pour une préparation. */
 export function etatDdm(lot: Lot): { k: Alerte; texte: string } | null {
   if (!lot.ddm) return null;
   const jours = joursAvant(lot.ddm);
   const quoi = lot.categorie === "produit" ? "DDM" : "Date limite";
+  const seuilJours = lot.categorie === "preparation" ? 2 : 30;
   if (jours < 0) return { k: "bad", texte: `${quoi} dépassée` };
-  if (jours <= 30) return { k: "warn", texte: jours === 0 ? `${quoi} aujourd'hui` : `${quoi} dans ${jours} j` };
+  if (jours <= seuilJours) return { k: "warn", texte: jours === 0 ? `${quoi} aujourd'hui` : `${quoi} dans ${jours} j` };
   return null;
+}
+
+/** Ajoute des jours à une date AAAA-MM-JJ. */
+export function ajouterJours(iso: string, jours: number): string {
+  const [a, m, j] = iso.split("-").map(Number);
+  const d = new Date(Date.UTC(a, m - 1, j + jours));
+  return `${d.getUTCFullYear()}-${deux(d.getUTCMonth() + 1)}-${deux(d.getUTCDate())}`;
 }
 
 const DATE = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
@@ -129,6 +143,15 @@ export function jourLong(ms: number): string {
 /* ---------- Stock ---------- */
 
 export type Filtre = "tout" | string;
+
+export const estBloque = (etat: Etat, lotId: string) => etat.bloques.includes(lotId);
+
+/** Stock d'un article à un emplacement, hors lots bloqués (ce que l'ordre de sortie peut prendre). */
+export function stockLibre(etat: Etat, article: string, emplacement: string): number {
+  return arrondi(
+    etat.lots.filter((l) => l.article === article && !estBloque(etat, l.id)).reduce((s, l) => s + (l.quantites[emplacement] || 0), 0)
+  );
+}
 
 /** Quantité d'un lot à un emplacement (ou partout). */
 export function qteLot(lot: Lot, emplacement: Filtre): number {
@@ -200,6 +223,40 @@ export const nomCourt = (etat: Etat, id: string) => {
   const e = etat.emplacements.find((x) => x.id === id);
   return e ? e.court || e.nom : id;
 };
+
+/* ---------- Recettes et préparations (lot 3 bis) ---------- */
+
+/**
+ * Quantités proposées par la recette : composant × (quantité produite ÷ rendement), arrondi à
+ * 3 décimales (kg, L), à l'unité (g) ou à l'unité supérieure (sachet, pièce, unité). Même règle
+ * que proposerMatieres dans apps-script/Stock.gs.
+ */
+export function proposerMatieres(etat: Etat, article: string, quantiteProduite: number): { article: string; quantite: number }[] {
+  const recette = etat.recettes[article];
+  if (!recette || !(recette.rendement > 0) || !(quantiteProduite > 0)) return [];
+  return recette.composants.map((c) => {
+    const a = etat.articles.find((x) => x.id === c.article);
+    const brut = (c.quantite * quantiteProduite) / recette.rendement;
+    let q: number;
+    if (a && UNITES_ENTIERES.includes(a.unite)) q = Math.ceil(brut - 1e-9);
+    else if (a && a.unite === "g") q = Math.round(brut);
+    else q = Math.round(brut * 1000) / 1000;
+    return { article: c.article, quantite: q };
+  });
+}
+
+/** N° proposé pour une préparation : code lot + fabrication JJMMAA + « -n » (n-ième de l'article ce jour-là). */
+export function numeroLotPreparation(etat: Etat, a: Article, fabrication: string): string {
+  if (!fabrication) return "";
+  let rang = 0;
+  etat.lots.forEach((l) => {
+    if (l.article !== a.id || l.fabrication !== fabrication) return;
+    const n = /-(\d+)$/.exec(l.numero);
+    rang = Math.max(rang, n ? Number(n[1]) : 1);
+  });
+  const [an, m, j] = fabrication.split("-");
+  return `${(a.codeLot || "P").trim()}${j}${m}${an.slice(2)}-${rang + 1}`;
+}
 
 /* ---------- Divers ---------- */
 

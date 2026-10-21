@@ -3,15 +3,20 @@
       stock de démonstration inventé, derrière une petite adresse locale qui imite Apps Script ;
    2. lance `netlify dev` (site + fonctions) branché sur ce faux script, avec des secrets inventés.
    Puis ouvrir http://localhost:8888/atelier, code « atelier-local-0000 ». Ctrl+C arrête tout.
-   Option --sans-netlify : seulement le faux script (port 8790). Rien n'est écrit sur le disque. */
+   Option --sans-netlify : seulement le faux script (port 8790). Rien n'est écrit sur le disque.
+   Deux copies en même temps : ATELIER_PORT=8889 npm run atelier:local (site sur 8889, faux script
+   sur 8791, Vite sur 5174). */
 
 import http from "node:http";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { SECRET_COMMANDES, SECRET_STOCK, preparer } from "./faux-google.mjs";
 
-const PORT_SCRIPT = 8790;
-const PORT_SITE = 8888;
+// Ports : 8888 par défaut ; ATELIER_PORT décale les trois (site, faux script, Vite)
+const DECALAGE = process.env.ATELIER_PORT ? Number(process.env.ATELIER_PORT) - 8888 : 0;
+const PORT_SITE = 8888 + DECALAGE;
+const PORT_SCRIPT = 8790 + DECALAGE;
+const PORT_VITE = 5173 + DECALAGE;
 const CODE_ACCES = "atelier-local-0000";
 const JOUR = 24 * 60 * 60 * 1000;
 
@@ -62,7 +67,9 @@ serveur.listen(PORT_SCRIPT, "127.0.0.1", () => {
 
 if (!process.argv.includes("--sans-netlify")) {
   const racine = fileURLToPath(new URL("../..", import.meta.url));
-  const netlify = spawn("npx", ["netlify", "dev", "--offline", "--port", String(PORT_SITE)], {
+  const options = ["netlify", "dev", "--offline", "--port", String(PORT_SITE)];
+  if (DECALAGE) options.push("--command", `npx vite --port ${PORT_VITE} --strictPort`, "--target-port", String(PORT_VITE));
+  const netlify = spawn("npx", options, {
     cwd: racine,
     stdio: "inherit",
     env: {

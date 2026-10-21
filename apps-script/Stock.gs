@@ -46,6 +46,8 @@ const STOCK_ONGLETS = {
     ["actif", "Actif", "ouinon"],
     ["ordre", "Ordre", "nombre"],
     ["codeConfirme", "Code lot confirmé", "ouinon"],
+    // Lot 3 bis, ajoutée en dernier : durée de conservation des préparations
+    ["conservationJours", "Conservation (jours)", "nombre"],
   ],
   Emplacements: [
     ["id", "Id", "texte"],
@@ -107,6 +109,28 @@ const STOCK_ONGLETS = {
     ["ajoute", "Ajouté", "nombre"],
     ["vendu", "Vendu calculé", "nombre"],
   ],
+  // Lot 3 bis. Recettes : une ligne par composant, pour un rendement. Une recette remplacée est
+  // close (« Remplacée le »), jamais effacée. Elles ne servent qu'à pré-remplir les productions.
+  Recettes: [
+    ["article", "Article", "texte"],
+    ["rendement", "Rendement", "nombre"],
+    ["composant", "Composant", "texte"],
+    ["quantite", "Quantité", "nombre"],
+    ["ordre", "Ordre", "nombre"],
+    ["modifieeLe", "Modifiée le", "horodatage"],
+    ["remplaceeLe", "Remplacée le", "horodatage"],
+  ],
+  // Lot 3 bis. Blocages : l'état d'un lot est sa dernière ligne non annulée (bloque ou leve)
+  Blocages: [
+    ["id", "Id", "texte"],
+    ["lot", "Lot", "texte"],
+    ["horodatage", "Horodatage", "horodatage"],
+    ["action", "Action", "texte"],
+    ["motif", "Motif", "texte"],
+    ["note", "Note", "texte"],
+    ["reference", "Référence", "texte"],
+    ["annule", "Annulé", "coche"],
+  ],
 };
 
 /* ===================================================================
@@ -115,10 +139,20 @@ const STOCK_ONGLETS = {
 
 const StockRegles = (() => {
   const EPS = 1e-9;
-  const CATEGORIES = ["produit", "matiere", "emballage"];
+  // « preparation » : semi-fini (pâte…) fabriqué au labo, puis consommé par des produits finis
+  const CATEGORIES = ["produit", "preparation", "matiere", "emballage"];
   const UNITES = ["sachet", "kg", "g", "L", "pièce", "unité"];
   const UNITES_ENTIERES = ["sachet", "pièce", "unité"];
-  const MOTIFS_SORTIE = ["Vente", "Dégustation / offert", "Utilisé en production", "Perte", "Autre"];
+  const MOTIFS_SORTIE = ["Vente", "Dégustation / offert", "Utilisé en production", "Perte", "Retour fournisseur", "Autre"];
+  // Sorties qui acceptent un lot bloqué (et le prennent en premier)
+  const MOTIFS_LOT_BLOQUE = ["Perte", "Retour fournisseur"];
+  // Une préparation ne sort qu'ainsi : sa consommation se saisit dans une production
+  const MOTIFS_PREPARATION = ["Perte", "Autre"];
+  const MOTIFS_BLOCAGE = ["Rappel fournisseur", "Doute qualité", "Date dépassée", "Autre"];
+  // Préparations imbriquées (pâte faite d'une pâte…) : 3 niveaux au plus
+  const NIVEAUX_PREPARATION = 3;
+  const PROFONDEUR_MAXI = 6; // garde des parcours amont et aval
+  const PREPARATION_AU_LABO = "Une préparation reste au labo.";
   const QUANTITE_MAXI = 100000;
   const LIGNES_MAXI = 60; // articles d'une même saisie
   const ID_OPERATION = /^[A-Za-z0-9_-]{8,80}$/;
@@ -323,6 +357,13 @@ const StockRegles = (() => {
     return `${debut.getUTCFullYear()}-${deux(debut.getUTCMonth() + 1)}-${deux(Math.min(j, dernierJour))}`;
   }
 
+  /** Ajoute des jours à une date AAAA-MM-JJ. */
+  function ajouterJours(iso, jours) {
+    const [a, m, j] = iso.split("-").map(Number);
+    const d = new Date(Date.UTC(a, m - 1, j + jours));
+    return `${d.getUTCFullYear()}-${deux(d.getUTCMonth() + 1)}-${deux(d.getUTCDate())}`;
+  }
+
   /** DDM proposée : fabrication + conservation de l'article ("" si aucune durée n'est réglée). */
   function ddmProposee(fabrication, conservationMois) {
     const mois = Number(conservationMois);
@@ -366,6 +407,7 @@ const StockRegles = (() => {
       actif: true,
       ordre: i + 1,
       codeConfirme: p.id === "lune",
+      conservationJours: null,
     }));
     const autres = MATIERES_INITIALES.map((m) => m.concat("matiere"))
       .concat(EMBALLAGES_INITIAUX.map((e) => e.concat("emballage")))
@@ -383,6 +425,7 @@ const StockRegles = (() => {
         actif: true,
         ordre: produits.length + i + 1,
         codeConfirme: false,
+        conservationJours: null,
       }));
     return { articles: produits.concat(autres), emplacements: EMPLACEMENTS_INITIAUX.map((e) => Object.assign({}, e)) };
   }
@@ -405,10 +448,12 @@ const StockRegles = (() => {
   function indexer(base) {
     const parLot = new Map();
     const parArticle = new Map();
+    const articleDuLot = new Map();
     for (const m of base.mouvements) {
       if (m.annule) continue;
       ajouterIndex(parLot, m.lot, m.emplacement, Number(m.quantite || 0));
       ajouterIndex(parArticle, m.article, m.emplacement, Number(m.quantite || 0));
+      articleDuLot.set(m.lot, m.article);
     }
     return {
       articles: new Map(base.articles.map((a) => [a.id, a])),
@@ -416,7 +461,24 @@ const StockRegles = (() => {
       lots: new Map(base.lots.map((l) => [l.id, l])),
       parLot,
       parArticle,
+      articleDuLot,
+      bloques: lotsBloques(base),
     };
+  }
+
+  /* ---------- Blocages (lot 3 bis) ---------- */
+
+  /** Lots bloqués : lot → dernière ligne « bloque » non annulée (une ligne « leve » plus récente lève le blocage). */
+  function lotsBloques(base) {
+    const derniere = new Map();
+    (base.blocages || []).forEach((b) => {
+      if (!b.annule && b.lot) derniere.set(b.lot, b);
+    });
+    const bloques = new Map();
+    derniere.forEach((b, lot) => {
+      if (b.action === "bloque") bloques.set(lot, b);
+    });
+    return bloques;
   }
 
   /** { emplacement: quantité } d'un lot ou d'un article, sans les zéros. */
@@ -436,6 +498,154 @@ const StockRegles = (() => {
     );
   }
 
+  /* ---------- Traçabilité : chaîne des lots (lot 3 bis) ---------- */
+
+  const estIntrant = (m) => !m.annule && m.type === "production" && m.motif === MOTIF.intrant;
+
+  /** Lots consommés directement par une production de `lotId`, quantités cumulées. */
+  function intrantsDirects(base, lotId) {
+    const parLot = new Map();
+    base.mouvements.forEach((m) => {
+      if (estIntrant(m) && m.reference === lotId) parLot.set(m.lot, arrondi((parLot.get(m.lot) || 0) - Number(m.quantite)));
+    });
+    return Array.from(parLot, ([lot, quantite]) => ({ lot, quantite }));
+  }
+
+  /** Lots qui ont consommé directement `lotId`, quantités de `lotId` cumulées. */
+  function consommateursDirects(base, lotId) {
+    const parLot = new Map();
+    base.mouvements.forEach((m) => {
+      if (estIntrant(m) && m.lot === lotId) parLot.set(m.reference, arrondi((parLot.get(m.reference) || 0) - Number(m.quantite)));
+    });
+    return Array.from(parLot, ([lot, quantite]) => ({ lot, quantite }));
+  }
+
+  function descriptionLot(idx, lotId) {
+    const l = idx.lots.get(lotId);
+    const a = l ? idx.articles.get(l.article) : undefined;
+    return {
+      lot: lotId,
+      numero: l ? l.numero : "",
+      article: l ? l.article : "",
+      nom: a ? a.nom : l ? l.article : "",
+      categorie: l ? l.categorie : "",
+      unite: a ? a.unite : "",
+      fournisseur: l ? l.fournisseur : "",
+      fabrication: l ? l.fabrication : "",
+      ddm: l ? l.ddm : "",
+      bloque: idx.bloques.has(lotId),
+    };
+  }
+
+  /**
+   * Amont d'un lot : arbre des lots consommés. Chaque préparation se déplie sur ses propres intrants.
+   * Garde anti-boucle : un lot déjà sur le chemin n'est pas redéplié, et la profondeur est bornée.
+   */
+  function amont(base, lotId, idx) {
+    const index = idx || indexer(base);
+    const parcourir = (id, niveau, chemin) =>
+      intrantsDirects(base, id).map(({ lot, quantite }) => {
+        const noeud = Object.assign(descriptionLot(index, lot), { quantite, niveau, enfants: [] });
+        if (noeud.categorie === "preparation" && niveau < PROFONDEUR_MAXI && chemin.indexOf(lot) === -1) {
+          noeud.enfants = parcourir(lot, niveau + 1, chemin.concat(lot));
+        }
+        return noeud;
+      });
+    return parcourir(lotId, 1, [lotId]);
+  }
+
+  /** Aval d'un lot, transitif : chaque lot fabriqué avec lui, directement ou via des préparations. */
+  function aval(base, lotId, idx) {
+    const index = idx || indexer(base);
+    const resultat = [];
+    const vus = new Set([lotId]);
+    const parcourir = (id, niveau, via) => {
+      consommateursDirects(base, id).forEach(({ lot, quantite }) => {
+        if (vus.has(lot)) return;
+        vus.add(lot);
+        resultat.push(Object.assign(descriptionLot(index, lot), { niveau, via, quantiteUtilisee: quantite, depuis: id }));
+        if (niveau < PROFONDEUR_MAXI) parcourir(lot, niveau + 1, via.concat(descriptionLot(index, lot)));
+      });
+    };
+    parcourir(lotId, 1, []);
+    return resultat;
+  }
+
+  /** Lots de l'amont, à plat (pour les contrôles de boucle). */
+  function idsAmont(base, lotId, idx) {
+    const ids = new Set();
+    const ajouter = (noeuds) => noeuds.forEach((n) => {
+      ids.add(n.lot);
+      ajouter(n.enfants);
+    });
+    ajouter(amont(base, lotId, idx));
+    return ids;
+  }
+
+  /** Niveau d'un lot de préparation : 1 s'il n'est fait que de matières, 1 + celui de ses préparations sinon. */
+  function niveauPreparation(base, lotId, idx, chemin) {
+    const index = idx || indexer(base);
+    const vus = chemin || [];
+    let niveau = 1;
+    intrantsDirects(base, lotId).forEach(({ lot }) => {
+      const l = index.lots.get(lot);
+      if (l && l.categorie === "preparation" && vus.indexOf(lot) === -1 && vus.length < PROFONDEUR_MAXI) {
+        niveau = Math.max(niveau, 1 + niveauPreparation(base, lot, index, vus.concat(lotId)));
+      }
+    });
+    return niveau;
+  }
+
+  /** Rang de la prochaine préparation de cet article fabriquée ce jour-là (1, 2…). */
+  function rangPreparation(b, a, fabrication) {
+    let rang = 0;
+    b.lots.forEach((l) => {
+      if (l.article !== a.id || l.fabrication !== fabrication) return;
+      const n = /-(\d+)$/.exec(String(l.numero));
+      rang = Math.max(rang, n ? Number(n[1]) : 1);
+    });
+    return rang + 1;
+  }
+
+  /** N° de lot d'une préparation : code lot + fabrication JJMMAA + « -n » (n-ième de l'article ce jour-là). */
+  function numeroLotPreparation(codeLot, fabrication, rang) {
+    const [a, m, j] = fabrication.split("-");
+    return `${String(codeLot || "P").trim()}${j}${m}${a.slice(2)}-${rang}`;
+  }
+
+  /* ---------- Recettes (lot 3 bis) ---------- */
+
+  /** Recettes en vigueur : { article: { rendement, modifieeLe, composants: [{ article, quantite }] } }. */
+  function recettesActives(base) {
+    const recettes = {};
+    (base.recettes || [])
+      .filter((r) => !r.remplaceeLe)
+      .sort((x, y) => (x.ordre || 0) - (y.ordre || 0))
+      .forEach((r) => {
+        if (!recettes[r.article]) recettes[r.article] = { rendement: r.rendement, modifieeLe: r.modifieeLe, composants: [] };
+        recettes[r.article].composants.push({ article: r.composant, quantite: r.quantite });
+      });
+    return recettes;
+  }
+
+  /**
+   * Quantités proposées pour une production : composant × (quantité produite ÷ rendement), arrondi
+   * à 3 décimales (kg, L), à l'unité (g), ou à l'unité supérieure (sachet, pièce, unité).
+   */
+  function proposerMatieres(recette, quantiteProduite, articles) {
+    if (!recette || !(recette.rendement > 0) || !(quantiteProduite > 0)) return [];
+    return recette.composants.map((c) => {
+      const a = articles.get ? articles.get(c.article) : articles[c.article];
+      const brut = (Number(c.quantite) * quantiteProduite) / recette.rendement;
+      const unite = a ? a.unite : "";
+      let quantite;
+      if (UNITES_ENTIERES.includes(unite)) quantite = Math.ceil(brut - 1e-9);
+      else if (unite === "g") quantite = Math.round(brut);
+      else quantite = Math.round(brut * 1000) / 1000;
+      return { article: c.article, quantite };
+    });
+  }
+
   /* ---------- Brouillon d'une opération ----------
      Toutes les lignes d'une opération sont préparées ici, avec un stock tenu à jour au fil des
      lignes. Rien n'est écrit tant que tout n'est pas valide : pas d'écriture à moitié. */
@@ -452,9 +662,11 @@ const StockRegles = (() => {
       idOperation,
       horodatage,
       ctx,
+      base,
       idx,
       ecritures,
       lots,
+      estNouveau: (id) => nouveauxLots.has(id),
 
       ajout(onglet, objet) {
         (ecritures.ajouts[onglet] = ecritures.ajouts[onglet] || []).push(objet);
@@ -545,42 +757,59 @@ const StockRegles = (() => {
           .sort(ordreSortie);
       },
 
-      /** Répartit une quantité sur les lots (ou sur le lot choisi), sans rien écrire. */
-      allouer(articleId, emplacement, quantite, lotChoisi) {
+      estBloque: (lotId) => idx.bloques.has(lotId),
+
+      /**
+       * Répartit une quantité sur les lots (ou sur le lot choisi), sans rien écrire. Lots bloqués :
+       *   « normal »  (vente, envoi, transfert, remise, consommation…) : sautés, et refusés si choisis ;
+       *   « perte »   (sortie Perte ou Retour fournisseur, retraits du passage) : pris en premier ;
+       *   « constat » (ventes constatées à la ferme, un fait) : pris en dernier.
+       */
+      allouer(articleId, emplacement, quantite, lotChoisi, mode) {
+        const regle = mode || "normal";
         const article = b.article(articleId);
         const lieu = b.emplacement(emplacement);
         if (lotChoisi) {
           const lot = b.lot(lotChoisi);
           if (!lot || lot.article !== articleId) throw new ErreurStock(`Lot introuvable pour ${article.nom}.`);
+          if (b.estBloque(lot.id) && regle === "normal") {
+            throw new ErreurStock(`Le lot ${lot.numero} est bloqué : seule une sortie « Perte » ou « Retour fournisseur » est possible.`);
+          }
           const present = b.quantite(lot.id, emplacement);
           if (quantite > present + EPS) {
             throw new ErreurStock(`Le lot ${lot.numero} n'a que ${quantiteFr(article, present)} à ${lieu.court}.`);
           }
           return [{ lot: lot.id, quantite }];
         }
+        const presents = b.lotsDisponibles(articleId, emplacement);
+        const libres = presents.filter((l) => !b.estBloque(l.id));
+        const bloques = presents.filter((l) => b.estBloque(l.id));
+        const candidats = regle === "perte" ? bloques.concat(libres) : regle === "constat" ? libres.concat(bloques) : libres;
         const parts = [];
         let reste = quantite;
-        for (const lot of b.lotsDisponibles(articleId, emplacement)) {
+        for (const lot of candidats) {
           if (reste <= EPS) break;
           const prise = arrondi(Math.min(reste, b.quantite(lot.id, emplacement)));
           parts.push({ lot: lot.id, quantite: prise });
           reste = arrondi(reste - prise);
         }
         if (reste > EPS) {
-          throw new ErreurStock(`Stock insuffisant : ${article.nom} à ${lieu.court}, il manque ${quantiteFr(article, reste)}.`);
+          const precision = regle === "normal" && bloques.length ? " Les lots bloqués ne sont pas utilisés." : "";
+          throw new ErreurStock(`Stock insuffisant : ${article.nom} à ${lieu.court}, il manque ${quantiteFr(article, reste)}.${precision}`);
         }
         return parts;
       },
 
       /** Sortie d'un emplacement, lot par lot dans l'ordre des DDM (ou sur le lot choisi). */
-      sortir(articleId, emplacement, quantite, lotChoisi, champs) {
-        return b.allouer(articleId, emplacement, quantite, lotChoisi).map((p) =>
+      sortir(articleId, emplacement, quantite, lotChoisi, champs, mode) {
+        return b.allouer(articleId, emplacement, quantite, lotChoisi, mode).map((p) =>
           b.mouvement(Object.assign({}, champs, { article: articleId, lot: p.lot, emplacement, quantite: -p.quantite }))
         );
       },
 
-      /** Déplacement d'un emplacement à un autre : les n° de lot sont conservés. */
+      /** Déplacement d'un emplacement à un autre : les n° de lot sont conservés. Jamais de préparation ni de lot bloqué. */
       deplacer(articleId, de, vers, quantite, lotChoisi, champs) {
+        if (b.article(articleId).categorie === "preparation") throw new ErreurStock(PREPARATION_AU_LABO);
         for (const p of b.allouer(articleId, de, quantite, lotChoisi)) {
           b.mouvement(Object.assign({}, champs, { type: "transfert", article: articleId, lot: p.lot, emplacement: de, quantite: -p.quantite }));
           b.mouvement(Object.assign({}, champs, { type: "transfert", article: articleId, lot: p.lot, emplacement: vers, quantite: p.quantite }));
@@ -617,43 +846,69 @@ const StockRegles = (() => {
   /* ---------- Opérations de stock (§ 4.4) ---------- */
 
   const OPERATIONS = {
+    /** Produit fini ou préparation (pâte…), avec les matières utilisées, prises lot par lot. */
     production(b, d) {
       const a = b.article(d.article);
-      if (a.categorie !== "produit") throw new ErreurStock("Une production concerne un produit fini.");
+      const preparation = a.categorie === "preparation";
+      if (a.categorie !== "produit" && !preparation) throw new ErreurStock("Une production concerne un produit fini ou une préparation.");
       const quantite = lireQuantite(d.quantite, a);
       const lieu = b.emplacement(d.emplacement || "marseille");
       const fabrication = lireJour(d.fabrication || b.ctx.aujourdhui, "Fabrication", true);
-      const ddm = lireJour(d.ddm || ddmProposee(fabrication, a.conservationMois), "DDM", false);
-      if (!ddm) throw new ErreurStock(`DDM manquante : aucune durée de conservation n'est réglée pour ${a.nom}.`);
-      if (ddm <= fabrication) throw new ErreurStock("La DDM doit tomber après la fabrication.");
+      let ddm;
       let numero = texteLibre(d.numero, "N° de lot", 40);
-      if (!numero) {
-        if (!String(a.codeLot || "").trim()) {
-          throw new ErreurStock(`Code lot manquant pour ${a.nom} : règle-le dans Réglages, ou saisis le n° de lot.`);
+      if (preparation) {
+        // Date limite : fabrication + conservation en jours, sinon saisie à la main (obligatoire)
+        const jours = Number(a.conservationJours);
+        const proposee = Number.isInteger(jours) && jours >= 0 && a.conservationJours !== null ? ajouterJours(fabrication, jours) : "";
+        ddm = lireJour(d.ddm || proposee, "Date limite", false);
+        if (!ddm) throw new ErreurStock(`Date limite manquante : règle la conservation (jours) de ${a.nom} dans Réglages, ou saisis la date limite.`);
+        if (ddm < fabrication) throw new ErreurStock("La date limite ne peut pas précéder la fabrication.");
+        if (!numero) numero = numeroLotPreparation(a.codeLot, fabrication, rangPreparation(b, a, fabrication));
+      } else {
+        ddm = lireJour(d.ddm || ddmProposee(fabrication, a.conservationMois), "DDM", false);
+        if (!ddm) throw new ErreurStock(`DDM manquante : aucune durée de conservation n'est réglée pour ${a.nom}.`);
+        if (ddm <= fabrication) throw new ErreurStock("La DDM doit tomber après la fabrication.");
+        if (!numero) {
+          if (!String(a.codeLot || "").trim()) {
+            throw new ErreurStock(`Code lot manquant pour ${a.nom} : règle-le dans Réglages, ou saisis le n° de lot.`);
+          }
+          numero = numeroLotProduit(a.codeLot, fabrication, ddm);
         }
-        numero = numeroLotProduit(a.codeLot, fabrication, ddm);
       }
       const note = texteLibre(d.note, "Note", 300);
-      const lot = b.lotPour({ article: a.id, numero, categorie: "produit", fabrication, ddm });
+      const lot = b.lotPour({ article: a.id, numero, categorie: a.categorie, fabrication, ddm });
       b.mouvement({ type: "production", motif: MOTIF.production, article: a.id, lot: lot.id, emplacement: lieu.id, quantite, note });
 
-      // Matières utilisées : prises au même emplacement, lot par lot dans l'ordre des DDM
+      // Matières utilisées : prises au même emplacement, lot par lot dans l'ordre des DDM, jamais un lot bloqué.
+      // Matières premières, emballages et préparations ; un produit fini n'est jamais consommé.
       const intrants = [];
+      // Production ajoutée à un lot existant : ce lot ne doit pas être en amont de ce qu'il consomme
+      const lotExistant = !b.estNouveau(lot.id);
+      let niveau = 1;
       for (const i of lireLignes(d.intrants, false)) {
         const m = b.article(i.article);
-        if (m.categorie === "produit") throw new ErreurStock("Les matières utilisées sont des matières premières ou des emballages.");
+        if (m.categorie === "produit") throw new ErreurStock("Un produit fini ne peut pas entrer dans une production.");
+        if (m.id === a.id) throw new ErreurStock(`${a.nom} ne peut pas entrer dans sa propre fabrication.`);
         const champs = { type: "production", motif: MOTIF.intrant, reference: lot.id, note };
         for (const s of b.sortir(m.id, lieu.id, lireQuantite(i.quantite, m), i.lot, champs)) {
+          // Un lot ne se consomme jamais lui-même, ni directement ni en cascade
+          if (s.lot === lot.id || (lotExistant && idsAmont(b.base, s.lot, b.idx).has(lot.id))) {
+            throw new ErreurStock(`Le lot ${lot.numero} ne peut pas entrer dans sa propre fabrication.`);
+          }
+          if (m.categorie === "preparation") niveau = Math.max(niveau, 1 + niveauPreparation(b.base, s.lot, b.idx));
           intrants.push({ lot: s.lot, article: m.id, quantite: -s.quantite, operation: b.idOperation });
         }
+      }
+      if (preparation && niveau > NIVEAUX_PREPARATION) {
+        throw new ErreurStock(`Trop de niveaux de préparations : ${NIVEAUX_PREPARATION} au plus (une préparation faite d'une préparation, elle-même faite d'une préparation).`);
       }
       if (intrants.length) b.ajouterIntrants(lot, intrants);
     },
 
     reception(b, d) {
       const a = b.article(d.article);
-      if (a.categorie === "produit") {
-        throw new ErreurStock("Une réception concerne une matière première ou un emballage : pour un produit fini, saisis une production.");
+      if (a.categorie === "produit" || a.categorie === "preparation") {
+        throw new ErreurStock("Une réception concerne une matière première ou un emballage : un produit fini ou une préparation se saisit en production.");
       }
       const quantite = lireQuantite(d.quantite, a);
       const lieu = b.emplacement(d.emplacement || "marseille");
@@ -670,9 +925,14 @@ const StockRegles = (() => {
       const lieu = b.emplacement(d.emplacement || "marseille");
       if (!MOTIFS_SORTIE.includes(d.motif)) throw new ErreurStock("Choisis le motif de la sortie.");
       const note = texteLibre(d.note, "Note", 300);
+      // Perte ou retour fournisseur : les lots bloqués partent en premier, et peuvent être choisis
+      const mode = MOTIFS_LOT_BLOQUE.includes(d.motif) ? "perte" : "normal";
       for (const l of lireLignes(d.lignes, true)) {
         const a = b.article(l.article);
-        b.sortir(a.id, lieu.id, lireQuantite(l.quantite, a), l.lot, { type: "sortie", motif: d.motif, note });
+        if (a.categorie === "preparation" && !MOTIFS_PREPARATION.includes(d.motif)) {
+          throw new ErreurStock(`${PREPARATION_AU_LABO} Elle ne sort qu'en « Perte » ou « Autre » : sa consommation se saisit dans une production.`);
+        }
+        b.sortir(a.id, lieu.id, lireQuantite(l.quantite, a), l.lot, { type: "sortie", motif: d.motif, note }, mode);
       }
     },
 
@@ -1007,7 +1267,8 @@ const StockRegles = (() => {
     for (const l of lignes) {
       const p = l.produit;
       if (l.vendu > EPS) {
-        b.sortir(p.id, ferme, l.vendu, null, { type: "sortie", motif: `${MOTIF.venteConstatee} (${quand})`, reference });
+        // Une vente constatée est un fait : les lots bloqués comptent, mais en dernier
+        b.sortir(p.id, ferme, l.vendu, null, { type: "sortie", motif: `${MOTIF.venteConstatee} (${quand})`, reference }, "constat");
       } else if (l.vendu < -EPS) {
         // Compte supérieur au stock attendu : signalé sans bloquer, et le stock est remis au niveau du compte
         const lot = lotDeRegularisation(base, p.id);
@@ -1015,7 +1276,8 @@ const StockRegles = (() => {
         b.mouvement({ type: "inventaire", motif: `${MOTIF.compteSuperieur} (${quand})`, article: p.id, lot, emplacement: ferme, quantite: -l.vendu, reference });
       }
       if (l.retire > EPS) {
-        b.sortir(p.id, ferme, l.retire, null, { type: "sortie", motif: MOTIF.perte, note: `Retiré au ${quand} (abîmé ou date dépassée)`, reference });
+        // Les sachets retirés sont pris d'abord sur les lots bloqués
+        b.sortir(p.id, ferme, l.retire, null, { type: "sortie", motif: MOTIF.perte, note: `Retiré au ${quand} (abîmé ou date dépassée)`, reference }, "perte");
       }
       if (l.ajoute > EPS) {
         const champs = { motif: `${MOTIF.ajoutFerme} (${quand})`, reference };
@@ -1076,7 +1338,10 @@ const StockRegles = (() => {
     return base.emplacements.filter((e) => e.site && e.id !== "route").map((e) => e.id);
   }
 
-  /** Disponible pour le site, par produit : stock physique − réservations ouvertes − réserve hors site. */
+  /**
+   * Disponible pour le site, par produit fini : stock physique des lots non bloqués − réservations
+   * ouvertes − réserve hors site. Les préparations n'y entrent jamais.
+   */
   function disponibles(base, idx) {
     const index = idx || indexer(base);
     const sites = emplacementsSite(base);
@@ -1084,11 +1349,17 @@ const StockRegles = (() => {
     base.reservations.forEach((r) => {
       if (r.statut === "ouverte") reserve[r.article] = (reserve[r.article] || 0) + Number(r.sachets || 0);
     });
+    // Lot par lot (l'article vient des mouvements : l'onglet Lots n'est pas lu pour le site)
+    const physique = {};
+    index.parLot.forEach((parEmplacement, lotId) => {
+      const a = index.articles.get(index.articleDuLot.get(lotId));
+      if (!a || a.categorie !== "produit" || index.bloques.has(lotId)) return;
+      physique[a.id] = (physique[a.id] || 0) + sites.reduce((s, e) => s + (parEmplacement.get(e) || 0), 0);
+    });
     const resultat = {};
     base.articles.forEach((a) => {
       if (a.categorie !== "produit") return;
-      const physique = sites.reduce((s, e) => s + lireIndex(index.parArticle, a.id, e), 0);
-      resultat[a.id] = arrondi(physique - (reserve[a.id] || 0) - Number(a.reserveHorsSite || 0));
+      resultat[a.id] = arrondi((physique[a.id] || 0) - (reserve[a.id] || 0) - Number(a.reserveHorsSite || 0));
     });
     return resultat;
   }
@@ -1197,7 +1468,7 @@ const StockRegles = (() => {
     const id = typeof s.id === "string" ? s.id.trim() : "";
     const a = existant
       ? Object.assign({}, existant)
-      : { id, piecesParSachet: null, codeLot: "", conservationMois: null, seuilMarseille: 0, seuilFerme: 0, reserveHorsSite: 0, actif: true, ordre: null, codeConfirme: false };
+      : { id, piecesParSachet: null, codeLot: "", conservationMois: null, seuilMarseille: 0, seuilFerme: 0, reserveHorsSite: 0, actif: true, ordre: null, codeConfirme: false, conservationJours: null };
     if (existant) {
       if (s.categorie !== undefined && s.categorie !== existant.categorie) throw new ErreurStock("La catégorie d'un article existant ne change pas.");
     } else {
@@ -1206,6 +1477,7 @@ const StockRegles = (() => {
       if (s.categorie === "produit" && !ctx.idsSite.includes(id)) throw new ErreurStock("Un nouveau produit fini doit d'abord exister sur le site.");
       if (s.categorie === "matiere" && id.indexOf("mp-") !== 0) throw new ErreurStock("L'identifiant d'une matière commence par « mp- ».");
       if (s.categorie === "emballage" && id.indexOf("emb-") !== 0) throw new ErreurStock("L'identifiant d'un emballage commence par « emb- ».");
+      if (s.categorie === "preparation" && id.indexOf("prep-") !== 0) throw new ErreurStock("L'identifiant d'une préparation commence par « prep- ».");
       a.categorie = s.categorie;
     }
     if (s.nom !== undefined) a.nom = texteLibre(s.nom, "Nom", 60);
@@ -1218,6 +1490,7 @@ const StockRegles = (() => {
     if (!a.unite) throw new ErreurStock("Unité manquante.");
     if (s.piecesParSachet !== undefined) a.piecesParSachet = entierOuVide(s.piecesParSachet, "Pièces par sachet", 1000);
     if (s.conservationMois !== undefined) a.conservationMois = entierOuVide(s.conservationMois, "Conservation", 60);
+    if (s.conservationJours !== undefined) a.conservationJours = entierOuVide(s.conservationJours, "Conservation (jours)", 365);
     ["seuilMarseille", "seuilFerme", "reserveHorsSite"].forEach((cle) => {
       if (s[cle] !== undefined) a[cle] = entierOuVide(s[cle], "Seuil ou réserve", QUANTITE_MAXI) || 0;
     });
@@ -1373,10 +1646,21 @@ const StockRegles = (() => {
       passages: rapprochement(base),
       disponibles: disponibles(base, idx),
       statuts: statutsSite(base, ctx.idsSite),
+      recettes: recettesActives(base),
+      bloques: Array.from(idx.bloques.keys()),
     };
   }
 
-  /** Fiche d'un lot : quantités, historique, matières utilisées et « utilisé dans ». */
+  /** Quantité entrée dans un lot : production, réception ou reprise (non annulées). */
+  function quantiteEntree(base, lotId) {
+    return arrondi(
+      base.mouvements
+        .filter((m) => !m.annule && m.lot === lotId && m.quantite > 0 && ["production", "reception", "reprise"].includes(m.type))
+        .reduce((s, m) => s + Number(m.quantite), 0)
+    );
+  }
+
+  /** Fiche d'un lot : quantités, historique, arbre amont, aval transitif, blocage. */
   function ficheLot(base, lotId) {
     const idx = indexer(base);
     const lot = typeof lotId === "string" ? idx.lots.get(lotId) : undefined;
@@ -1395,8 +1679,24 @@ const StockRegles = (() => {
       annule: !!m.annule,
     });
     const intrant = (m) => !m.annule && m.type === "production" && m.motif === MOTIF.intrant;
+    const arbre = amont(base, lot.id, idx);
+    const enAval = aval(base, lot.id, idx).map((x) => Object.assign(x, { quantites: versObjet(idx.parLot.get(x.lot)) }));
+    const blocage = idx.bloques.get(lot.id);
+    const fabrique = lot.categorie === "produit" || lot.categorie === "preparation";
     return {
-      lot: Object.assign(sansLigne(lot), { nom: nom(lot.article), quantites: versObjet(idx.parLot.get(lot.id)) }),
+      lot: Object.assign(sansLigne(lot), {
+        nom: nom(lot.article),
+        quantites: versObjet(idx.parLot.get(lot.id)),
+        quantiteEntree: quantiteEntree(base, lot.id),
+        bloque: !!blocage,
+        blocage: blocage ? { motif: blocage.motif, note: blocage.note, horodatage: blocage.horodatage, reference: blocage.reference } : null,
+        // Lot fabriqué sans aucune matière enregistrée : pas traçable
+        sansMatieres: fabrique && !arbre.length,
+      }),
+      amont: arbre,
+      aval: enAval,
+      // Blocage proposé par propagation : les lots en aval qui ont encore du stock (et pas déjà bloqués)
+      aBloquer: enAval.filter((x) => !x.bloque && Object.values(x.quantites).some((q) => q > EPS)).map((x) => x.lot),
       historique: base.mouvements.filter((m) => m.lot === lot.id).map(ligne).reverse(),
       intrants: base.mouvements
         .filter((m) => intrant(m) && m.reference === lot.id)
@@ -1408,6 +1708,228 @@ const StockRegles = (() => {
           return { lot: m.reference, numero: numero(m.reference), article: produit ? produit.article : "", nom: produit ? nom(produit.article) : "", quantite: -m.quantite };
         }),
     };
+  }
+
+  /* ---------- Recettes et blocages : écritures (lot 3 bis) ---------- */
+
+  /** Remplace la recette d'un produit ou d'une préparation : l'ancienne est close, jamais effacée. */
+  function planifierRecette(base, d, ctx) {
+    const a = base.articles.find((x) => x.id === d.article);
+    if (!a || !["produit", "preparation"].includes(a.categorie)) {
+      throw new ErreurStock("Une recette se règle pour un produit fini ou une préparation.");
+    }
+    const rendement = lireQuantite(d.rendement, a);
+    const liste = d.composants === undefined || d.composants === null ? [] : d.composants;
+    if (!Array.isArray(liste) || liste.length > 40) throw new ErreurStock("Composants invalides.");
+    const vus = new Set();
+    const composants = liste.map((c) => {
+      const m = c && typeof c.article === "string" ? base.articles.find((x) => x.id === c.article) : undefined;
+      if (!m) throw new ErreurStock("Composant inconnu.");
+      if (!["matiere", "emballage", "preparation"].includes(m.categorie)) {
+        throw new ErreurStock("Une recette se compose de matières premières, d'emballages et de préparations.");
+      }
+      if (m.id === a.id) throw new ErreurStock(`${a.nom} ne peut pas entrer dans sa propre recette.`);
+      if (vus.has(m.id)) throw new ErreurStock(`${m.nom} est en double dans la recette.`);
+      vus.add(m.id);
+      const q = nombreSaisi(c.quantite);
+      if (!Number.isFinite(q) || q <= 0 || q > QUANTITE_MAXI) throw new ErreurStock(`${m.nom} : quantité invalide.`);
+      return { article: m.id, quantite: arrondi(q) };
+    });
+    const actives = base.recettes.filter((r) => r.article === a.id && !r.remplaceeLe).sort((x, y) => (x.ordre || 0) - (y.ordre || 0));
+    const message = composants.length ? `Recette de ${a.nom} enregistrée` : `Recette de ${a.nom} retirée`;
+    const identique =
+      actives.length === composants.length &&
+      actives.every((r, i) => r.rendement === rendement && r.composant === composants[i].article && arrondi(r.quantite) === composants[i].quantite);
+    if (identique) return { ecritures: null, resultat: { message } };
+    return {
+      ecritures: {
+        ajouts: {
+          Recettes: composants.map((c, i) => ({
+            article: a.id,
+            rendement,
+            composant: c.article,
+            quantite: c.quantite,
+            ordre: i + 1,
+            modifieeLe: ctx.maintenant,
+            remplaceeLe: null,
+          })),
+        },
+        majs: { Recettes: actives.map((r) => ({ ligne: r._ligne, champs: { remplaceeLe: ctx.maintenant } })) },
+      },
+      resultat: { message },
+    };
+  }
+
+  function messageBlocage(lignes, lots) {
+    const numero = lots.get(lignes[0].lot) ? lots.get(lignes[0].lot).numero : lignes[0].lot;
+    if (lignes[0].action === "bloque") return lignes.length > 1 ? `${lignes.length} lots bloqués` : `Lot ${numero} bloqué`;
+    return lignes.length > 1 ? `Blocage levé sur ${lignes.length} lots` : `Blocage levé · lot ${numero}`;
+  }
+
+  /**
+   * Bloque (motif obligatoire) ou débloque (note obligatoire) des lots, en une seule opération.
+   * `decision` : « bloque » ou « leve » (le champ `action` sert déjà à désigner stock.blocage).
+   */
+  function planifierBlocage(base, d, ctx, idOperation) {
+    if (!["bloque", "leve"].includes(d.decision)) throw new ErreurStock("Choisis « bloquer » ou « lever le blocage ».");
+    if (!Array.isArray(d.lots) || !d.lots.length || d.lots.length > 200) throw new ErreurStock("Choisis au moins un lot.");
+    const idx = indexer(base);
+    d.lots.forEach((id) => {
+      if (typeof id !== "string" || !idx.lots.has(id)) throw new ErreurStock("Lot introuvable.");
+    });
+    const bloquer = d.decision === "bloque";
+    if (bloquer && !MOTIFS_BLOCAGE.includes(d.motif)) throw new ErreurStock("Choisis le motif du blocage.");
+    const note = texteLibre(d.note, "Note", 300);
+    if (!bloquer && !note) throw new ErreurStock("Indique pourquoi tu lèves le blocage.");
+    const reference = texteLibre(d.reference, "Référence", 120);
+    const cibles = Array.from(new Set(d.lots)).filter((id) => (bloquer ? !idx.bloques.has(id) : idx.bloques.has(id)));
+    if (!cibles.length) return { ecritures: null, resultat: { message: bloquer ? "Ces lots sont déjà bloqués" : "Aucun blocage à lever" } };
+    const lignes = cibles.map((lot, i) => ({
+      id: `${idOperation}-${i + 1}`,
+      lot,
+      horodatage: lireHorodatage(d.horodatage, ctx),
+      action: d.decision,
+      motif: bloquer ? d.motif : "Levée",
+      note,
+      reference,
+      annule: false,
+    }));
+    return { ecritures: { ajouts: { Blocages: lignes }, majs: {} }, resultat: { message: messageBlocage(lignes, idx.lots) } };
+  }
+
+  /* ---------- Rappel et registre : lectures (lot 3 bis) ---------- */
+
+  const motifCourt = (motif) =>
+    /^Commande D-/.test(motif) ? "Commande" : String(motif).indexOf(MOTIF.venteConstatee) === 0 ? MOTIF.venteConstatee : motif;
+
+  /**
+   * Rappel d'un lot : amont, aval avec stock et sorties, commandes remises (les coordonnées des clients
+   * sont ajoutées à la demande par le classeur des commandes, jamais mises en cache), ventes constatées
+   * à la ferme par période, et résumé en sachets de produits finis.
+   */
+  function rappel(base, lotId, ctx) {
+    const idx = indexer(base);
+    if (typeof lotId !== "string" || !idx.lots.has(lotId)) throw new ErreurStock("Lot introuvable.");
+    const concernes = [Object.assign(descriptionLot(idx, lotId), { niveau: 0, via: [] })].concat(aval(base, lotId, idx));
+    const ids = new Set(concernes.map((x) => x.lot));
+    const numeros = new Map(concernes.map((x) => [x.lot, x.numero]));
+    const mouvements = base.mouvements.filter((m) => !m.annule && ids.has(m.lot));
+
+    concernes.forEach((x) => {
+      x.entree = quantiteEntree(base, x.lot);
+      x.quantites = versObjet(idx.parLot.get(x.lot));
+      x.sorties = {};
+      mouvements.forEach((m) => {
+        if (m.lot !== x.lot || m.type !== "sortie" || m.quantite >= 0) return;
+        const k = motifCourt(m.motif);
+        x.sorties[k] = arrondi((x.sorties[k] || 0) - m.quantite);
+      });
+    });
+
+    // Commandes du site remises avec un lot concerné
+    const parCommande = new Map();
+    mouvements.forEach((m) => {
+      if (m.type !== "sortie" || !/^Commande D-\d+/.test(m.motif)) return;
+      const g = parCommande.get(m.reference) || { commande: m.reference, remiseLe: m.horodatage, sachets: 0, lots: [] };
+      g.sachets = arrondi(g.sachets - m.quantite);
+      g.remiseLe = Math.max(g.remiseLe, m.horodatage);
+      if (!g.lots.includes(numeros.get(m.lot))) g.lots.push(numeros.get(m.lot));
+      parCommande.set(m.reference, g);
+    });
+    const clients = Array.from(parCommande.values()).sort((x, y) => x.remiseLe - y.remiseLe);
+
+    // Ventes constatées à la ferme, par période entre deux passages
+    const passages = base.passages.filter((p) => !p.annule).sort((x, y) => x.horodatage - y.horodatage);
+    const parPassage = new Map();
+    mouvements.forEach((m) => {
+      if (m.type !== "sortie" || m.emplacement !== "ferme" || String(m.motif).indexOf(MOTIF.venteConstatee) !== 0) return;
+      const g = parPassage.get(m.reference) || { passage: m.reference, sachets: 0, lots: {}, horodatage: m.horodatage };
+      g.sachets = arrondi(g.sachets - m.quantite);
+      g.lots[numeros.get(m.lot)] = arrondi((g.lots[numeros.get(m.lot)] || 0) - m.quantite);
+      parPassage.set(m.reference, g);
+    });
+    const ferme = Array.from(parPassage.values())
+      .map((g) => {
+        const i = passages.findIndex((p) => p.id === g.passage);
+        const jusque = i !== -1 ? passages[i].horodatage : g.horodatage;
+        const depuis = i > 0 ? passages[i - 1].horodatage : null;
+        return {
+          passage: g.passage,
+          depuis,
+          jusque,
+          libelle: depuis ? `entre le passage du ${ctx.heure(depuis)} et celui du ${ctx.heure(jusque)}` : `jusqu'au passage du ${ctx.heure(jusque)}`,
+          sachets: g.sachets,
+          lots: Object.keys(g.lots).map((numero) => ({ numero, sachets: g.lots[numero] })),
+        };
+      })
+      .sort((x, y) => x.jusque - y.jusque);
+
+    // Résumé, en sachets de produits finis
+    const produits = concernes.filter((x) => x.categorie === "produit");
+    const somme = (f) => arrondi(produits.reduce((s, x) => s + f(x), 0));
+    const total = (x) => Object.values(x.quantites).reduce((s, q) => s + (q > 0 ? q : 0), 0);
+    const resume = {
+      concernes: somme((x) => x.entree),
+      enStock: somme(total),
+      bloques: somme((x) => (x.bloque ? total(x) : 0)),
+      remis: somme((x) => x.sorties.Commande || 0),
+      clients: clients.length,
+      ferme: somme((x) => x.sorties[MOTIF.venteConstatee] || 0),
+      ventes: somme((x) => x.sorties.Vente || 0),
+      offertsPerdus: somme((x) =>
+        Object.keys(x.sorties).reduce((s, k) => s + (["Commande", MOTIF.venteConstatee, "Vente"].includes(k) ? 0 : x.sorties[k]), 0)
+      ),
+    };
+    const n = (q, un, plusieurs) => `${nombreFr(q)} ${q >= 2 ? plusieurs : un}`;
+    resume.texte =
+      `${n(resume.concernes, "sachet concerné", "sachets concernés")} : ${nombreFr(resume.enStock)} encore en stock, dont ${nombreFr(resume.bloques)} ` +
+      `${resume.bloques >= 2 ? "bloqués" : "bloqué"} · ${nombreFr(resume.remis)} remis à ${n(resume.clients, "client", "clients")} · ` +
+      `${nombreFr(resume.ferme)} vendus à la ferme · ${nombreFr(resume.offertsPerdus)} offerts ou perdus` +
+      (resume.ventes ? ` · ${nombreFr(resume.ventes)} vendus en direct` : "");
+
+    return { lot: concernes[0], resume, amont: amont(base, lotId, idx), aval: concernes, clients, ferme };
+  }
+
+  /**
+   * Registre de traçabilité : une ligne par couple (lot fabriqué dans la période, lot consommé), niveaux
+   * compris (« via » : préparations intermédiaires). Lot sans matières : « Matières non renseignées ».
+   */
+  function registre(base, d) {
+    const du = lireJour(d.du, "Du", true);
+    const au = lireJour(d.au, "Au", true);
+    if (au < du) throw new ErreurStock("La fin de la période précède son début.");
+    const idx = indexer(base);
+    const lignes = [];
+    base.lots
+      .filter((l) => (l.categorie === "produit" || l.categorie === "preparation") && l.fabrication >= du && l.fabrication <= au)
+      .map((l) => descriptionLot(idx, l.id))
+      .sort((x, y) => comparer(x.fabrication, y.fabrication) || comparer(x.nom, y.nom) || comparer(x.numero, y.numero))
+      .forEach((fab) => {
+        const quantite = quantiteEntree(base, fab.lot);
+        if (quantite <= EPS) return; // production annulée
+        const commun = { fabrication: fab.fabrication, article: fab.nom, numero: fab.numero, quantite, unite: fab.unite };
+        const arbre = amont(base, fab.lot, idx);
+        if (!arbre.length) {
+          lignes.push(Object.assign({}, commun, { consomme: "Matières non renseignées", numeroConsomme: "", fournisseur: "", reception: "", ddm: "", quantiteUtilisee: null, uniteUtilisee: "", via: "" }));
+          return;
+        }
+        const parcourir = (noeuds, via) =>
+          noeuds.forEach((x) => {
+            lignes.push(Object.assign({}, commun, {
+              consomme: x.nom,
+              numeroConsomme: x.numero,
+              fournisseur: x.fournisseur,
+              reception: x.fabrication,
+              ddm: x.ddm,
+              quantiteUtilisee: x.quantite,
+              uniteUtilisee: x.unite,
+              via: via.join(" › "),
+            }));
+            parcourir(x.enfants, via.concat(x.numero));
+          });
+        parcourir(arbre, []);
+      });
+    return { du, au, lignes };
   }
 
   /** Journal par page, avec recherche (n° de lot, article, note) et filtre par genre d'opération. */
@@ -1440,9 +1962,12 @@ const StockRegles = (() => {
     const articles = new Map(base.articles.map((a) => [a.id, a]));
     const passage = base.passages.find((p) => p.id === idOperation);
     if (passage) return resultatPassage(passage, base.details, articles);
+    const lots = new Map(base.lots.map((l) => [l.id, l]));
+    const blocages = (base.blocages || []).filter((b) => String(b.id).indexOf(`${idOperation}-`) === 0);
+    if (blocages.length) return { message: messageBlocage(blocages, lots) };
     const lignes = base.mouvements.filter((m) => m.operation === idOperation);
     if (!lignes.length) return null;
-    return { message: messageOperation(lignes, new Map(base.lots.map((l) => [l.id, l]))) };
+    return { message: messageOperation(lignes, lots) };
   }
 
   /** Prépare une écriture : { ecritures, resultat }. `ecritures` vaut null quand il n'y a rien à écrire. */
@@ -1463,6 +1988,10 @@ const StockRegles = (() => {
         return planifierCatalogue(base, d, ctx);
       case "stock.import":
         return planifierImport(base, d, ctx, idOperation);
+      case "stock.recette":
+        return planifierRecette(base, d, ctx);
+      case "stock.blocage":
+        return planifierBlocage(base, d, ctx, idOperation);
       default:
         throw new ErreurStock("Action inconnue.");
     }
@@ -1494,6 +2023,16 @@ const StockRegles = (() => {
     journal,
     resultatPrecedent,
     planifier,
+    // lot 3 bis
+    MOTIFS_BLOCAGE,
+    amont,
+    aval,
+    niveauPreparation,
+    numeroLotPreparation,
+    proposerMatieres,
+    recettesActives,
+    rappel,
+    registre,
   };
 })();
 
@@ -1505,8 +2044,20 @@ const StockClasseur = (() => {
   const VERROU_MS = 20000; // même attente que enregistrer() dans Code.gs : le verrou est partagé
   const CACHE_SECONDES = 600;
   const MORCEAU_CACHE = 30000; // caractères par valeur (CacheService accepte 100 Ko par valeur)
-  const LECTURES = ["stock.etat", "stock.dispo", "stock.lot", "stock.journal"];
-  const ECRITURES = ["stock.operation", "stock.annuler", "stock.passage", "stock.encaissement", "stock.commande", "stock.catalogue", "stock.import"];
+  const LECTURES = ["stock.etat", "stock.dispo", "stock.lot", "stock.journal", "stock.rappel", "stock.registre"];
+  const ECRITURES = [
+    "stock.operation",
+    "stock.annuler",
+    "stock.passage",
+    "stock.encaissement",
+    "stock.commande",
+    "stock.catalogue",
+    "stock.import",
+    "stock.recette",
+    "stock.blocage",
+  ];
+  // Structure du classeur : à augmenter quand un onglet ou une colonne s'ajoute (créés au premier appel)
+  const VERSION_STRUCTURE = "2";
   const TABLES = {
     articles: "Articles",
     emplacements: "Emplacements",
@@ -1515,16 +2066,59 @@ const StockClasseur = (() => {
     reservations: "Reservations",
     passages: "Passages",
     details: "PassagesDetail",
+    recettes: "Recettes",
+    blocages: "Blocages",
   };
   // Ordre d'écriture : les mouvements en dernier (ce sont eux qui font foi)
-  const ORDRE_ECRITURE = ["Articles", "Emplacements", "Lots", "Reservations", "PassagesDetail", "Passages", "Mouvements"];
+  const ORDRE_ECRITURE = ["Articles", "Emplacements", "Recettes", "Lots", "Reservations", "Blocages", "PassagesDetail", "Passages", "Mouvements"];
 
   const proprietes = () => PropertiesService.getScriptProperties();
 
   function classeur() {
-    const id = proprietes().getProperty("STOCK_SPREADSHEET_ID");
+    const props = proprietes();
+    const id = props.getProperty("STOCK_SPREADSHEET_ID");
     if (!id) throw new ErreurStock("Le classeur Stock n'est pas encore créé : lance initialiserStock depuis l'éditeur.");
-    return SpreadsheetApp.openById(id);
+    const ss = SpreadsheetApp.openById(id);
+    // Nouveaux onglets et colonnes d'une mise à jour du script : créés au premier appel, rien à faire à la main
+    if (props.getProperty("STOCK_STRUCTURE") !== VERSION_STRUCTURE) {
+      structurer(ss);
+      props.setProperty("STOCK_STRUCTURE", VERSION_STRUCTURE);
+    }
+    return ss;
+  }
+
+  /**
+   * Crée les onglets manquants et complète les en-têtes : une colonne nouvelle s'ajoute toujours en
+   * dernière position, les colonnes existantes ne bougent pas. Des en-têtes modifiés à la main arrêtent tout.
+   */
+  function structurer(ss) {
+    Object.keys(STOCK_ONGLETS).forEach((nom) => {
+      const colonnes = STOCK_ONGLETS[nom];
+      let f = ss.getSheetByName(nom);
+      if (!f) {
+        try {
+          f = ss.insertSheet(nom);
+        } catch (err) {
+          f = ss.getSheetByName(nom); // créé au même moment par un autre appel
+          if (!f) throw err;
+        }
+      }
+      if (f.getLastRow() === 0) {
+        f.getRange(1, 1, 1, colonnes.length).setValues([colonnes.map((c) => c[1])]).setFontWeight("bold");
+        f.setFrozenRows(1);
+        return;
+      }
+      const entetes = f.getRange(1, 1, 1, colonnes.length).getValues()[0].map((v) => String(v).trim());
+      const presentes = entetes.filter((v) => v !== "").length;
+      if (colonnes.slice(0, presentes).some((c, i) => entetes[i] !== c[1])) {
+        throw new Error(`Onglet « ${nom} » : en-têtes inattendus. Rétablis-les, puis relance initialiserStock.`);
+      }
+      if (presentes < colonnes.length) {
+        f.getRange(1, presentes + 1, 1, colonnes.length - presentes)
+          .setValues([colonnes.slice(presentes).map((c) => c[1])])
+          .setFontWeight("bold");
+      }
+    });
   }
 
   /** Erreur inattendue : journalisée avec un code, sans son message (qui pourrait contenir des données). */
@@ -1758,6 +2352,29 @@ const StockClasseur = (() => {
     return infos;
   }
 
+  /**
+   * Coordonnées des clients pour le rappel (prénom, nom, téléphone, e-mail), lues à la demande dans
+   * l'onglet « Commandes ». Jamais mises en cache ni journalisées.
+   */
+  function coordonneesClients(numeros) {
+    const infos = {};
+    const f = numeros.length ? feuilleCommandes() : null;
+    if (!f) return infos;
+    const colonne = (nom) => EN_TETES.indexOf(nom);
+    f.getRange(2, 1, f.getLastRow() - 1, EN_TETES.length).getValues().forEach((ligne) => {
+      const numero = String(ligne[colonne("N° de commande")]).trim();
+      if (numeros.includes(numero)) {
+        infos[numero] = {
+          prenom: String(ligne[colonne("Prénom")]),
+          nom: String(ligne[colonne("Nom")]),
+          telephone: String(ligne[colonne("Téléphone")]),
+          email: String(ligne[colonne("Email")]),
+        };
+      }
+    });
+    return infos;
+  }
+
   /** Coche « Livrée » pour une commande remise au client (case à cocher, ou « oui » sinon). */
   function cocherLivree(numero) {
     try {
@@ -1807,7 +2424,7 @@ const StockClasseur = (() => {
   /** Statuts du site seulement : jamais de quantité, de lot, de date ni rien sur la ferme. */
   function dispo() {
     const calcul = avecCache("dispo", () => {
-      const base = lireBase(classeur(), ["articles", "emplacements", "mouvements", "reservations"]);
+      const base = lireBase(classeur(), ["articles", "emplacements", "mouvements", "reservations", "blocages"]);
       return { maj: new Date().toISOString(), produits: StockRegles.statutsSite(base, CATALOGUE.map((p) => p.id)) };
     });
     return { ok: true, actif: stockActif(), maj: calcul.maj, produits: calcul.produits };
@@ -1832,6 +2449,14 @@ const StockClasseur = (() => {
     if (action === "stock.etat") return etat();
     const base = lireBase(classeur());
     if (action === "stock.lot") return Object.assign({ ok: true }, StockRegles.ficheLot(base, demande.lot));
+    if (action === "stock.registre") return Object.assign({ ok: true }, StockRegles.registre(base, demande));
+    if (action === "stock.rappel") {
+      // Pas de cache : les coordonnées des clients ne sont lues que pour ce rappel
+      const r = StockRegles.rappel(base, demande.lot, contexte());
+      const infos = coordonneesClients(r.clients.map((c) => c.commande));
+      r.clients.forEach((c) => Object.assign(c, infos[c.commande] || { prenom: "", nom: "", telephone: "", email: "" }));
+      return Object.assign({ ok: true }, r);
+    }
     return Object.assign({ ok: true }, StockRegles.journal(base, demande));
   }
 
@@ -1853,19 +2478,8 @@ const StockClasseur = (() => {
     }
     ss.setSpreadsheetTimeZone(FUSEAU);
     const feuilleParDefaut = ss.getSheets()[0];
-    Object.keys(STOCK_ONGLETS).forEach((nom) => {
-      const colonnes = STOCK_ONGLETS[nom];
-      const f = ss.getSheetByName(nom) || ss.insertSheet(nom);
-      if (f.getLastRow() === 0) {
-        f.getRange(1, 1, 1, colonnes.length).setValues([colonnes.map((c) => c[1])]).setFontWeight("bold");
-        f.setFrozenRows(1);
-      } else {
-        const entetes = f.getRange(1, 1, 1, colonnes.length).getValues()[0];
-        if (colonnes.some((c, i) => String(entetes[i]).trim() !== c[1])) {
-          throw new Error(`Onglet « ${nom} » : en-têtes inattendus. Rétablis-les, puis relance initialiserStock.`);
-        }
-      }
-    });
+    structurer(ss);
+    props.setProperty("STOCK_STRUCTURE", VERSION_STRUCTURE);
     // La feuille vide créée avec le classeur ne sert pas
     if (!id && feuilleParDefaut && !STOCK_ONGLETS[feuilleParDefaut.getName()]) ss.deleteSheet(feuilleParDefaut);
 
@@ -1921,7 +2535,7 @@ function stockActif() {
  */
 function reserverStockCommande(c, id) {
   const ss = StockClasseur.classeur();
-  const base = StockClasseur.lireBase(ss, ["articles", "emplacements", "mouvements", "reservations"]);
+  const base = StockClasseur.lireBase(ss, ["articles", "emplacements", "mouvements", "reservations", "blocages"]);
   const quantites = {};
   c.lignes.forEach((l) => {
     if (l.quantite > 0) quantites[l.produit.id] = l.quantite;

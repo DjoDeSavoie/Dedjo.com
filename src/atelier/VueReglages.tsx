@@ -20,10 +20,12 @@ import {
   LIGNE,
   Pastille,
   PiedFormulaire,
+  PasAPas,
   TITRE_SECTION,
 } from "./composants";
-import { articlesDe, CATEGORIES, csv, EPS, GENRES, heure, jourIso, lireNombre, ordreSortie, qteLot, slug, telecharger, UNITES, unite } from "./outils";
-import type { Article, Categorie, Emplacement, PageJournal } from "./types";
+import { exporterRegistre } from "./exports";
+import { articlesDe, aujourdhui, CATEGORIES, csv, EPS, GENRES, heure, jourIso, lireNombre, ordreSortie, qteLot, slug, telecharger, UNITES, unite, uniteEntiere } from "./outils";
+import type { Article, Categorie, Emplacement, PageJournal, Registre } from "./types";
 
 export default function VueReglages() {
   const { etat, ouvrir } = useAtelier();
@@ -127,12 +129,14 @@ export function FormArticle({ id }: { id?: string }) {
   const [codeLot, setCodeLot] = useState(a ? a.codeLot : "");
   const [codeConfirme, setCodeConfirme] = useState(a ? a.codeConfirme : false);
   const [conservation, setConservation] = useState(enTexte(a ? a.conservationMois : null));
+  const [conservationJours, setConservationJours] = useState(enTexte(a ? a.conservationJours : null));
   const [reserve, setReserve] = useState(enTexte(a ? a.reserveHorsSite : 0));
   const [seuilMarseille, setSeuilMarseille] = useState(enTexte(a ? a.seuilMarseille : 0));
   const [seuilFerme, setSeuilFerme] = useState(enTexte(a ? a.seuilFerme : 0));
   const [actif, setActif] = useState(a ? a.actif : true);
   const ecriture = useEcriture(() => retour());
   const produit = categorie === "produit";
+  const preparation = categorie === "preparation";
   const avecStock = !!a && etat.lots.some((l) => l.article === a.id);
 
   const envoyer = (e: FormEvent) => {
@@ -144,11 +148,13 @@ export function FormArticle({ id }: { id?: string }) {
       [reserve, "Réserve hors site"],
       [pieces, "Pièces par sachet"],
       [conservation, "Conservation"],
+      [conservationJours, "Conservation (jours)"],
     ]) {
       const n = lireNombre(texte);
       if (texte !== "" && (!Number.isInteger(n) || n < 0)) return ecriture.refuser(`${quoi} : nombre entier attendu.`);
     }
-    let identifiant = a ? a.id : `${categorie === "matiere" ? "mp" : "emb"}-${slug(nom)}`;
+    const prefixe = { matiere: "mp", emballage: "emb", preparation: "prep", produit: "" }[categorie];
+    let identifiant = a ? a.id : `${prefixe}-${slug(nom)}`;
     if (!a) {
       const base = identifiant;
       for (let i = 2; etat.articles.some((x) => x.id === identifiant); i++) identifiant = `${base}-${i}`;
@@ -171,6 +177,7 @@ export function FormArticle({ id }: { id?: string }) {
         reserveHorsSite: entierOuNull(reserve) || 0,
       });
     }
+    if (preparation) Object.assign(article, { codeLot: codeLot.trim(), conservationJours: entierOuNull(conservationJours) });
     ecriture.envoyer("stock.catalogue", { articles: [article] });
   };
 
@@ -196,6 +203,7 @@ export function FormArticle({ id }: { id?: string }) {
             options={[
               { valeur: "matiere", libelle: "Matière première" },
               { valeur: "emballage", libelle: "Emballage" },
+              { valeur: "preparation", libelle: "Préparation" },
             ]}
             valeur={categorie}
             onChange={setCategorie}
@@ -231,6 +239,19 @@ export function FormArticle({ id }: { id?: string }) {
             </p>
           </>
         ) : null}
+        {preparation ? (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <Champ id="a-code" libelle="Code lot">
+                <input id="a-code" value={codeLot} onChange={(e) => setCodeLot(e.target.value)} autoComplete="off" placeholder="Ex. PL" className={`${CHAMP} font-mono`} />
+              </Champ>
+              {nombreChamp("a-jours", "Conservation (jours)", conservationJours, setConservationJours)}
+            </div>
+            <p className={`${DISCRET} -mt-3`}>
+              Une préparation (pâte…) se fabrique au labo et sert à plusieurs produits ; elle ne part ni en vente ni vers la ferme. Son n° de lot : code + date de fabrication + rang du jour (-1, -2…). Sa date limite : fabrication + la conservation en jours.
+            </p>
+          </>
+        ) : null}
         <fieldset className="grid min-w-0 gap-2">
           <legend className={`${ETIQUETTE} mb-2`}>Seuil d'alerte</legend>
           <div className="grid grid-cols-2 gap-3">
@@ -244,7 +265,102 @@ export function FormArticle({ id }: { id?: string }) {
           Proposer cet article dans les saisies
         </label>
       </form>
+      {a && (a.categorie === "produit" || a.categorie === "preparation") ? <SectionRecette article={a} /> : null}
     </Feuille>
+  );
+}
+
+/* ===================================================================
+   RECETTE (lot 3 bis) : pré-remplit les matières des productions
+   Elle vit seulement dans le classeur Stock (savoir-faire protégé).
+   =================================================================== */
+
+interface LigneRecette {
+  cle: number;
+  article: string;
+  quantite: string;
+}
+
+function SectionRecette({ article: a }: { article: Article }) {
+  const { etat } = useAtelier();
+  const actuelle = etat.recettes[a.id];
+  const versTexte = (n: number) => String(n).replace(".", ",");
+  const [rendement, setRendement] = useState(actuelle ? versTexte(actuelle.rendement) : "1");
+  const [lignes, setLignes] = useState<LigneRecette[]>(actuelle ? actuelle.composants.map((c, i) => ({ cle: i, article: c.article, quantite: versTexte(c.quantite) })) : []);
+  const compteur = useRef(lignes.length);
+  const ecriture = useEcriture(() => undefined);
+  const composables = [...articlesDe(etat, "matiere"), ...articlesDe(etat, "emballage"), ...articlesDe(etat, "preparation")].filter((m) => m.id !== a.id);
+
+  const changer = (cle: number, champs: Partial<LigneRecette>) => setLignes(lignes.map((l) => (l.cle === cle ? { ...l, ...champs } : l)));
+  const envoyer = (e: FormEvent) => {
+    e.preventDefault();
+    const r = lireNombre(rendement);
+    if (!(r > 0) || (uniteEntiere(a) && !Number.isInteger(r))) return ecriture.refuser("Rendement invalide.");
+    const vus = new Set<string>();
+    for (const l of lignes) {
+      const m = etat.articles.find((x) => x.id === l.article);
+      if (!(lireNombre(l.quantite) > 0)) return ecriture.refuser(`${m ? m.nom : "Composant"} : indique la quantité.`);
+      if (vus.has(l.article)) return ecriture.refuser(`${m ? m.nom : "Un composant"} est en double.`);
+      vus.add(l.article);
+    }
+    ecriture.envoyer("stock.recette", { article: a.id, rendement: r, composants: lignes.map((l) => ({ article: l.article, quantite: lireNombre(l.quantite) })) });
+  };
+
+  return (
+    <form onSubmit={envoyer} noValidate className="mt-8 grid gap-3 border-t border-[#E6DCC6] pt-5">
+      <h3 className="font-display text-lg font-semibold text-[#163F6B]">Recette</h3>
+      <p className={DISCRET}>
+        Elle pré-remplit les matières d'une production : les quantités sont recalculées selon la quantité produite. Elle reste dans ton classeur Stock.
+      </p>
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span className="text-[15px]">Pour</span>
+        <PasAPas valeur={rendement} onChange={setRendement} entier={uniteEntiere(a)} libelle="Rendement de la recette" />
+        <span className="text-[15px]">{unite(a, 2)}</span>
+      </div>
+      {lignes.map((l) => {
+        const m = etat.articles.find((x) => x.id === l.article);
+        return (
+          <div key={l.cle} className={`${CARTE} grid gap-2 p-2.5`}>
+            <select aria-label="Composant" value={l.article} onChange={(e) => changer(l.cle, { article: e.target.value })} className={CHAMP}>
+              {composables.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.nom}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center gap-2">
+              <PasAPas valeur={l.quantite} onChange={(v) => changer(l.cle, { quantite: v })} entier={false} libelle={`Quantité de ${m ? m.nom : "composant"}`} />
+              <span className="text-[14px] text-[#5E6A78]">{unite(m, 2)}</span>
+              <button
+                type="button"
+                onClick={() => setLignes(lignes.filter((x) => x.cle !== l.cle))}
+                className="ml-auto h-11 rounded-[10px] border border-[#E6DCC6] px-3 text-[14px] font-bold text-[#163F6B]"
+              >
+                Retirer
+              </button>
+            </div>
+          </div>
+        );
+      })}
+      <div>
+        <button
+          type="button"
+          className={BOUTON_SECONDAIRE}
+          disabled={!composables.length}
+          onClick={() => setLignes([...lignes, { cle: ++compteur.current, article: composables[0].id, quantite: "" }])}
+        >
+          + Ajouter un composant
+        </button>
+      </div>
+      {ecriture.erreur ? (
+        <p role="alert" className="text-[14px] font-bold text-[#B1262E]">
+          {ecriture.erreur}
+        </p>
+      ) : null}
+      <button type="submit" disabled={ecriture.envoi} className={BOUTON_PRINCIPAL}>
+        {ecriture.envoi ? "Enregistrement…" : ecriture.reseau ? "Réessayer" : lignes.length ? "Enregistrer la recette" : actuelle ? "Retirer la recette" : "Enregistrer la recette"}
+      </button>
+    </form>
   );
 }
 
@@ -369,6 +485,10 @@ function Reprise() {
 function Exports() {
   const { etat, notifier, sessionTerminee } = useAtelier();
   const [journalEnCours, setJournalEnCours] = useState(false);
+  // Registre de traçabilité : le mois en cours par défaut
+  const [du, setDu] = useState(`${aujourdhui().slice(0, 8)}01`);
+  const [au, setAu] = useState(aujourdhui());
+  const [registreEnCours, setRegistreEnCours] = useState(false);
   const nomEmplacement = (id: string) => etat.emplacements.find((e) => e.id === id)?.nom || id;
   const articleDe = (id: string) => etat.articles.find((a) => a.id === id);
 
@@ -387,6 +507,19 @@ function Exports() {
           );
       });
     telecharger(`stock-dedjo-${jourIso(Date.now())}.csv`, csv(lignes));
+  };
+
+  const exporterRegistrePeriode = async () => {
+    if (!du || !au || au < du) return notifier("Choisis une période : du… au…", true);
+    setRegistreEnCours(true);
+    try {
+      exporterRegistre(await appeler<Registre>("stock.registre", { du, au }));
+    } catch (e) {
+      if (e instanceof ErreurAtelier && e.statut === 401) sessionTerminee();
+      notifier(e instanceof Error ? e.message : "Export impossible.", true);
+    } finally {
+      setRegistreEnCours(false);
+    }
   };
 
   /** Journal complet, page par page, du plus ancien au plus récent. */
@@ -427,6 +560,21 @@ function Exports() {
         </button>
       </div>
       <p className={`${DISCRET} mt-2`}>Fichiers CSV qui s'ouvrent dans Excel (séparateur point-virgule), pour ton PMS ou tes comptes.</p>
+      <div className={`${CARTE} mt-3 grid gap-3 p-3.5`}>
+        <p className="font-display text-base font-semibold text-[#163F6B]">Registre de traçabilité</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Champ id="reg-du" libelle="Du">
+            <input id="reg-du" type="date" value={du} onChange={(e) => setDu(e.target.value)} className={CHAMP} />
+          </Champ>
+          <Champ id="reg-au" libelle="Au">
+            <input id="reg-au" type="date" value={au} onChange={(e) => setAu(e.target.value)} className={CHAMP} />
+          </Champ>
+        </div>
+        <button type="button" className={BOUTON_SECONDAIRE} onClick={exporterRegistrePeriode} disabled={registreEnCours}>
+          {registreEnCours ? "Export…" : "Exporter le registre"}
+        </button>
+        <p className={DISCRET}>Une ligne par lot fabriqué dans la période et par lot consommé, préparations comprises. Les lots sans matières y figurent avec « Matières non renseignées ».</p>
+      </div>
     </section>
   );
 }

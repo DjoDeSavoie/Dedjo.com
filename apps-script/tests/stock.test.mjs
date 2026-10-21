@@ -48,7 +48,7 @@ test("initialiserStock crée le classeur, ses onglets et le catalogue initial, s
   assert.equal(ss.fuseau, "Europe/Paris");
   assert.deepEqual(
     ss.getSheets().map((f) => f.getName()),
-    ["Articles", "Emplacements", "Lots", "Mouvements", "Reservations", "Passages", "PassagesDetail"]
+    ["Articles", "Emplacements", "Lots", "Mouvements", "Reservations", "Passages", "PassagesDetail", "Recettes", "Blocages"]
   );
   const articles = env.onglet("Articles");
   const produits = articles.filter((a) => a["Catégorie"] === "produit");
@@ -505,4 +505,268 @@ test("Code.gs et Stock.gs ne déclarent aucun nom en double (ils partagent la m�
   const noms = (source) => Array.from(source.matchAll(/^(?:function|const|let|class)\s+([A-Za-z_$][\w$]*)/gm), (m) => m[1]);
   const code = new Set(noms(CODE));
   assert.deepEqual(noms(STOCK).filter((n) => code.has(n)), []);
+});
+
+/* ===================================================================
+   LOT 3 BIS — TRAÇABILITÉ (recettes, préparations, blocage, rappel, registre)
+   Recettes et lots inventés : aucune vraie recette ne doit figurer ici.
+   =================================================================== */
+
+/** Préparations inventées, en kg, conservées 3 jours. */
+function ajouterPreparations(env, ids) {
+  const r = env.appeler("stock.catalogue", {
+    articles: ids.map((id, i) => ({ id, nom: `Pâte d'essai ${i + 1}`, categorie: "preparation", unite: "kg", codeLot: `T${i + 1}`, conservationJours: 3 })),
+  });
+  assert.equal(r.ok, true, r.error);
+}
+
+/** JJMMAA d'une date AAAA-MM-JJ. */
+const jjmmaa = (iso) => `${iso.slice(8, 10)}${iso.slice(5, 7)}${iso.slice(2, 4)}`;
+
+/** Chaîne inventée : farine F-TEST-1 → pâte → 6 Lune (avec 6 sachets S-TEST-1). Renvoie les id de lots. */
+function chaineDEssai(env) {
+  ajouterPreparations(env, ["prep-essai"]);
+  env.operation("reception", { article: "mp-farine", quantite: 5, numero: "F-TEST-1", fournisseur: "Moulin inventé", ddm: "2027-06-01" });
+  env.operation("reception", { article: "mp-beurre", quantite: 2, numero: "B-TEST-1", ddm: "2027-01-01" });
+  env.operation("reception", { article: "emb-sacs", quantite: 50, numero: "S-TEST-1" });
+  const pate = env.operation("production", {
+    article: "prep-essai",
+    quantite: 2,
+    intrants: [
+      { article: "mp-farine", quantite: 1.2 },
+      { article: "mp-beurre", quantite: 0.6 },
+    ],
+  });
+  assert.equal(pate.ok, true, pate.error);
+  const lotPate = env.onglet("Lots").find((l) => l.Article === "prep-essai").Id;
+  const lune = env.operation("production", {
+    article: "lune",
+    quantite: 6,
+    fabrication: "2026-09-12",
+    intrants: [
+      { article: "prep-essai", quantite: 2 },
+      { article: "emb-sacs", quantite: 6 },
+    ],
+  });
+  assert.equal(lune.ok, true, lune.error);
+  return { farine: "mp-farine/F-TEST-1", beurre: "mp-beurre/B-TEST-1", sacs: "emb-sacs/S-TEST-1", pate: lotPate, lune: "lune/11209260127" };
+}
+
+test("recette : quantités proposées arrondies (kg à 3 décimales, g à l'unité, pièces à l'unité supérieure)", () => {
+  const env = preparer();
+  const articles = { "prep-x": { unite: "kg" }, "mp-x": { unite: "g" }, "emb-x": { unite: "pièce" }, "emb-y": { unite: "pièce" } };
+  const recette = {
+    rendement: 1,
+    composants: [
+      { article: "prep-x", quantite: 0.1234 },
+      { article: "mp-x", quantite: 1.3 },
+      { article: "emb-x", quantite: 1 },
+      { article: "emb-y", quantite: 0.4 },
+    ],
+  };
+  assert.deepEqual(brut(env.regles.proposerMatieres(recette, 6, articles)), [
+    { article: "prep-x", quantite: 0.74 },
+    { article: "mp-x", quantite: 8 },
+    { article: "emb-x", quantite: 6 },
+    { article: "emb-y", quantite: 3 },
+  ]);
+
+  // Enregistrée dans le classeur Stock ; une recette remplacée est close, jamais effacée
+  ajouterPreparations(env, ["prep-essai"]);
+  let r = env.appeler("stock.recette", { article: "lune", rendement: 1, composants: [{ article: "prep-essai", quantite: 0.1 }, { article: "emb-sacs", quantite: 1 }] });
+  assert.equal(r.ok, true, r.error);
+  r = env.appeler("stock.recette", { article: "lune", rendement: 2, composants: [{ article: "prep-essai", quantite: 0.25 }] });
+  assert.equal(r.message, "Recette de La Lune enregistrée");
+  const lignes = env.onglet("Recettes");
+  assert.equal(lignes.length, 3);
+  assert.equal(lignes.filter((l) => l["Remplacée le"] === "").length, 1);
+  assert.deepEqual(brut(env.appeler("stock.etat").recettes.lune), {
+    rendement: 2,
+    modifieeLe: env.appeler("stock.etat").recettes.lune.modifieeLe,
+    composants: [{ article: "prep-essai", quantite: 0.25 }],
+  });
+  assert.match(env.appeler("stock.recette", { article: "lune", rendement: 1, composants: [{ article: "cabosse", quantite: 1 }] }).error, /matières premières/);
+});
+
+test("préparation : n° de lot code + JJMMAA + -n, date limite en jours, chaîne amont et aval à travers la pâte", () => {
+  const env = preparer();
+  const lots = chaineDEssai(env);
+  const fichePate = env.appeler("stock.lot", { lot: lots.pate });
+  assert.equal(fichePate.lot.numero, `T1${jjmmaa(fichePate.lot.fabrication)}-1`);
+  const limite = new Date(`${fichePate.lot.fabrication}T00:00:00Z`);
+  limite.setUTCDate(limite.getUTCDate() + 3);
+  assert.equal(fichePate.lot.ddm, limite.toISOString().slice(0, 10));
+  // Une seconde pâte le même jour : -2
+  env.operation("production", { article: "prep-essai", quantite: 1, intrants: [{ article: "mp-farine", quantite: 0.5 }] });
+  assert.ok(env.onglet("Lots").some((l) => l["N° de lot"] === `T1${jjmmaa(fichePate.lot.fabrication)}-2`));
+
+  // Amont de la Lune : la pâte, et sous elle la farine F-TEST-1
+  const lune = env.appeler("stock.lot", { lot: lots.lune });
+  const pate = lune.amont.find((x) => x.lot === lots.pate);
+  assert.ok(pate, "la pâte est en amont de la Lune");
+  assert.equal(pate.quantite, 2);
+  assert.deepEqual(pate.enfants.map((x) => [x.numero, x.fournisseur, x.quantite]), [["F-TEST-1", "Moulin inventé", 1.2], ["B-TEST-1", "", 0.6]]);
+  assert.ok(lune.amont.some((x) => x.numero === "S-TEST-1"));
+  assert.equal(lune.lot.sansMatieres, false);
+
+  // Aval de la farine : la pâte (niveau 1), puis la Lune via la pâte (niveau 2)
+  const farine = env.appeler("stock.lot", { lot: lots.farine });
+  assert.deepEqual(farine.aval.filter((x) => x.lot !== lots.pate || x.niveau === 1).slice(0, 2).map((x) => [x.lot, x.niveau]), [[lots.pate, 1], [lots.lune, 2]]);
+  assert.deepEqual(farine.aval.find((x) => x.lot === lots.lune).via.map((v) => v.lot), [lots.pate]);
+});
+
+test("garde anti-boucle : 3 niveaux de préparations au plus, et un lot n'entre pas dans sa propre fabrication", () => {
+  const env = preparer();
+  ajouterPreparations(env, ["prep-a", "prep-b", "prep-c", "prep-d"]);
+  env.operation("reception", { article: "mp-farine", quantite: 5, numero: "F-TEST-1" });
+  assert.equal(env.operation("production", { article: "prep-a", quantite: 4, intrants: [{ article: "mp-farine", quantite: 1 }] }).ok, true);
+  assert.equal(env.operation("production", { article: "prep-b", quantite: 3, intrants: [{ article: "prep-a", quantite: 1 }] }).ok, true);
+  assert.equal(env.operation("production", { article: "prep-c", quantite: 2, intrants: [{ article: "prep-b", quantite: 1 }] }).ok, true);
+  const trop = env.operation("production", { article: "prep-d", quantite: 1, intrants: [{ article: "prep-c", quantite: 1 }] });
+  assert.equal(trop.ok, false);
+  assert.match(trop.error, /Trop de niveaux de préparations : 3 au plus/);
+
+  // Production ajoutée au lot de prep-a (même n°) avec du prep-b, fait de prep-a : boucle
+  const lotA = env.onglet("Lots").find((l) => l.Article === "prep-a")["N° de lot"];
+  const boucle = env.operation("production", { article: "prep-a", quantite: 1, numero: lotA, intrants: [{ article: "prep-b", quantite: 0.5 }] });
+  assert.equal(boucle.ok, false);
+  assert.match(boucle.error, /ne peut pas entrer dans sa propre fabrication/);
+  assert.match(env.operation("production", { article: "prep-a", quantite: 1, intrants: [{ article: "prep-a", quantite: 0.5 }] }).error, /propre fabrication/);
+  assert.match(env.operation("production", { article: "cabosse", quantite: 1, fabrication: "2026-09-12", intrants: [{ article: "lune", quantite: 1 }] }).error, /Un produit fini ne peut pas entrer/);
+});
+
+test("préparation hors labo : envoi, transfert et vente refusés, perte acceptée", () => {
+  const env = preparer();
+  chaineDEssai(env);
+  env.operation("production", { article: "prep-essai", quantite: 3, intrants: [{ article: "mp-farine", quantite: 1 }] });
+  const envoi = env.operation("envoi", { lignes: [{ article: "prep-essai", quantite: 1 }] });
+  assert.equal(envoi.error, "Une préparation reste au labo.");
+  assert.equal(env.operation("transfert", { de: "marseille", vers: "ferme", lignes: [{ article: "prep-essai", quantite: 1 }] }).error, "Une préparation reste au labo.");
+  assert.match(env.operation("sortie", { emplacement: "marseille", motif: "Vente", lignes: [{ article: "prep-essai", quantite: 1 }] }).error, /reste au labo/);
+  assert.equal(env.operation("sortie", { emplacement: "marseille", motif: "Perte", lignes: [{ article: "prep-essai", quantite: 1 }] }).ok, true);
+  // Jamais dans la disponibilité du site
+  const etat = env.appeler("stock.etat");
+  assert.equal("prep-essai" in etat.disponibles, false);
+  assert.equal("prep-essai" in etat.statuts, false);
+});
+
+test("lot bloqué : sauté par l'ordre de sortie, refusé en vente, accepté en perte, hors disponibilité ; propagation et levée", () => {
+  const env = preparer();
+  env.operation("production", { article: "lune", quantite: 3, fabrication: "2026-09-10", ddm: "2027-01-01", numero: "LUNE-A" });
+  env.operation("production", { article: "lune", quantite: 4, fabrication: "2026-09-12", ddm: "2027-01-12", numero: "LUNE-B" });
+  assert.equal(env.appeler("stock.etat").disponibles.lune, 7);
+
+  const blocage = env.appeler("stock.blocage", { lots: ["lune/LUNE-A"], decision: "bloque", motif: "Doute qualité", note: "Essai" });
+  assert.equal(blocage.message, "Lot LUNE-A bloqué");
+  assert.deepEqual(brut(env.appeler("stock.etat").bloques), ["lune/LUNE-A"]);
+  assert.equal(env.appeler("stock.etat").disponibles.lune, 4);
+
+  // L'ordre de sortie saute LUNE-A (pourtant à la DDM la plus proche)
+  env.operation("sortie", { emplacement: "marseille", motif: "Vente", lignes: [{ article: "lune", quantite: 1 }] });
+  assert.equal(env.appeler("stock.lot", { lot: "lune/LUNE-B" }).lot.quantites.marseille, 3);
+  assert.match(env.operation("sortie", { emplacement: "marseille", motif: "Vente", lignes: [{ article: "lune", quantite: 1, lot: "lune/LUNE-A" }] }).error, /bloqué/);
+  assert.match(env.operation("envoi", { lignes: [{ article: "lune", quantite: 4 }] }).error, /Les lots bloqués ne sont pas utilisés/);
+  assert.equal(env.operation("sortie", { emplacement: "marseille", motif: "Perte", lignes: [{ article: "lune", quantite: 1, lot: "lune/LUNE-A" }] }).ok, true);
+
+  // Seul lot en stock bloqué : le produit passe à « victime »
+  env.operation("sortie", { emplacement: "marseille", motif: "Vente", lignes: [{ article: "lune", quantite: 3 }] });
+  assert.equal(env.dispo().lune, "victime");
+  assert.match(env.appeler("stock.blocage", { lots: ["lune/LUNE-A"], decision: "leve" }).error, /pourquoi/);
+  assert.equal(env.appeler("stock.blocage", { lots: ["lune/LUNE-A"], decision: "leve", note: "Contrôle bon" }).message, "Blocage levé · lot LUNE-A");
+  assert.equal(env.dispo().lune, "disponible");
+
+  // Propagation : depuis la farine, la Lune en stock est proposée, pas la pâte entièrement consommée
+  const lots = chaineDEssai(env);
+  const fiche = env.appeler("stock.lot", { lot: lots.farine });
+  assert.deepEqual(brut(fiche.aBloquer), [lots.lune]);
+  const tous = env.appeler("stock.blocage", { lots: [lots.farine].concat(fiche.aBloquer), decision: "bloque", motif: "Rappel fournisseur", reference: lots.farine });
+  assert.equal(tous.message, "2 lots bloqués");
+  const bloques = env.appeler("stock.etat").bloques;
+  assert.deepEqual(brut(bloques).sort(), [lots.farine, lots.lune].sort());
+  assert.equal(env.onglet("Blocages").filter((b) => b["Référence"] === lots.farine).length, 2);
+});
+
+test("rappel : commande remise avec les coordonnées du client, période de vente à la ferme, stock restant, résumé", () => {
+  const env = preparer();
+  const lots = chaineDEssai(env);
+  env.operation("production", { article: "montagne", quantite: 2, fabrication: "2026-09-12" });
+
+  // Commande du site D-0001 (1 Lune, 1 Montagne), remise au client
+  env.proprietes.set("STOCK_ACTIF", "oui");
+  assert.deepEqual(brut(env.testerCommande()), { ok: true, id: "D-0001" });
+  assert.equal(env.appeler("stock.commande", { commande: "D-0001", decision: "remise" }).ok, true);
+  // 2 en vente directe, 2 vers la ferme dont 1 vendu au passage suivant
+  env.operation("sortie", { emplacement: "marseille", motif: "Vente", lignes: [{ article: "lune", quantite: 2 }] });
+  env.operation("envoi", { lignes: [{ article: "lune", quantite: 2 }] });
+  env.appeler("stock.passage", { horodatage: Date.now() - 48 * HEURE, ajouts: { lune: 2 } });
+  env.appeler("stock.passage", { horodatage: Date.now() - 2 * HEURE, comptes: { lune: 1 } });
+
+  env.journaux.length = 0;
+  const r = env.appeler("stock.rappel", { lot: lots.farine });
+  assert.equal(r.ok, true, r.error);
+  // Clients livrés : la commande remise, avec ses sachets de Lune et les coordonnées lues dans « Commandes »
+  assert.deepEqual(brut(r.clients).map((c) => [c.commande, c.sachets, c.prenom, c.nom, c.telephone, c.email]), [["D-0001", 1, "Test", "Dedjo", "06 00 00 00 00", "jo@exemple.test"]]);
+  // Ferme : 1 sachet vendu entre les deux passages
+  assert.equal(r.ferme.length, 1);
+  assert.equal(r.ferme[0].sachets, 1);
+  assert.match(r.ferme[0].libelle, /^entre le passage du \d\d\/\d\d \d\d:\d\d et celui du \d\d\/\d\d \d\d:\d\d$/);
+  // Aval : la Lune via la pâte, avec son stock restant et ses sorties par motif
+  const lune = r.aval.find((x) => x.lot === lots.lune);
+  assert.deepEqual(brut(lune.quantites), { marseille: 1, ferme: 1 });
+  assert.equal(lune.via[0].lot, lots.pate);
+  assert.deepEqual(brut(lune.sorties), { Commande: 1, Vente: 2, "Vente constatée": 1 });
+  assert.deepEqual(brut(r.resume).concernes, 6);
+  assert.equal(r.resume.texte, "6 sachets concernés : 2 encore en stock, dont 0 bloqué · 1 remis à 1 client · 1 vendus à la ferme · 0 offerts ou perdus · 2 vendus en direct");
+  // Données clients : ni journalisées, ni mises en cache
+  assert.deepEqual(env.journaux, []);
+  assert.equal(env.cacheContient("jo@exemple.test"), false);
+});
+
+test("registre : couples (lot fabriqué, lot consommé) niveaux compris, et « Matières non renseignées »", () => {
+  const env = preparer();
+  const lots = chaineDEssai(env);
+  env.operation("production", { article: "cabosse", quantite: 2, fabrication: "2026-09-12" });
+  const r = env.appeler("stock.registre", { du: "2026-09-01", au: "2026-09-30" });
+  assert.equal(r.ok, true, r.error);
+  const couples = r.lignes.map((l) => [l.numero, l.numeroConsomme, l.via]);
+  const pate = env.onglet("Lots").find((l) => l.Id === lots.pate)["N° de lot"];
+  assert.deepEqual(couples.filter((c) => c[0] === "11209260127"), [
+    ["11209260127", pate, ""],
+    ["11209260127", "F-TEST-1", pate],
+    ["11209260127", "B-TEST-1", pate],
+    ["11209260127", "S-TEST-1", ""],
+  ]);
+  const cabosse = r.lignes.find((l) => l.article === "La Cabosse");
+  assert.equal(cabosse.consomme, "Matières non renseignées");
+  assert.equal(r.lignes.find((l) => l.numeroConsomme === "F-TEST-1").fournisseur, "Moulin inventé");
+  // La pâte, fabriquée aujourd'hui, n'est pas dans le registre de septembre
+  assert.equal(r.lignes.some((l) => l.numero === pate), false);
+  assert.match(env.appeler("stock.registre", { du: "2026-10-01", au: "2026-09-01" }).error, /précède/);
+});
+
+test("annulation : une préparation déjà consommée ne s'annule pas", () => {
+  const env = preparer();
+  ajouterPreparations(env, ["prep-essai"]);
+  env.operation("reception", { article: "mp-farine", quantite: 5, numero: "F-TEST-1" });
+  env.operation("production", { article: "prep-essai", quantite: 2, intrants: [{ article: "mp-farine", quantite: 1 }], idOperation: "pate-a-annuler" });
+  env.operation("production", { article: "lune", quantite: 6, fabrication: "2026-09-12", intrants: [{ article: "prep-essai", quantite: 1 }] });
+  assert.equal(env.appeler("stock.annuler", { operation: "pate-a-annuler" }).error, "Annulation impossible : ce stock a déjà servi. Corrige plutôt par une nouvelle saisie.");
+});
+
+test("mise à jour du classeur : onglets et colonne du lot 3 bis créés au premier appel, sans rien toucher d'autre", () => {
+  const env = preparer();
+  const ss = env.stock();
+  // Classeur d'avant le lot 3 bis : ni Recettes, ni Blocages, ni colonne « Conservation (jours) »
+  ss.deleteSheet(ss.getSheetByName("Recettes"));
+  ss.deleteSheet(ss.getSheetByName("Blocages"));
+  const articles = ss.getSheetByName("Articles");
+  articles.getRange(1, 14).setValue("");
+  env.proprietes.delete("STOCK_STRUCTURE");
+  const avant = articles.lire(2, 1, 1, 13)[0];
+
+  assert.equal(env.appeler("stock.etat").ok, true);
+  assert.ok(ss.getSheetByName("Recettes") && ss.getSheetByName("Blocages"));
+  assert.equal(articles.lire(1, 14, 1, 1)[0][0], "Conservation (jours)");
+  assert.deepEqual(articles.lire(2, 1, 1, 13)[0], avant);
+  assert.equal(env.onglet("Articles").length, 29);
 });

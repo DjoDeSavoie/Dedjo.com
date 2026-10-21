@@ -1,10 +1,11 @@
 /* Vue Saisir et formulaires : production, réception, sortie, envoi vers la ferme, transfert,
    inventaire, et sortie ou transfert d'un lot précis. Formulaires repris de la maquette. */
 
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeftRight, ArrowUpRight, ChefHat, ClipboardCheck, PackageOpen, Truck } from "lucide-react";
 import { useAtelier, useEcriture } from "./contexte";
 import {
+  Badge,
   CARTE,
   Champ,
   CHAMP,
@@ -18,21 +19,29 @@ import {
   PiedFormulaire,
 } from "./composants";
 import {
+  ajouterJours,
+  arrondi,
   articlesDe,
   aujourdhui,
   CATEGORIES,
   dateCourte,
   ddmProposee,
   EPS,
+  estBloque,
   lireNombre,
   lotsDe,
+  MOTIFS_LOT_BLOQUE,
+  MOTIFS_PREPARATION,
   MOTIFS_SORTIE,
   nombre,
   nomCourt,
+  numeroLotPreparation,
   numeroLotProduit,
+  proposerMatieres,
   qteLot,
   quantite,
   stockArticle,
+  stockLibre,
   unite,
   uniteEntiere,
 } from "./outils";
@@ -88,41 +97,99 @@ export default function VueSaisir() {
 }
 
 /* ===================================================================
-   PRODUCTION
+   PRODUCTION (produit fini ou préparation)
+   Les matières sont pré-remplies par la recette ; chaque ligne montre le lot proposé et son
+   disponible, et signale ce qui manque, avec un raccourci vers la réception.
    =================================================================== */
 
 interface LigneIntrant {
   cle: number;
   article: string;
+  /** "" : lot choisi automatiquement (ordre des DDM, lots bloqués exclus). */
   lot: string;
   quantite: string;
+  /** Modifiée à la main (ou ajoutée) : n'est plus recalculée quand la quantité produite change. */
+  manuel: boolean;
 }
 
-export function FormProduction({ article: articleInitial }: { article?: string }) {
-  const { etat, filtre } = useAtelier();
-  const produits = articlesDe(etat, "produit");
-  const [articleId, setArticleId] = useState(articleInitial || (produits.length === 1 ? produits[0].id : ""));
-  const [q, setQ] = useState("");
+const enTexte = (n: number) => (n ? String(n).replace(".", ",") : "");
+
+export function FormProduction({
+  article: articleInitial,
+  quantite: quantiteInitiale,
+  retourApres,
+}: {
+  article?: string;
+  quantite?: number;
+  /** Ouverte par-dessus un autre formulaire : y revenir après l'enregistrement. */
+  retourApres?: boolean;
+}) {
+  const { etat, filtre, ouvrir, retour } = useAtelier();
+  const fabricables = [...articlesDe(etat, "produit"), ...articlesDe(etat, "preparation")];
+  const [articleId, setArticleId] = useState(articleInitial || (fabricables.length === 1 ? fabricables[0].id : ""));
+  const [q, setQ] = useState(quantiteInitiale ? enTexte(quantiteInitiale) : "");
   const [fabrication, setFabrication] = useState(aujourdhui());
   const [ddmSaisie, setDdmSaisie] = useState<string | null>(null);
   const [numeroSaisi, setNumeroSaisi] = useState<string | null>(null);
   const [emplacement, setEmplacement] = useState(emplacementParDefaut(etat, filtre));
-  const [intrants, setIntrants] = useState<LigneIntrant[]>([]);
+  const [lignes, setLignes] = useState<LigneIntrant[]>([]);
   const [note, setNote] = useState("");
-  const ecriture = useEcriture();
+  const [confirmerSansMatieres, setConfirmerSansMatieres] = useState(false);
+  const ecriture = useEcriture(retourApres ? () => retour() : undefined);
+  const compteur = useRef(0);
+  const articlePrecedent = useRef<string | null>(null);
 
   const a = etat.articles.find((x) => x.id === articleId);
-  // DDM et n° de lot calculés, tant qu'ils ne sont pas saisis à la main
-  const ddm = ddmSaisie ?? (a ? ddmProposee(fabrication, a.conservationMois) : "");
-  const numero = numeroSaisi ?? (a ? numeroLotProduit(a.codeLot, fabrication, ddm) : "");
-  const existant = a ? etat.lots.find((l) => l.article === a.id && l.numero === numero.trim()) : undefined;
-  const matieres = [...articlesDe(etat, "matiere"), ...articlesDe(etat, "emballage")].filter((m) => stockArticle(etat, m.id, emplacement) > EPS);
+  const preparation = !!a && a.categorie === "preparation";
+  const qte = lireNombre(q);
+  const recette = a ? etat.recettes[a.id] : undefined;
 
-  const ajouterIntrant = () => {
-    if (!matieres.length) return ecriture.refuser(`Aucune matière en stock à ${nomCourt(etat, emplacement)}.`);
-    setIntrants([...intrants, { cle: Date.now(), article: matieres[0].id, lot: "", quantite: "" }]);
+  // Recette : lignes refaites à chaque changement de produit ; quantités recalculées quand la
+  // quantité produite change, sauf pour les lignes modifiées à la main
+  useEffect(() => {
+    const proposees = a ? proposerMatieres(etat, a.id, Number.isFinite(qte) ? qte : 0) : [];
+    const proposee = (article: string) => enTexte((proposees.find((p) => p.article === article) || { quantite: 0 }).quantite);
+    setLignes((avant) => {
+      if (articlePrecedent.current !== articleId) {
+        articlePrecedent.current = articleId;
+        const r = a ? etat.recettes[a.id] : undefined;
+        return r ? r.composants.map((c) => ({ cle: ++compteur.current, article: c.article, lot: "", quantite: proposee(c.article), manuel: false })) : [];
+      }
+      return avant.map((l) => (l.manuel ? l : { ...l, quantite: proposee(l.article) }));
+    });
+  }, [a, articleId, etat, qte]);
+
+  // Date limite et n° de lot calculés, tant qu'ils ne sont pas saisis à la main
+  let ddmCalculee = "";
+  if (a && preparation) ddmCalculee = a.conservationJours !== null && a.conservationJours >= 0 ? ajouterJours(fabrication, a.conservationJours) : "";
+  else if (a) ddmCalculee = ddmProposee(fabrication, a.conservationMois);
+  const ddm = ddmSaisie ?? ddmCalculee;
+  const numeroCalcule = !a ? "" : preparation ? numeroLotPreparation(etat, a, fabrication) : numeroLotProduit(a.codeLot, fabrication, ddm);
+  const numero = numeroSaisi ?? numeroCalcule;
+  const existant = a ? etat.lots.find((l) => l.article === a.id && l.numero === numero.trim()) : undefined;
+  const composables = [...articlesDe(etat, "matiere"), ...articlesDe(etat, "emballage"), ...articlesDe(etat, "preparation")].filter((m) => !a || m.id !== a.id);
+  const valides = lignes.filter((l) => lireNombre(l.quantite) > 0);
+
+  /** Disponible d'une ligne à l'emplacement (lots bloqués exclus) et ce qui manque. */
+  const bilan = (l: LigneIntrant) => {
+    const m = etat.articles.find((x) => x.id === l.article);
+    const lot = l.lot ? etat.lots.find((x) => x.id === l.lot) : undefined;
+    const dispo = lot ? (estBloque(etat, lot.id) ? 0 : qteLot(lot, emplacement)) : stockLibre(etat, l.article, emplacement);
+    const besoin = lireNombre(l.quantite);
+    const manque = Number.isFinite(besoin) && besoin > dispo + EPS ? arrondi(besoin - dispo) : 0;
+    const premier = lotsDe(etat, l.article, emplacement).find((x) => !estBloque(etat, x.id));
+    return { m, dispo, manque, premier };
   };
-  const changerIntrant = (cle: number, champs: Partial<LigneIntrant>) => setIntrants(intrants.map((i) => (i.cle === cle ? { ...i, ...champs } : i)));
+
+  const changerLigne = (cle: number, champs: Partial<LigneIntrant>) => {
+    setConfirmerSansMatieres(false);
+    setLignes(lignes.map((l) => (l.cle === cle ? { ...l, ...champs } : l)));
+  };
+  const ajouterLigne = () => {
+    const premiere = composables.find((m) => stockLibre(etat, m.id, emplacement) > EPS) || composables[0];
+    if (!premiere) return ecriture.refuser("Aucune matière dans le catalogue : ajoute-en dans Réglages.");
+    setLignes([...lignes, { cle: ++compteur.current, article: premiere.id, lot: "", quantite: "", manuel: true }]);
+  };
 
   const envoyer = (e: FormEvent) => {
     e.preventDefault();
@@ -130,52 +197,61 @@ export function FormProduction({ article: articleInitial }: { article?: string }
     const err = erreurQuantite(a, q);
     if (err) return ecriture.refuser(err);
     if (!fabrication) return ecriture.refuser("Indique la date de fabrication.");
-    if (!ddm) return ecriture.refuser("Indique la DDM.");
+    if (!ddm) return ecriture.refuser(preparation ? "Indique la date limite." : "Indique la DDM.");
     if (!numero.trim()) return ecriture.refuser("Indique le n° de lot.");
-    const lignes = intrants.filter((i) => lireNombre(i.quantite) > 0);
-    for (const i of lignes) {
-      const m = etat.articles.find((x) => x.id === i.article);
-      const errM = m ? erreurQuantite(m, i.quantite) : "Matière inconnue.";
+    for (const l of valides) {
+      const { m, manque } = bilan(l);
+      const errM = m ? erreurQuantite(m, l.quantite) : "Matière inconnue.";
       if (errM) return ecriture.refuser(errM);
+      if (manque && m) return ecriture.refuser(`Il manque ${quantite(m, manque)} de ${m.nom} à ${nomCourt(etat, emplacement)}.`);
     }
+    // Sans aucune matière : le lot ne sera pas traçable, on confirme en deux temps
+    if (!valides.length && !confirmerSansMatieres) return setConfirmerSansMatieres(true);
     ecriture.envoyer("stock.operation", {
       type: "production",
       article: a.id,
-      quantite: lireNombre(q),
+      quantite: qte,
       fabrication,
       ddm,
       numero: numero.trim(),
       emplacement,
       note: note.trim(),
-      intrants: lignes.map((i) => ({ article: i.article, quantite: lireNombre(i.quantite), lot: i.lot || undefined })),
+      intrants: valides.map((l) => ({ article: l.article, quantite: lireNombre(l.quantite), lot: l.lot || undefined })),
     });
   };
 
+  const libelle = valides.length ? "Enregistrer la production" : confirmerSansMatieres ? "Confirmer" : "Enregistrer sans matières";
+
   return (
-    <Feuille titre="Production" pied={<PiedFormulaire formulaire="f-production" libelle="Enregistrer la production" {...ecriture} />}>
+    <Feuille titre={preparation ? "Production d'une préparation" : "Production"} pied={<PiedFormulaire formulaire="f-production" libelle={libelle} {...ecriture} />}>
       <form id="f-production" onSubmit={envoyer} noValidate className="flex flex-col gap-5">
-        <ChoixArticle legende="Produit" articles={produits} valeur={articleId} onChange={(id) => { setArticleId(id); setNumeroSaisi(null); }} />
+        <ChoixArticle legende="Produit" articles={articlesDe(etat, "produit")} valeur={articleId} onChange={(id) => { setArticleId(id); setNumeroSaisi(null); setDdmSaisie(null); }} />
+        <ChoixArticle legende="Préparation" articles={articlesDe(etat, "preparation")} valeur={articleId} onChange={(id) => { setArticleId(id); setNumeroSaisi(null); setDdmSaisie(null); }} />
         <Champ id="p-q" libelle="Quantité" aide={a && a.piecesParSachet ? `Sachets de ${a.piecesParSachet} pièces · ${nombre((lireNombre(q) || 0) * a.piecesParSachet)} pièces au total` : undefined}>
           <div className="flex items-center gap-2.5">
-            <PasAPas id="p-q" valeur={q} onChange={setQ} entier grand />
-            <span className="text-[14px] text-[#5E6A78]">{unite(a, 2)}</span>
+            <PasAPas id="p-q" valeur={q} onChange={setQ} entier={uniteEntiere(a)} grand />
+            <span className="text-[14px] text-[#5E6A78]">{a ? unite(a, 2) : "sachets"}</span>
           </div>
         </Champ>
         <div className="grid grid-cols-2 gap-3">
           <Champ id="p-fab" libelle="Fabrication">
             <input id="p-fab" type="date" value={fabrication} onChange={(e) => setFabrication(e.target.value)} className={CHAMP} />
           </Champ>
-          <Champ id="p-ddm" libelle="DDM">
+          <Champ id="p-ddm" libelle={preparation ? "Date limite" : "DDM"}>
             <input id="p-ddm" type="date" value={ddm} onChange={(e) => setDdmSaisie(e.target.value)} className={CHAMP} />
           </Champ>
         </div>
         {a ? (
           <p className={`${DISCRET} -mt-3`}>
             {ddmSaisie !== null
-              ? "DDM saisie à la main."
-              : a.conservationMois
-                ? `DDM calculée : ${a.conservationMois} mois après la fabrication.`
-                : "Durée de conservation à régler dans Réglages : saisis la DDM à la main."}
+              ? `${preparation ? "Date limite" : "DDM"} saisie à la main.`
+              : preparation
+                ? ddmCalculee
+                  ? `Date limite calculée : ${a.conservationJours} jour${(a.conservationJours || 0) > 1 ? "s" : ""} après la fabrication.`
+                  : "Conservation (jours) à régler dans Réglages : saisis la date limite à la main."
+                : a.conservationMois
+                  ? `DDM calculée : ${a.conservationMois} mois après la fabrication.`
+                  : "Durée de conservation à régler dans Réglages : saisis la DDM à la main."}
           </p>
         ) : null}
         <Champ
@@ -184,72 +260,101 @@ export function FormProduction({ article: articleInitial }: { article?: string }
           aide={
             existant
               ? `Ce lot existe déjà (${quantite(a, qteLot(existant, "tout"))}) : la production s'y ajoutera.`
-              : a && !a.codeConfirme
+              : a && !preparation && !a.codeConfirme
                 ? `Code lot « ${a.codeLot} » à confirmer dans Réglages.`
-                : "Code produit + date de fabrication + mois et année de DDM, comme sur tes étiquettes."
+                : preparation
+                  ? "Code lot + date de fabrication + rang de la préparation ce jour-là."
+                  : "Code produit + date de fabrication + mois et année de DDM, comme sur tes étiquettes."
           }
         >
-          <input
-            id="p-lot"
-            value={numero}
-            onChange={(e) => setNumeroSaisi(e.target.value)}
-            autoComplete="off"
-            spellCheck={false}
-            className={`${CHAMP} font-mono`}
-          />
+          <input id="p-lot" value={numero} onChange={(e) => setNumeroSaisi(e.target.value)} autoComplete="off" spellCheck={false} className={`${CHAMP} font-mono`} />
         </Champ>
-        <ChampEmplacement valeur={emplacement} onChange={(v) => { setEmplacement(v); setIntrants([]); }} />
+        <ChampEmplacement valeur={emplacement} onChange={setEmplacement} />
+
         <fieldset className="grid min-w-0 gap-2">
-          <legend className={`${ETIQUETTE} mb-2`}>
-            Matières utilisées <span className="font-normal normal-case tracking-normal">· facultatif</span>
-          </legend>
-          {intrants.map((i) => {
-            const m = etat.articles.find((x) => x.id === i.article);
-            const lots = lotsDe(etat, i.article, emplacement);
+          <legend className={`${ETIQUETTE} mb-2`}>Matières utilisées</legend>
+          {a && !recette ? (
+            <p className={DISCRET}>
+              Pas encore de recette pour {a.nom} : ajoute-la dans Réglages.
+            </p>
+          ) : null}
+          {lignes.map((l) => {
+            const { m, dispo, manque, premier } = bilan(l);
+            const lots = lotsDe(etat, l.article, emplacement);
             return (
-              <div key={i.cle} className={`${CARTE} grid grid-cols-2 gap-2 p-2.5`}>
-                <select aria-label="Matière" value={i.article} onChange={(e) => changerIntrant(i.cle, { article: e.target.value, lot: "" })} className={CHAMP}>
-                  {matieres.map((x) => (
-                    <option key={x.id} value={x.id}>
-                      {x.nom}
-                    </option>
-                  ))}
-                </select>
-                <select aria-label="Lot de matière" value={i.lot} onChange={(e) => changerIntrant(i.cle, { lot: e.target.value })} className={CHAMP}>
-                  <option value="">Auto · date la plus proche</option>
-                  {lots.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.numero} · {quantite(m, qteLot(l, emplacement))}
-                    </option>
-                  ))}
-                </select>
+              <div key={l.cle} className={`${CARTE} grid gap-2 p-2.5 ${manque ? "border-[#B1262E]" : ""}`}>
+                <div className="grid grid-cols-2 gap-2">
+                  <select aria-label="Matière" value={l.article} onChange={(e) => changerLigne(l.cle, { article: e.target.value, lot: "", manuel: true })} className={CHAMP}>
+                    {composables.map((x) => (
+                      <option key={x.id} value={x.id}>
+                        {x.nom}
+                      </option>
+                    ))}
+                  </select>
+                  <select aria-label="Lot" value={l.lot} onChange={(e) => changerLigne(l.cle, { lot: e.target.value })} className={CHAMP}>
+                    <option value="">{premier ? `Auto · ${premier.numero}` : "Auto · date la plus proche"}</option>
+                    {lots.map((x) => (
+                      <option key={x.id} value={x.id} disabled={estBloque(etat, x.id)}>
+                        {x.numero} · {quantite(m, qteLot(x, emplacement))}
+                        {estBloque(etat, x.id) ? " · bloqué" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="flex items-center gap-2">
-                  <input
-                    aria-label="Quantité utilisée"
-                    inputMode="decimal"
-                    placeholder="Qté"
-                    value={i.quantite}
-                    onChange={(e) => changerIntrant(i.cle, { quantite: e.target.value })}
-                    className={CHAMP}
+                  <PasAPas
+                    valeur={l.quantite}
+                    onChange={(v) => changerLigne(l.cle, { quantite: v, manuel: true })}
+                    entier={uniteEntiere(m)}
+                    libelle={`Quantité de ${m ? m.nom : "matière"}`}
                   />
                   <span className="text-[14px] text-[#5E6A78]">{unite(m, 2)}</span>
+                  <button
+                    type="button"
+                    onClick={() => setLignes(lignes.filter((x) => x.cle !== l.cle))}
+                    className="ml-auto h-11 rounded-[10px] border border-[#E6DCC6] px-3 text-[14px] font-bold text-[#163F6B]"
+                  >
+                    Retirer
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIntrants(intrants.filter((x) => x.cle !== i.cle))}
-                  className="h-11 justify-self-end rounded-[10px] border border-[#E6DCC6] px-3 text-[14px] font-bold text-[#163F6B]"
-                >
-                  Retirer
-                </button>
+                {manque && m ? (
+                  <div className="grid gap-2">
+                    <p className="text-[13.5px] font-bold text-[#B1262E]">
+                      Il manque {quantite(m, manque)} de {m.nom} à {nomCourt(etat, emplacement)}.
+                    </p>
+                    <button
+                      type="button"
+                      className={BOUTON_SECONDAIRE}
+                      onClick={() =>
+                        ouvrir(
+                          m.categorie === "preparation"
+                            ? { type: "production", article: m.id, quantite: manque, retour: true }
+                            : { type: "reception", article: m.id, quantite: manque, emplacement, retour: true }
+                        )
+                      }
+                    >
+                      {m.categorie === "preparation" ? `Produire ${m.nom}` : "Enregistrer une réception"}
+                    </button>
+                  </div>
+                ) : (
+                  <p className={DISCRET}>
+                    {l.lot ? `${quantite(m, dispo)} disponibles dans ce lot` : premier ? `Lot proposé : ${premier.numero} · ${quantite(m, dispo)} disponibles` : "Aucun lot disponible"}
+                    {l.manuel ? "" : " · d'après la recette"}
+                  </p>
+                )}
               </div>
             );
           })}
           <div>
-            <button type="button" onClick={ajouterIntrant} className={BOUTON_SECONDAIRE}>
+            <button type="button" onClick={ajouterLigne} className={BOUTON_SECONDAIRE}>
               + Ajouter une matière
             </button>
           </div>
-          <p className={DISCRET}>Déduit du stock de matières et relie ce lot aux lots de matières, pour ta traçabilité.</p>
+          {!valides.length ? (
+            <p className="rounded-xl bg-[#FAEDCF] px-3 py-2.5 text-[14px] font-bold text-[#94600A]">Production sans matières : ce lot ne sera pas traçable.</p>
+          ) : (
+            <p className={DISCRET}>Déduit du stock de matières et relie ce lot aux lots utilisés, pour ta traçabilité.</p>
+          )}
         </fieldset>
         <Champ id="p-note" libelle="Note">
           <input id="p-note" value={note} onChange={(e) => setNote(e.target.value)} autoComplete="off" placeholder="Ex. 2 pétrins" className={CHAMP} />
@@ -263,17 +368,28 @@ export function FormProduction({ article: articleInitial }: { article?: string }
    RÉCEPTION
    =================================================================== */
 
-export function FormReception({ article: articleInitial }: { article?: string }) {
-  const { etat, filtre } = useAtelier();
+export function FormReception({
+  article: articleInitial,
+  quantite: quantiteInitiale,
+  emplacement: emplacementInitial,
+  retourApres,
+}: {
+  article?: string;
+  quantite?: number;
+  emplacement?: string;
+  /** Ouverte depuis une production : y revenir après l'enregistrement, formulaire intact. */
+  retourApres?: boolean;
+}) {
+  const { etat, filtre, retour } = useAtelier();
   const [articleId, setArticleId] = useState(articleInitial || "");
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(quantiteInitiale ? enTexte(quantiteInitiale) : "");
   const [reception, setReception] = useState(aujourdhui());
   const [ddm, setDdm] = useState("");
   const [fournisseur, setFournisseur] = useState("");
   const [numero, setNumero] = useState("");
-  const [emplacement, setEmplacement] = useState(emplacementParDefaut(etat, filtre));
+  const [emplacement, setEmplacement] = useState(emplacementInitial || emplacementParDefaut(etat, filtre));
   const [note, setNote] = useState("");
-  const ecriture = useEcriture();
+  const ecriture = useEcriture(retourApres ? () => retour() : undefined);
   const a = etat.articles.find((x) => x.id === articleId);
   const fournisseurs = useMemo(
     () => Array.from(new Set(etat.lots.map((l) => l.fournisseur).filter(Boolean))).sort((x, y) => x.localeCompare(y, "fr")),
@@ -302,7 +418,7 @@ export function FormReception({ article: articleInitial }: { article?: string })
   return (
     <Feuille titre="Réception" pied={<PiedFormulaire formulaire="f-reception" libelle="Enregistrer la réception" {...ecriture} />}>
       <form id="f-reception" onSubmit={envoyer} noValidate className="flex flex-col gap-5">
-        {CATEGORIES.filter((c) => c.id !== "produit").map((c) => (
+        {CATEGORIES.filter((c) => c.id === "matiere" || c.id === "emballage").map((c) => (
           <ChoixArticle key={c.id} legende={c.nom} articles={articlesDe(etat, c.id)} valeur={articleId} onChange={setArticleId} />
         ))}
         <Champ id="r-q" libelle="Quantité reçue">
@@ -352,7 +468,11 @@ export function FormLignes({ mode }: { mode: "sortie" | "envoi" | "transfert" })
   const [note, setNote] = useState("");
   const [quantites, setQuantites] = useState<Record<string, string>>({});
   const ecriture = useEcriture();
-  const choisies = Object.entries(quantites).filter(([, v]) => lireNombre(v) > 0);
+  // Perte ou retour fournisseur : les lots bloqués comptent ; une préparation ne part qu'en perte ou « Autre »
+  const avecBloques = mode === "sortie" && MOTIFS_LOT_BLOQUE.includes(motif);
+  const avecPreparations = mode === "sortie" && MOTIFS_PREPARATION.includes(motif);
+  const visibles = articlesProposes(etat, de, avecBloques, avecPreparations).map((a) => a.id);
+  const choisies = Object.entries(quantites).filter(([id, v]) => lireNombre(v) > 0 && visibles.includes(id));
   const titres = { sortie: "Sortie", envoi: "Envoi vers la ferme", transfert: "Transfert" };
   const libelle = { sortie: "Enregistrer la sortie", envoi: "Enregistrer l'envoi", transfert: "Enregistrer le transfert" }[mode];
   const options = etat.emplacements.map((e) => ({ valeur: e.id, libelle: e.court }));
@@ -413,17 +533,49 @@ export function FormLignes({ mode }: { mode: "sortie" | "envoi" | "transfert" })
         </Champ>
         <fieldset className="grid min-w-0 gap-2">
           <legend className={`${ETIQUETTE} mb-1`}>Quantités</legend>
-          <p className={DISCRET}>Le stock part des lots à la DDM la plus proche{mode === "sortie" ? "" : ", qui gardent leur n° de lot"}.</p>
-          <ListeQuantites emplacement={de} quantites={quantites} onChange={(id, v) => setQuantites({ ...quantites, [id]: v })} />
+          <p className={DISCRET}>
+            {avecBloques
+              ? "Les lots bloqués partent en premier, puis les autres à la DDM la plus proche."
+              : `Le stock part des lots à la DDM la plus proche${mode === "sortie" ? "" : ", qui gardent leur n° de lot"}. Les lots bloqués ne sont pas utilisés.`}
+          </p>
+          <ListeQuantites
+            emplacement={de}
+            avecBloques={avecBloques}
+            avecPreparations={avecPreparations}
+            quantites={quantites}
+            onChange={(id, v) => setQuantites({ ...quantites, [id]: v })}
+          />
         </fieldset>
       </form>
     </Feuille>
   );
 }
 
-function ListeQuantites({ emplacement, quantites, onChange }: { emplacement: string; quantites: Record<string, string>; onChange: (id: string, v: string) => void }) {
+/** Articles proposés dans une liste à quantités : en stock utilisable à cet emplacement. */
+function articlesProposes(etat: Etat, emplacement: string, avecBloques: boolean, avecPreparations: boolean): Article[] {
+  return CATEGORIES.flatMap((c) =>
+    c.id === "preparation" && !avecPreparations
+      ? []
+      : articlesDe(etat, c.id, true).filter((a) => (avecBloques ? stockArticle(etat, a.id, emplacement) : stockLibre(etat, a.id, emplacement)) > EPS)
+  );
+}
+
+function ListeQuantites({
+  emplacement,
+  avecBloques,
+  avecPreparations,
+  quantites,
+  onChange,
+}: {
+  emplacement: string;
+  avecBloques: boolean;
+  avecPreparations: boolean;
+  quantites: Record<string, string>;
+  onChange: (id: string, v: string) => void;
+}) {
   const { etat } = useAtelier();
-  const groupes = CATEGORIES.map((c) => ({ c, articles: articlesDe(etat, c.id, true).filter((a) => stockArticle(etat, a.id, emplacement) > EPS) })).filter((g) => g.articles.length);
+  const proposes = articlesProposes(etat, emplacement, avecBloques, avecPreparations);
+  const groupes = CATEGORIES.map((c) => ({ c, articles: proposes.filter((a) => a.categorie === c.id) })).filter((g) => g.articles.length);
   if (!groupes.length) return <p className={DISCRET}>Rien en stock à {nomCourt(etat, emplacement)}.</p>;
   return (
     <div className="grid gap-3.5">
@@ -432,14 +584,19 @@ function ListeQuantites({ emplacement, quantites, onChange }: { emplacement: str
           <h4 className={`${ETIQUETTE} mb-1.5`}>{c.nom}</h4>
           <div className={`${CARTE} overflow-hidden`}>
             {articles.map((a) => {
-              const stock = stockArticle(etat, a.id, emplacement);
+              const total = stockArticle(etat, a.id, emplacement);
+              const stock = avecBloques ? total : stockLibre(etat, a.id, emplacement);
+              const bloques = arrondi(total - stockLibre(etat, a.id, emplacement));
               const choisi = lireNombre(quantites[a.id] || "") > 0;
               return (
                 <div key={a.id} className={`flex items-center gap-2.5 border-t border-[#E6DCC6] py-2 pl-3 pr-2 first:border-t-0 ${choisi ? "bg-[#F3ECDD]" : ""}`}>
                   <Pastille article={a} />
                   <div className="min-w-0 flex-1">
                     <div className="font-display text-base leading-tight">{a.nom}</div>
-                    <div className="text-[12.5px] tabular-nums text-[#5E6A78]">{quantite(a, stock)} en stock</div>
+                    <div className="text-[12.5px] tabular-nums text-[#5E6A78]">
+                      {quantite(a, stock)} {avecBloques ? "en stock" : "disponibles"}
+                      {bloques > EPS ? <span className="font-bold text-[#B1262E]"> · {nombre(bloques)} bloqué{bloques >= 2 ? "s" : ""}</span> : null}
+                    </div>
                   </div>
                   <PasAPas valeur={quantites[a.id] || ""} onChange={(v) => onChange(a.id, v)} entier={uniteEntiere(a)} max={stock} libelle={`Quantité ${a.nom}`} />
                 </div>
@@ -530,7 +687,9 @@ export function FormInventaire() {
                       return (
                         <div key={l.id} className="flex items-center gap-2.5">
                           <div className="min-w-0 flex-1">
-                            <div className="break-all font-mono text-[14px] font-bold">{l.numero}</div>
+                            <div className="break-all font-mono text-[14px] font-bold">
+                              {l.numero} {estBloque(etat, l.id) ? <Badge teinte="bad">Bloqué</Badge> : null}
+                            </div>
                             <div className="text-[12.5px] text-[#5E6A78]">
                               {l.ddm ? `${l.categorie === "produit" ? "DDM" : "Limite"} ${dateCourte(l.ddm)}` : "Sans date limite"} · noté {nombre(enregistre)}
                             </div>
@@ -565,11 +724,16 @@ export function FormLot({ id, mode }: { id: string; mode: "sortie" | "transfert"
   const [de, setDe] = useState(lieux[0]?.[0] || "");
   const [vers, setVers] = useState(etat.emplacements.find((e) => e.id !== lieux[0]?.[0])?.id || "");
   const [q, setQ] = useState("");
-  const [motif, setMotif] = useState(MOTIFS_SORTIE[0]);
+  // Lot bloqué : seulement perte ou retour fournisseur ; préparation : perte ou « Autre », jamais de transfert
+  const bloque = !!lot && estBloque(etat, lot.id);
+  const preparation = !!a && a.categorie === "preparation";
+  const motifs = bloque ? MOTIFS_LOT_BLOQUE : preparation ? MOTIFS_PREPARATION : MOTIFS_SORTIE;
+  const [motif, setMotif] = useState(motifs[0]);
   const [note, setNote] = useState("");
   const ecriture = useEcriture();
   if (!lot || !a) return <Feuille titre="Lot">{<p className={DISCRET}>Lot introuvable ou épuisé.</p>}</Feuille>;
   const max = lot.quantites[de] || 0;
+  const transfertImpossible = mode === "transfert" && (bloque || preparation);
 
   const envoyer = (e: FormEvent) => {
     e.preventDefault();
@@ -587,13 +751,26 @@ export function FormLot({ id, mode }: { id: string; mode: "sortie" | "transfert"
   return (
     <Feuille
       titre={mode === "sortie" ? "Sortie de ce lot" : "Transférer ce lot"}
-      pied={<PiedFormulaire formulaire="f-lot" libelle={mode === "sortie" ? "Enregistrer la sortie" : "Enregistrer le transfert"} {...ecriture} />}
+      pied={
+        <PiedFormulaire
+          formulaire="f-lot"
+          libelle={mode === "sortie" ? "Enregistrer la sortie" : "Enregistrer le transfert"}
+          desactive={transfertImpossible}
+          {...ecriture}
+        />
+      }
     >
       <form id="f-lot" onSubmit={envoyer} noValidate className="flex flex-col gap-5">
-        <p className="flex items-center gap-2 font-display text-[17px]">
+        <p className="flex flex-wrap items-center gap-2 font-display text-[17px]">
           <Pastille article={a} />
           {a.nom} · <span className="font-mono text-[15px]">{lot.numero}</span>
+          {bloque ? <Badge teinte="bad">Bloqué</Badge> : null}
         </p>
+        {transfertImpossible ? (
+          <p className="rounded-xl bg-[#F7E0E0] px-3 py-2.5 text-[14px] font-bold text-[#B1262E]">
+            {preparation ? "Une préparation reste au labo." : "Ce lot est bloqué : il ne peut pas être transféré. Seule une sortie « Perte » ou « Retour fournisseur » est possible."}
+          </p>
+        ) : null}
         <ChoixPuces
           legende="Depuis"
           options={lieux.map(([e, qte]) => ({ valeur: e, libelle: `${nomCourt(etat, e)} · ${nombre(qte)}` }))}
@@ -612,7 +789,7 @@ export function FormLot({ id, mode }: { id: string; mode: "sortie" | "transfert"
         {mode === "transfert" ? (
           <ChoixPuces legende="Vers" options={etat.emplacements.map((x) => ({ valeur: x.id, libelle: x.court }))} valeur={vers} onChange={setVers} desactive={(v) => v === de} />
         ) : (
-          <ChoixPuces legende="Motif" options={MOTIFS_SORTIE.map((m) => ({ valeur: m, libelle: m }))} valeur={motif} onChange={setMotif} />
+          <ChoixPuces legende="Motif" options={motifs.map((m) => ({ valeur: m, libelle: m }))} valeur={motif} onChange={setMotif} />
         )}
         <Champ id="la-note" libelle="Note">
           <input id="la-note" value={note} onChange={(e) => setNote(e.target.value)} autoComplete="off" className={CHAMP} />

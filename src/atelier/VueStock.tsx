@@ -23,6 +23,7 @@ import {
   CATEGORIES,
   dateCourte,
   EPS,
+  estBloque,
   etatDdm,
   Filtre,
   heure,
@@ -40,6 +41,8 @@ import {
   unite,
 } from "./outils";
 import type { Article, FicheLot as DonneesFicheLot, Lot } from "./types";
+import { exporterFicheLot } from "./exports";
+import { ArbreAmont, ListeAval } from "./tracabilite";
 
 export default function VueStock() {
   const { etat, filtre, ouvrir } = useAtelier();
@@ -102,7 +105,9 @@ export default function VueStock() {
 function LigneArticle({ article: a, filtre, sousSeuil, ddm, onClick }: { article: Article; filtre: Filtre; sousSeuil: boolean; ddm?: "bad" | "warn"; onClick: () => void }) {
   const { etat } = useAtelier();
   const q = stockArticle(etat, a.id, filtre);
-  const nbLots = lotsDe(etat, a.id, filtre).length;
+  const lotsIci = lotsDe(etat, a.id, filtre);
+  const nbLots = lotsIci.length;
+  const nbBloques = lotsIci.filter((l) => estBloque(etat, l.id)).length;
   const meta = [a.categorie === "produit" && a.piecesParSachet ? `${a.piecesParSachet} pièces / sachet` : "", nbLots ? `${nbLots} lot${nbLots > 1 ? "s" : ""}` : "aucun lot"].filter(Boolean);
   const repartition =
     filtre === "tout"
@@ -125,8 +130,9 @@ function LigneArticle({ article: a, filtre, sousSeuil, ddm, onClick }: { article
             ))}
           </span>
         ) : null}
-        {sousSeuil || ddm || !a.actif ? (
+        {sousSeuil || ddm || !a.actif || nbBloques ? (
           <span className="mt-1.5 flex flex-wrap gap-1">
+            {nbBloques ? <Badge teinte="bad">{nbBloques > 1 ? `${nbBloques} lots bloqués` : "Lot bloqué"}</Badge> : null}
             {sousSeuil ? <Badge teinte="warn">Sous le seuil</Badge> : null}
             {ddm ? <Badge teinte={ddm}>{a.categorie === "produit" ? "DDM" : "Date"} {ddm === "bad" ? "dépassée" : "proche"}</Badge> : null}
             {!a.actif ? <Badge teinte="mute">Masqué</Badge> : null}
@@ -145,20 +151,23 @@ function LigneArticle({ article: a, filtre, sousSeuil, ddm, onClick }: { article
 export function LigneLot({ lot, onClick }: { lot: Lot; onClick: () => void }) {
   const { etat } = useAtelier();
   const produit = lot.categorie === "produit";
+  const fabrique = produit || lot.categorie === "preparation";
   const ddm = qteLot(lot, "tout") > EPS ? etatDdm(lot) : null;
+  const bloque = estBloque(etat, lot.id);
   const parts = Object.entries(lot.quantites).filter(([, q]) => q > EPS);
   return (
     <button type="button" onClick={onClick} className={`${LIGNE} hover:bg-[#F3ECDD]`}>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="font-mono text-[14.5px] font-bold">{lot.numero}</span>
         <span className={`${DISCRET} mt-0.5`}>
-          {produit ? "Fab." : "Reçu le"} {dateCourte(lot.fabrication)}
+          {fabrique ? "Fab." : "Reçu le"} {dateCourte(lot.fabrication)}
           {lot.ddm ? ` · ${produit ? "DDM" : "limite"} ${dateCourte(lot.ddm)}` : ""}
           {lot.fournisseur ? ` · ${lot.fournisseur}` : ""}
         </span>
-        {ddm ? (
-          <span className="mt-1.5">
-            <Badge teinte={ddm.k}>{ddm.texte}</Badge>
+        {ddm || bloque ? (
+          <span className="mt-1.5 flex flex-wrap gap-1">
+            {bloque ? <Badge teinte="bad">Bloqué</Badge> : null}
+            {ddm ? <Badge teinte={ddm.k}>{ddm.texte}</Badge> : null}
           </span>
         ) : null}
       </span>
@@ -188,6 +197,8 @@ export function FicheArticle({ id }: { id: string }) {
     .slice(0, 5);
   const total = stockArticle(etat, a.id, "tout");
   const produit = a.categorie === "produit";
+  const fabrique = produit || a.categorie === "preparation";
+  const recette = etat.recettes[a.id];
 
   return (
     <Feuille
@@ -197,9 +208,9 @@ export function FicheArticle({ id }: { id: string }) {
           <button
             type="button"
             className={`${BOUTON_PRINCIPAL} flex-1`}
-            onClick={() => ouvrir(produit ? { type: "production", article: a.id } : { type: "reception", article: a.id })}
+            onClick={() => ouvrir(fabrique ? { type: "production", article: a.id } : { type: "reception", article: a.id })}
           >
-            {produit ? "Nouvelle production" : "Nouvelle réception"}
+            {fabrique ? "Nouvelle production" : "Nouvelle réception"}
           </button>
           <button type="button" className={BOUTON_SECONDAIRE} onClick={() => ouvrir({ type: "articleEdition", id: a.id })}>
             Modifier
@@ -227,6 +238,24 @@ export function FicheArticle({ id }: { id: string }) {
         <p className={`${DISCRET} mt-2.5`}>
           Soit {nombre(total * a.piecesParSachet)} pièces au total, en sachets de {a.piecesParSachet}.
         </p>
+      ) : null}
+      {fabrique ? (
+        <>
+          <h3 className="mb-2 mt-6 font-display text-base font-semibold text-[#163F6B]">Recette</h3>
+          {recette ? (
+            <p className="text-[14px]">
+              Pour {quantite(a, recette.rendement)} :{" "}
+              {recette.composants
+                .map((c) => {
+                  const m = etat.articles.find((x) => x.id === c.article);
+                  return `${m ? m.nom : c.article} ${quantite(m, c.quantite)}`;
+                })
+                .join(" · ")}
+            </p>
+          ) : (
+            <p className={DISCRET}>Pas encore de recette : ajoute-la avec « Modifier ».</p>
+          )}
+        </>
       ) : null}
       <h3 className="mb-2 mt-6 font-display text-base font-semibold text-[#163F6B]">Lots en stock</h3>
       {enStock.length ? (
@@ -269,8 +298,10 @@ export function FicheLot({ id }: { id: string }) {
   const lot = fiche ? fiche.lot : etat.lots.find((l) => l.id === id);
   const a = lot ? etat.articles.find((x) => x.id === lot.article) : undefined;
   const produit = lot ? lot.categorie === "produit" : false;
+  const fabrique = produit || (!!lot && lot.categorie === "preparation");
   const restant = lot ? qteLot(lot, "tout") : 0;
   const ddm = lot && restant > EPS ? etatDdm(lot) : null;
+  const bloque = fiche ? fiche.lot.bloque : !!lot && estBloque(etat, lot.id);
 
   return (
     <Feuille
@@ -296,14 +327,22 @@ export function FicheLot({ id }: { id: string }) {
         )
       ) : (
         <>
-          <p className="flex items-center gap-2.5 font-display text-xl">
+          <p className="flex flex-wrap items-center gap-2.5 font-display text-xl">
             <Pastille article={a} />
             {a ? a.nom : lot.article}
+            {bloque ? <Badge teinte="bad">Bloqué</Badge> : null}
+            {fiche && fiche.lot.sansMatieres ? <Badge teinte="warn">Matières non renseignées</Badge> : null}
           </p>
+          {fiche && fiche.lot.blocage ? (
+            <p className="mt-2.5 rounded-xl bg-[#F7E0E0] px-3 py-2.5 text-[14px] text-[#B1262E]">
+              <b>Bloqué · {fiche.lot.blocage.motif}</b> depuis le {dateCourte(jourIso(fiche.lot.blocage.horodatage))}
+              {fiche.lot.blocage.note ? ` · ${fiche.lot.blocage.note}` : ""}
+            </p>
+          ) : null}
           <dl className="mt-3.5 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-[14px]">
             <dt className="text-[#5E6A78]">N° de lot</dt>
             <dd className="break-all font-mono font-bold">{lot.numero}</dd>
-            <dt className="text-[#5E6A78]">{produit ? "Fabrication" : "Réception"}</dt>
+            <dt className="text-[#5E6A78]">{fabrique ? "Fabrication" : "Réception"}</dt>
             <dd className="font-bold">{dateCourte(lot.fabrication)}</dd>
             <dt className="text-[#5E6A78]">{produit ? "DDM" : "Date limite"}</dt>
             <dd className="font-bold">
@@ -335,11 +374,45 @@ export function FicheLot({ id }: { id: string }) {
             <p className={DISCRET}>Lot épuisé.</p>
           )}
 
-          {fiche && produit ? (
-            <ListeLiens titre="Matières utilisées" vide="Aucune matière enregistrée avec cette production." elements={fiche.intrants} uniteDe={(x) => etat.articles.find((y) => y.id === x.article)} />
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              className={`${BOUTON_SECONDAIRE} ${bloque ? "" : "border-[#B1262E] text-[#B1262E]"}`}
+              onClick={() => ouvrir({ type: "blocage", lot: lot.id, decision: bloque ? "leve" : "bloque" })}
+            >
+              {bloque ? "Lever le blocage" : "Bloquer ce lot"}
+            </button>
+            <button type="button" className={BOUTON_SECONDAIRE} onClick={() => ouvrir({ type: "rappel", lot: lot.id })}>
+              Rappel et traçabilité
+            </button>
+            <button type="button" className={`${BOUTON_SECONDAIRE} col-span-2`} disabled={!fiche} onClick={() => fiche && exporterFicheLot(fiche, etat)}>
+              Fiche de traçabilité (CSV)
+            </button>
+          </div>
+
+          {fabrique ? (
+            <>
+              <h3 className="mb-2 mt-6 font-display text-base font-semibold text-[#163F6B]">Matières utilisées</h3>
+              {!fiche ? (
+                <Squelette lignes={2} />
+              ) : fiche.amont.length ? (
+                <ArbreAmont noeuds={fiche.amont} />
+              ) : (
+                <p className={DISCRET}>Aucune matière enregistrée avec cette production : ce lot n'est pas traçable.</p>
+              )}
+            </>
           ) : null}
-          {fiche && !produit ? (
-            <ListeLiens titre="Utilisé dans" vide="Aucune production enregistrée avec ce lot." elements={fiche.utiliseDans} uniteDe={() => a} />
+          {!produit ? (
+            <>
+              <h3 className="mb-2 mt-6 font-display text-base font-semibold text-[#163F6B]">Utilisé dans</h3>
+              {!fiche ? (
+                <Squelette lignes={2} />
+              ) : fiche.aval.length ? (
+                <ListeAval lots={fiche.aval} />
+              ) : (
+                <p className={DISCRET}>Aucune production enregistrée avec ce lot.</p>
+              )}
+            </>
           ) : null}
 
           <h3 className="mb-2 mt-6 font-display text-base font-semibold text-[#163F6B]">Historique</h3>
@@ -367,36 +440,5 @@ export function FicheLot({ id }: { id: string }) {
         </>
       )}
     </Feuille>
-  );
-}
-
-type Lien = { lot: string; numero: string; article: string; nom: string; quantite: number };
-
-/** Lots liés (matières utilisées, ou productions qui ont utilisé ce lot). `uniteDe` : article dont l'unité s'affiche. */
-function ListeLiens({ titre, vide, elements, uniteDe }: { titre: string; vide: string; elements: Lien[]; uniteDe: (x: Lien) => Article | undefined }) {
-  const { etat, ouvrir } = useAtelier();
-  return (
-    <>
-      <h3 className="mb-2 mt-6 font-display text-base font-semibold text-[#163F6B]">{titre}</h3>
-      {elements.length ? (
-        <div className={`${CARTE} overflow-hidden`}>
-          {elements.map((x, i) => {
-            const a = etat.articles.find((y) => y.id === x.article);
-            return (
-              <button key={`${x.lot}-${i}`} type="button" onClick={() => ouvrir({ type: "lot", id: x.lot })} className={`${LIGNE} items-center hover:bg-[#F3ECDD]`}>
-                <Pastille article={a} />
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-display text-[16px]">{x.nom}</span>
-                  <span className="font-mono text-[12.5px] text-[#5E6A78]">{x.numero}</span>
-                </span>
-                <b className="tabular-nums">{quantite(uniteDe(x), x.quantite)}</b>
-              </button>
-            );
-          })}
-        </div>
-      ) : (
-        <p className={DISCRET}>{vide}</p>
-      )}
-    </>
   );
 }

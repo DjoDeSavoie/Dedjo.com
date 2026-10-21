@@ -60,6 +60,11 @@ export const ACTIONS_ATELIER = [
   "stock.commande",
   "stock.catalogue",
   "stock.import",
+  // Lot 3 bis : traçabilité
+  "stock.recette",
+  "stock.blocage",
+  "stock.rappel",
+  "stock.registre",
 ];
 const STATUTS = ["disponible", "victime", "bientot"];
 

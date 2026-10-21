@@ -6,7 +6,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClipboardList, Layers, Plus, Settings, ShoppingBag, Tractor, WifiOff } from "lucide-react";
 import { appeler, ErreurAtelier } from "./api";
-import { Contexte, ContexteAtelier } from "./contexte";
+import { Contexte, ContexteAtelier, NiveauFeuille } from "./contexte";
 import { BOUTON_PRINCIPAL, BOUTON_SECONDAIRE, CARTE, DISCRET, Puce, Squelette } from "./composants";
 import type { Filtre } from "./outils";
 import type { Etat, Feuille } from "./types";
@@ -15,6 +15,7 @@ import VueStock, { FicheArticle, FicheLot } from "./VueStock";
 import VueSaisir, { FormInventaire, FormLignes, FormLot, FormProduction, FormReception } from "./saisies";
 import VueJournal from "./VueJournal";
 import VueReglages, { FormArticle, FormEmplacement } from "./VueReglages";
+import { FormBlocage, VueRappel } from "./tracabilite";
 
 type Vue = "stock" | "saisir" | "ferme" | "commandes" | "journal" | "reglages";
 
@@ -42,7 +43,9 @@ export default function AtelierApp() {
   const [connecte, setConnecte] = useState(true);
   const [vue, setVue] = useState<Vue>("stock");
   const [filtre, setFiltre] = useState<Filtre>("tout");
-  const [pile, setPile] = useState<Feuille[]>([]);
+  // Pile des feuilles ouvertes ; `n` : clé stable de chaque feuille
+  const [pile, setPile] = useState<{ f: Feuille; n: number }[]>([]);
+  const compteurFeuilles = useRef(0);
   const [message, setMessage] = useState<{ texte: string; erreur: boolean; n: number } | null>(null);
   const [enLigne, setEnLigne] = useState(typeof navigator === "undefined" ? true : navigator.onLine);
   const minuterie = useRef<ReturnType<typeof setTimeout>>();
@@ -95,7 +98,7 @@ export default function AtelierApp() {
   }, []);
   useEffect(() => () => clearTimeout(minuterie.current), []);
 
-  const ouvrir = useCallback((f: Feuille) => setPile((p) => [...p, f]), []);
+  const ouvrir = useCallback((f: Feuille) => setPile((p) => [...p, { f, n: ++compteurFeuilles.current }]), []);
   const retour = useCallback(() => setPile((p) => p.slice(0, -1)), []);
   const fermer = useCallback(() => setPile([]), []);
   const signalerReseau = useCallback((ok: boolean) => setEnLigne(ok), []);
@@ -192,7 +195,13 @@ export default function AtelierApp() {
               {vue === "commandes" ? <AVenir lot={5} texte="Les commandes du site, leurs réservations, la remise au client et l'annulation arrivent au lot 5, avec la disponibilité des produits calculée depuis le stock." /> : null}
               {vue === "journal" ? <VueJournal /> : null}
               {vue === "reglages" ? <VueReglages /> : null}
-              {pile.length ? <FeuilleCourante feuille={pile[pile.length - 1]} key={pile.length} /> : null}
+              {pile.map((p, i) => (
+                <NiveauFeuille.Provider key={p.n} value={i}>
+                  <div hidden={i !== pile.length - 1}>
+                    <FeuilleCourante feuille={p.f} />
+                  </div>
+                </NiveauFeuille.Provider>
+              ))}
             </Contexte.Provider>
           )}
         </main>
@@ -249,9 +258,9 @@ function FeuilleCourante({ feuille: f }: { feuille: Feuille }) {
     case "lot":
       return <FicheLot id={f.id} />;
     case "production":
-      return <FormProduction article={f.article} />;
+      return <FormProduction article={f.article} quantite={f.quantite} retourApres={f.retour} />;
     case "reception":
-      return <FormReception article={f.article} />;
+      return <FormReception article={f.article} quantite={f.quantite} emplacement={f.emplacement} retourApres={f.retour} />;
     case "sortie":
     case "envoi":
     case "transfert":
@@ -264,6 +273,10 @@ function FeuilleCourante({ feuille: f }: { feuille: Feuille }) {
       return <FormArticle id={f.id} />;
     case "emplacementEdition":
       return <FormEmplacement id={f.id} />;
+    case "blocage":
+      return <FormBlocage lot={f.lot} decision={f.decision} tous={f.tous} />;
+    case "rappel":
+      return <VueRappel lot={f.lot} />;
     default:
       return null;
   }

@@ -400,7 +400,39 @@ La page n'est citée nulle part sur le site : ni menu, ni pied de page, ni `robo
 npm run atelier:local
 ```
 
-Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google.
+Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google. Le faux script charge `Stock.gs` au démarrage : après une mise à jour du script, relance la commande. Pour une seconde copie en même temps : `ATELIER_PORT=8889 npm run atelier:local`.
+
+### Lot 3 bis : traçabilité complète des ingrédients
+
+La traçabilité devient systématique, rapide et exploitable en cas de rappel fournisseur ou de contrôle de la DDPP :
+
+- **Préparations** : une nouvelle catégorie d'article, pour les semi-finis (pâte levée feuilletée, pâte feuilletée…). Une préparation se **produit** au labo avec ses matières, puis entre dans la production des produits finis ; une préparation peut en contenir une autre, sur 3 niveaux au plus. Son n° de lot : code lot + date de fabrication `JJMMAA` + rang du jour (`PL211026-1`, puis `-2`…) ; sa date limite : fabrication + « Conservation (jours) ». Elle reste au labo : ni vente, ni envoi, ni transfert (seulement « Perte », « Autre » ou l'inventaire), et n'entre jamais dans la disponibilité du site.
+- **Recettes** : dans Réglages, la fiche d'un produit ou d'une préparation a une section **Recette** (« pour N {unité} », composants et quantités). À la production, les matières sont **pré-remplies** : quantités recalculées selon la quantité produite (kg à 3 décimales, g à l'unité, pièces à l'unité supérieure), lot proposé dans l'ordre des DDM avec son disponible, autre lot au choix. Une ligne modifiée à la main n'est plus recalculée. Les recettes restent **uniquement** dans ton classeur Stock (onglet `Recettes`) : elles ne sont jamais dans le dépôt.
+- **Réception depuis la production** : s'il manque une matière, la ligne affiche « Il manque … » et le bouton **Enregistrer une réception**, qui ouvre la réception par-dessus, pré-remplie. Après l'enregistrement, la production revient intacte.
+- **Production sans matières** : possible, après confirmation (« Enregistrer sans matières », puis « Confirmer ») ; le lot porte ensuite le badge « Matières non renseignées ».
+- **Fiche lot** : « Matières utilisées » devient un arbre (chaque préparation se déplie sur ses propres lots), « Utilisé dans » suit toute la chaîne (« via Pâte levée feuilletée PL211026-1 »), et trois boutons : **Bloquer ce lot**, **Rappel et traçabilité**, **Fiche de traçabilité (CSV)**.
+- **Blocage** (motif : Rappel fournisseur, Doute qualité, Date dépassée, Autre) : un lot bloqué n'est plus pris par l'ordre de sortie, est refusé en vente, envoi, transfert, ajout au congélateur de la ferme, remise de commande et production, et ne compte plus dans la disponibilité du site (un produit peut donc passer à « victime »). Il reste possible de le sortir en « Perte » ou « Retour fournisseur » (nouveau motif), ou de l'inventorier. Au blocage d'une matière ou d'une préparation, les lots en aval qui ont encore du stock sont proposés, cochés. Lever le blocage demande une note et une confirmation.
+- **Écran Rappel** : amont, aval avec le stock restant par emplacement et les sorties par motif, clients livrés (commandes du site remises avec un lot concerné : prénom, nom, téléphone et e-mail, lus à la demande dans l'onglet « Commandes », jamais gardés), ventes constatées à la ferme par période, résumé en sachets, puis **Bloquer tous les lots concernés** et l'export CSV.
+- **Registre de traçabilité** (Réglages › Exporter, du… au…, le mois en cours par défaut) : une ligne par lot fabriqué et par lot consommé, préparations comprises (colonne « Via »). Pour une ligne « via » une préparation, la quantité est celle que la préparation a consommée.
+
+Le script crée seul, au premier appel après sa mise à jour, les onglets `Recettes` et `Blocages` et la colonne « Conservation (jours) » d'`Articles` (en dernière position) : rien à faire à la main dans le classeur.
+
+#### Mettre en service le lot 3 bis
+
+1. **Le script d'abord** : recolle **tout** `apps-script/Stock.gs` dans l'éditeur (`Code.gs` ne change pas), 💾 Enregistrer, puis **nouvelle version** du déploiement.
+2. **Puis le site** : fusion de la branche dans `main`. Dans l'autre ordre, la nouvelle page appellerait des actions encore inconnues du script.
+3. **Dans l'Atelier** :
+   - crée tes préparations (Réglages › Articles › Ajouter › Préparation : unité, code lot, conservation en jours) ;
+   - saisis tes recettes, produit par produit et préparation par préparation : rien n'est pré-rempli ;
+   - vérifie une production complète sur un petit lot : matières pré-remplies, puis la fiche du lot (arbre « Matières utilisées »).
+
+#### Vérifier le lot 3 bis
+
+1. Ouvre l'Atelier : le classeur Stock a maintenant les onglets `Recettes` et `Blocages`.
+2. Sur un lot de farine utilisé dans une production, **Rappel et traçabilité** affiche les lots fabriqués avec lui, leur stock et leurs sorties.
+3. Bloque un lot de test, vérifie qu'il n'est plus proposé en sortie « Vente », puis lève le blocage.
+4. Réglages › Exporter › **Exporter le registre** : le fichier contient les couples de la période.
+5. Tests sur ton ordinateur : `npm run test:atelier`, la fin doit afficher `# fail 0`.
 
 ### Les propriétés du stock
 
@@ -435,9 +467,13 @@ Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures port
 | `stock.commande` | `decision` : `remise` (sortie du stock, « Livrée » cochée) ou `annulee` (sachets libérés) |
 | `stock.annuler` | annuler une opération du journal |
 | `stock.catalogue` | articles (dont la réserve hors site) et emplacements |
-| `stock.lot` | fiche d'un lot : historique, matières utilisées, « utilisé dans » |
+| `stock.lot` | fiche d'un lot : historique, arbre amont, aval transitif, blocage, lots à proposer au blocage |
 | `stock.journal` | journal par page, avec `recherche` et `genre` |
 | `stock.import` | reprise du CSV « Stock par lot » exporté par la maquette |
+| `stock.recette` | lot 3 bis : `{ article, rendement, composants: [{ article, quantite }] }` ; l'ancienne recette est close, jamais effacée |
+| `stock.blocage` | lot 3 bis : `{ lots, decision: "bloque" \| "leve", motif, note }` (bloquer : motif obligatoire ; lever : note obligatoire) |
+| `stock.rappel` | lot 3 bis : `{ lot }` ; amont, aval, clients livrés (coordonnées lues à la demande, jamais en cache), ventes à la ferme, résumé |
+| `stock.registre` | lot 3 bis : `{ du, au }` ; une ligne par couple (lot fabriqué, lot consommé), niveaux compris |
 
 ### Dépannage du stock
 
@@ -455,10 +491,15 @@ Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures port
 | « Le script refuse l'accès au stock : vérifie STOCK_SHARED_SECRET » | `STOCK_SHARED_SECRET` (Netlify) ≠ `STOCK_SECRET` (script) | Recopier exactement la même valeur, puis redéployer |
 | « Trop d'essais, réessaie dans quelques minutes. » | 5 codes faux en 15 minutes depuis cette connexion | Attendre 15 minutes |
 | « Connexion impossible pour le moment (ATL-BLOBS-…) » | Netlify Blobs indisponible : la connexion est refusée plutôt que laissée sans limite | Réessayer plus tard ; consulter **Logs > Functions > atelier-connexion** |
+| « Action inconnue. » sur une recette, un blocage, un rappel ou le registre | Site publié avant le script du lot 3 bis | Recoller `Stock.gs` et publier une nouvelle version du script |
+| « Stock insuffisant … Les lots bloqués ne sont pas utilisés. » | Le stock restant est bloqué | Lever le blocage si le lot est sûr, sinon le sortir en « Perte » ou « Retour fournisseur » |
+| « Une préparation reste au labo. » | Envoi, transfert ou vente d'une préparation | Une préparation se consomme dans une production ; seule une sortie « Perte » ou « Autre » est possible |
+| « Trop de niveaux de préparations : 3 au plus… » | Une préparation faite d'une préparation, elle-même faite de deux autres niveaux | Saisir la préparation intermédiaire à partir de matières |
 
 ### Sécurité du stock
 
-- Le classeur Stock n'est jamais partagé, et son identifiant n'est que dans les propriétés du script.
+- Le classeur Stock n'est jamais partagé, et son identifiant n'est que dans les propriétés du script. Les recettes (savoir-faire) n'existent que là : jamais dans le dépôt, les tests ou les journaux.
+- Les coordonnées des clients d'un rappel sont lues à la demande dans l'onglet « Commandes », seulement pour les commandes remises avec un lot concerné, et ne sont ni mises en cache ni journalisées.
 - Le secret du stock est distinct de celui des commandes, et comparé en temps constant.
 - Les journaux d'exécution ne contiennent ni quantité, ni lot, ni montant : une erreur inattendue n'y laisse qu'un code.
 - Le site public ne reçoit que les statuts `disponible`, `victime` et `bientot` : jamais de quantité, de lot, de date, ni rien sur la ferme ou la caisse. La fonction `dispo` refiltre la réponse du script : seuls ces trois mots peuvent passer.

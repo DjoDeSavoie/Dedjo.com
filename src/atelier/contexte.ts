@@ -22,6 +22,9 @@ export interface ContexteAtelier {
 
 export const Contexte = createContext<ContexteAtelier | null>(null);
 
+/** Rang d'une feuille dans la pile : seule la dernière est visible et réagit au clavier. */
+export const NiveauFeuille = createContext(0);
+
 export function useAtelier(): ContexteAtelier {
   const ctx = useContext(Contexte);
   if (!ctx) throw new Error("useAtelier doit être utilisé dans l'Atelier");

@@ -199,6 +199,15 @@ test("relais : X-Atelier exigé, POST seulement, liste blanche d'actions", async
   assert.equal(script.appels.length, 0);
 });
 
+test("relais : les actions de traçabilité du lot 3 bis passent la liste blanche", async () => {
+  for (const action of ["stock.recette", "stock.blocage", "stock.rappel", "stock.registre"]) {
+    const script = fauxScript({ ok: true });
+    const res = await atelier({ action }, { script });
+    assert.equal(res.status, 200, action);
+    assert.equal(script.appels[0].corps.action, action);
+  }
+});
+
 test("relais : le secret du stock et l'action viennent du serveur, la réponse du script est renvoyée", async () => {
   const script = fauxScript({ ok: true, message: "Production enregistrée · lot 11209260127" });
   const res = await atelier({ action: "stock.operation", type: "production", article: "lune", quantite: 6, secret: "tentative", idOperation: "op-essai-0001" }, { script });
