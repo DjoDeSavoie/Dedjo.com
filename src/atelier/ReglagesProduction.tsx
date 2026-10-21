@@ -249,20 +249,27 @@ export function FormReglagesProduction() {
     try {
       r = validerReglages(brut);
     } catch (err) {
-      return ecriture.refuser(err instanceof ErreurReglages ? err.message : "Réglages invalides.");
+      // Le message cite le chemin de la valeur (« v.cap ») : on le remplace par le libellé du champ
+      const message = err instanceof ErreurReglages ? err.message.replace(/« ([^»]+) »/, (tout, chemin: string) => (etiquettes[chemin] ? `« ${etiquettes[chemin]} »` : tout)) : "Réglages invalides.";
+      return ecriture.refuser(message);
     }
     ecriture.envoyer("stock.production.reglages", { reglages: r });
   };
 
-  const nIn = (cle: string, libelle: string, aConfirmer = false, aide?: string) => (
-    <label key={cle} className="grid min-w-0 gap-1.5">
-      <span className={`${ETIQUETTE} flex flex-wrap items-center gap-1.5`}>
-        {libelle}
-        {aConfirmer && !touches.has(cle) ? <Badge teinte="warn">à confirmer</Badge> : null}
-      </span>
-      <input inputMode="decimal" autoComplete="off" value={champs[cle] || ""} placeholder={aide} onChange={(e) => changer(cle, e.target.value)} className={CHAMP} />
-    </label>
-  );
+  // Libellé de chaque champ, pour les messages de refus
+  const etiquettes: Record<string, string> = {};
+  const nIn = (cle: string, libelle: string, aConfirmer = false, aide?: string) => {
+    etiquettes[cle] = libelle;
+    return (
+      <label key={cle} className="grid min-w-0 grid-rows-[1fr_auto] gap-1.5">
+        <span className={`${ETIQUETTE} flex flex-wrap items-end gap-1.5 self-end`}>
+          {libelle}
+          {aConfirmer && !touches.has(cle) ? <Badge teinte="warn">à confirmer</Badge> : null}
+        </span>
+        <input inputMode="decimal" autoComplete="off" value={champs[cle] || ""} placeholder={aide} onChange={(e) => changer(cle, e.target.value)} className={CHAMP} />
+      </label>
+    );
+  };
   const grille = "grid grid-cols-2 gap-3 sm:grid-cols-3";
   const legende = `${ETIQUETTE} mb-2`;
 

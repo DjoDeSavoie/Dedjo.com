@@ -465,7 +465,7 @@ La page n'est citée nulle part sur le site : ni menu, ni pied de page, ni `robo
 npm run atelier:local
 ```
 
-Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google. Le faux script charge `Stock.gs` au démarrage : après une mise à jour du script, relance la commande. Pour une seconde copie en même temps : `ATELIER_PORT=8889 npm run atelier:local`. Pour partir d'un congélateur vide, sans aucun passage (12 Lune et 10 Montagne à Marseille, rien d'autre) : `npm run atelier:local -- --sans-demo`. Pour essayer le site relié au stock (lot 5 : `STOCK_ACTIF` à « oui », une commande de démonstration réservée, La Forêt épuisée) : `npm run atelier:local -- --stock-actif`, puis `http://localhost:8888/` et `http://localhost:8888/commande`.
+Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google. Le faux script charge `Stock.gs` au démarrage : après une mise à jour du script, relance la commande. Pour une seconde copie en même temps : `ATELIER_PORT=8889 npm run atelier:local`. Pour partir d'un congélateur vide, sans aucun passage (12 Lune et 10 Montagne à Marseille, rien d'autre) : `npm run atelier:local -- --sans-demo`. Pour l'acceptation du lot 6 (stock de test, sans réglages de production) : `npm run atelier:local -- --production`. Pour essayer le site relié au stock (lot 5 : `STOCK_ACTIF` à « oui », une commande de démonstration réservée, La Forêt épuisée) : `npm run atelier:local -- --stock-actif`, puis `http://localhost:8888/` et `http://localhost:8888/commande`.
 
 ### Lot 3 bis : traçabilité complète des ingrédients
 
@@ -569,6 +569,39 @@ Pour revenir en arrière : supprime `STOCK_ACTIF`. Les commandes repartent comme
 4. Sur ton ordinateur, les trois cas du brief : `npm run atelier:local -- --stock-actif` (site relié au stock : La Forêt affiche « Victime… », une commande de 9 Cabosse est refusée proprement), puis `npm run atelier:local` (sans `STOCK_ACTIF` : le site se comporte comme aujourd'hui).
 5. Tests : `npm run test:atelier`, la fin doit afficher `# fail 0`.
 
+### Lot 6 : planification de production
+
+Quand un produit atteint sa limite à Marseille, l'Atelier prépare la production du week-end :
+
+- **Onglet Production** (bouton calendrier de l'en-tête, à côté de Réglages ; la barre du bas ne change pas). Dans la vue Stock, un produit à renflouer porte le lien **Planifier une production**.
+- **Productions** : les produits des deux familles du catalogue (viennoiseries, feuilletés), d'abord ceux **à renflouer** (disponible à Marseille inférieur ou égal à la limite : le seuil Marseille du produit, sinon la limite des réglages), du plus urgent au moins urgent, avec les badges « Rupture » (0) et « À renflouer ». Pour chacun : « 1 production → N sachets » et un pas à pas de 0 à 9. Une production, c'est une pâtée d'un seul produit.
+- **Quand** : premier jour (le prochain samedi), **d'une traite** (1 à 4 jours) ou **en deux temps** (2 à 5 jours : la veille, puis le jour J), avec un début et une fin au plus tard par jour.
+- **Organigramme**, calculé dans le navigateur : résumé par jour (horaires, temps sur place, temps de travail), avertissements (plage dépassée, congélateur plein, pâte levée plus de 18 h au froid), valeurs « À confirmer », puis un **diagramme de Gantt** par jour (poste, une ligne par production, garnitures comprises, et « Toi » occupé ou libre ; touche un bloc pour ses horaires). Jamais deux tâches à la fois sur toi, le pétrin, le laminoir ou le feu ; jamais plus de productions au congélateur que de places, jusqu'à leur mise en sachet.
+- **Feuille de route** à cocher, jour par jour, avec une note utile par étape et les créneaux libres. Le plan (productions, jours, coches) est enregistré dans ton classeur au plus une fois par seconde : tu le retrouves sur tous tes appareils. Un plan d'un week-end passé repart au prochain samedi, coches vidées.
+- **Enregistrer la production** : un lot par produit et par jour de congélation. Chaque ligne ouvre le formulaire de production habituel, pré-rempli (produit, sachets, fabrication = jour de congélation, Marseille, note « Production planifiée », matières par la recette). Une fois enregistrée, la ligne affiche « Enregistré · lot … ».
+- **Réglages › Production** : limite, places au congélateur, heures avant mise en sachet, pâtées de viennoiseries (pièces, pâte par pièce, poids de pâte par produit, mains libres) et de feuilletés, durées des étapes, poste, garnitures. On les saisit, ou on les **colle depuis la maquette** (« Copier les réglages ») : ils sont vérifiés avec un aperçu, puis enregistrés. Badge « à confirmer » sur les valeurs encore incertaines ; une valeur modifiée à la main ne l'est plus.
+
+**Les réglages de production sont du savoir-faire** : ils vivent seulement dans l'onglet `Production` de ton classeur Stock, comme les recettes. Le code n'en contient aucun : sans réglages, l'onglet Production te demande de les renseigner.
+
+Le script crée seul, au premier appel après sa mise à jour, l'onglet `Production` (Clé, Valeur, Modifiée le, Remplacée le) : une ligne `reglages` par enregistrement (la précédente est close, jamais effacée), et une seule ligne `plan`, mise à jour sur place. Ces écritures ne touchent ni le stock ni son cache.
+
+#### Mettre en service le lot 6
+
+1. **Le script d'abord** : recolle **tout** `apps-script/Stock.gs` dans l'éditeur (`Code.gs` ne change pas), 💾 Enregistrer, puis **nouvelle version** du déploiement.
+2. **Puis le site** : fusion de la branche dans `main`. Dans l'autre ordre, l'onglet Production afficherait « Action inconnue. ».
+3. **Mise en route** :
+   - dans la maquette « Stock Dedjo » : Production › Réglages de production › **Copier les réglages** ;
+   - dans l'Atelier : Réglages › Production › **Coller les réglages de la maquette**, vérifie l'aperçu, puis **Enregistrer ces réglages** ;
+   - si tu le souhaites, règle un seuil Marseille par produit (Réglages › Articles) ; sinon la limite des réglages de production s'applique.
+
+#### Vérifier le lot 6
+
+1. Ouvre l'Atelier : le classeur Stock a maintenant l'onglet `Production`, vide.
+2. Onglet Production (bouton calendrier) : « Renseigne d'abord tes réglages de production ». Colle tes réglages : la ligne `reglages` apparaît dans l'onglet `Production`.
+3. Choisis une production : l'organigramme et la feuille de route s'affichent. Coche une étape, recharge la page : la coche est gardée (ligne `plan` du classeur).
+4. Sur ton ordinateur, l'acceptation complète avec des données inventées : `npm run atelier:local -- --production` (Lune 3, Rose 0, Montagne 2, Cabosse 10 à Marseille, sans réglages), puis colle les réglages inventés du § 6 de `LOT-6-planification.md` dans Réglages › Production et déroule le § 8.
+5. Tests : `npm run test:atelier` et `npm run test:planification`, chacun doit finir par `# fail 0`.
+
 ### Les propriétés du stock
 
 | Propriété | Valeur |
@@ -609,6 +642,9 @@ Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures port
 | `stock.blocage` | lot 3 bis : `{ lots, decision: "bloque" \| "leve", motif, note }` (bloquer : motif obligatoire ; lever : note obligatoire) |
 | `stock.rappel` | lot 3 bis : `{ lot }` ; amont, aval, clients livrés (coordonnées lues à la demande, jamais en cache), ventes à la ferme, résumé |
 | `stock.registre` | lot 3 bis : `{ du, au }` ; une ligne par couple (lot fabriqué, lot consommé), niveaux compris |
+| `stock.production` | lot 6 : `{ reglages, plan }` en vigueur dans l'onglet Production (`null` si absents), lus sans cache |
+| `stock.production.reglages` | lot 6 : `{ reglages }` validés ; nouvelle ligne, la précédente close (rien si identiques) |
+| `stock.production.plan` | lot 6 : `{ plan }` validé ; une seule ligne, mise à jour sur place |
 
 ### Dépannage du stock
 
@@ -640,10 +676,16 @@ Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures port
 | Commande refusée « … est victime de son succès » alors que le produit est affiché disponible | Le panier dépasse le nombre commandable (le site ne connaît pas les quantités) | Normal : le client retire le produit ou en prend moins |
 | « Stock insuffisant … » à la remise d'une commande | Les sachets réservés ne sont plus à l'emplacement choisi (vendus, transférés) | Choisir un autre emplacement dans la fiche, ou saisir d'abord la production ou le transfert |
 | « Coche « Livrée » à la main dans le classeur des commandes. » | La commande n'a pas été trouvée dans l'onglet « Commandes » (ligne déplacée ou renommée) | Cocher « Livrée » à la main ; la sortie du stock, elle, est faite |
+| « Action inconnue. » dans l'onglet Production | Site publié avant le script du lot 6 | Recoller `Stock.gs` et publier une nouvelle version du script |
+| « Renseigne d'abord tes réglages de production » | Aucun réglage dans l'onglet `Production` | Réglages › Production › Coller les réglages de la maquette |
+| « Réglages : « … » doit être … » au collage | Une valeur manque ou est hors bornes (nombre négatif, places au congélateur hors de 1 à 6, plus de 50 ko…) | Corriger dans la maquette, recopier, recoller |
+| « Les réglages enregistrés ne sont pas lisibles » | La ligne `reglages` de l'onglet `Production` a été modifiée à la main | Recoller les réglages depuis la maquette (une nouvelle ligne remplace l'ancienne) |
+| « Plan pas encore enregistré. » sous l'organigramme | Réseau coupé ou stock occupé | « Réessayer » ; le plan reste affiché tel quel |
+| « Ça dépasse ta plage horaire… » ou « Congélateur plein… » | Trop de productions pour les jours choisis | Ajouter un jour, élargir les horaires, ou étaler sur deux week-ends |
 
 ### Sécurité du stock
 
-- Le classeur Stock n'est jamais partagé, et son identifiant n'est que dans les propriétés du script. Les recettes (savoir-faire) n'existent que là : jamais dans le dépôt, les tests ou les journaux.
+- Le classeur Stock n'est jamais partagé, et son identifiant n'est que dans les propriétés du script. Les recettes et les réglages de production (savoir-faire) n'existent que là : jamais dans le dépôt, les tests, les exemples ou les journaux. Les messages de refus des réglages citent le nom d'une valeur, jamais la valeur elle-même.
 - Les coordonnées des clients d'un rappel sont lues à la demande dans l'onglet « Commandes », seulement pour les commandes remises avec un lot concerné, et ne sont ni mises en cache ni journalisées.
 - Le secret du stock est distinct de celui des commandes, et comparé en temps constant.
 - Les journaux d'exécution ne contiennent ni quantité, ni lot, ni montant : une erreur inattendue n'y laisse qu'un code.

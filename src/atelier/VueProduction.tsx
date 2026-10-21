@@ -211,7 +211,13 @@ function Planificateur({ reglages: r, planEnregistre }: { reglages: Reglages; pl
   const { min: minJours, max: maxJours } = LIMITES_JOURS[plan.mode];
 
   const calcul = useMemo(() => {
-    const demandes = visibles.map((p) => ({ id: p.a.id, fam: p.fam, n: plan.prods[p.a.id] || 0, piecesParSachet: piecesParSachet(p.a) }));
+    // Viennoiseries puis feuilletés, chacun dans son ordre de priorité (comme la liste affichée)
+    const demandes = [...visibles.filter((p) => p.fam === "v"), ...visibles.filter((p) => p.fam === "f")].map((p) => ({
+      id: p.a.id,
+      fam: p.fam,
+      n: plan.prods[p.a.id] || 0,
+      piecesParSachet: piecesParSachet(p.a),
+    }));
     const productions = construireProductions(r, demandes);
     let resultat: Plan | null = null;
     let erreur = "";
