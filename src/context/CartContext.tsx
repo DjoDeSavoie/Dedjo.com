@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from "react";
-import { VIENNOISERIES, FEUILLETES, countSachets, estDisponible, sachetsTotal } from "@/lib/catalog";
+import { createContext, useContext, useState, useMemo, useCallback, useEffect, ReactNode } from "react";
+import { toast } from "sonner";
+import { VIENNOISERIES, FEUILLETES, countSachets, sachetsTotal } from "@/lib/catalog";
+import { useDisponibilite } from "@/hooks/useDisponibilite";
 
 /** Nombre de sachets par produit (id → quantité). */
 type Counts = Record<string, number>;
@@ -27,15 +29,37 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [vienno, setVienno] = useState<Counts>(() => buildInitial(VIENNOISERIES));
   const [friand, setFriand] = useState<Counts>(() => buildInitial(FEUILLETES));
 
-  // Un produit « Bientôt disponible » ne peut pas être ajouté (le retrait reste possible)
-  const addVienno = useCallback((id: string, delta: number) => {
-    if (delta > 0 && !estDisponible(id)) return;
-    setVienno((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
-  }, []);
-  const addFriand = useCallback((id: string, delta: number) => {
-    if (delta > 0 && !estDisponible(id)) return;
-    setFriand((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
-  }, []);
+  const { statut } = useDisponibilite();
+
+  // Seul un produit disponible peut être ajouté (le retrait reste toujours possible)
+  const addVienno = useCallback(
+    (id: string, delta: number) => {
+      if (delta > 0 && statut(id) !== "disponible") return;
+      setVienno((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
+    },
+    [statut]
+  );
+  const addFriand = useCallback(
+    (id: string, delta: number) => {
+      if (delta > 0 && statut(id) !== "disponible") return;
+      setFriand((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
+    },
+    [statut]
+  );
+
+  // Un produit qui passe à « victime » pendant la visite quitte le panier, avec un message
+  useEffect(() => {
+    const retirer = (produits: { id: string; name: string }[], panier: Counts, vider: (ids: string[]) => void) => {
+      const partis = produits.filter((p) => (panier[p.id] || 0) > 0 && statut(p.id) === "victime");
+      if (!partis.length) return;
+      vider(partis.map((p) => p.id));
+      partis.forEach((p) => toast.warning(`${p.name} est victime de son succès, on l'a retiré de ton panier.`));
+    };
+    const sans = (ids: string[]) => (prev: Counts) => ids.reduce((o, id) => ({ ...o, [id]: 0 }), prev);
+    retirer(VIENNOISERIES, vienno, (ids) => setVienno(sans(ids)));
+    retirer(FEUILLETES, friand, (ids) => setFriand(sans(ids)));
+  }, [statut, vienno, friand]);
+
   const clear = useCallback(() => {
     setVienno(buildInitial(VIENNOISERIES));
     setFriand(buildInitial(FEUILLETES));

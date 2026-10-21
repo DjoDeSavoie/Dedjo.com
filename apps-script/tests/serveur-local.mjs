@@ -6,6 +6,9 @@
    Option --sans-netlify : seulement le faux script (port 8790). Rien n'est écrit sur le disque.
    Option --sans-demo : congélateur de la ferme vide et aucun passage, seulement 12 Lune et
    10 Montagne à Marseille, pour rejouer l'exemple du passage à la ferme (§ 4.7 du brief).
+   Option --stock-actif : STOCK_ACTIF à « oui » (le site suit le stock, les commandes réservent),
+   avec une commande de démonstration réservée (D-0001) ; sans elle, le site garde sa disponibilité
+   de secours, comme avant le lot 5.
    Deux copies en même temps : ATELIER_PORT=8889 npm run atelier:local (site sur 8889, faux script
    sur 8791, Vite sur 5174). */
 
@@ -38,6 +41,12 @@ if (process.argv.includes("--sans-demo")) {
 } else {
   demo();
 }
+if (process.argv.includes("--stock-actif")) {
+  env.proprietes.set("STOCK_ACTIF", "oui");
+  // Commande de test du script (1 Lune, 1 Montagne), passée comme depuis le site : elle réserve ses sachets
+  const commande = env.testerCommande();
+  if (!commande.ok) throw new Error(`Commande de démonstration refusée (${commande.error})`);
+}
 
 // Stock de démonstration (inventé)
 function demo() {
@@ -60,6 +69,9 @@ function demo() {
   operation("envoi", { lignes: [{ article: "lune", quantite: 4 }] });
   env.appeler("stock.passage", { ajouts: { lune: 4, montagne: 2 }, horodatage: Date.now() - 2 * JOUR });
   operation("sortie", { emplacement: "marseille", motif: "Dégustation / offert", lignes: [{ article: "montagne", quantite: 1 }], note: "Marché d'essai" });
+  // La Forêt : produite puis toute vendue, elle est « victime de son succès » sur le site
+  operation("production", { article: "foret", quantite: 2, fabrication: ilYa(8) });
+  operation("sortie", { emplacement: "marseille", motif: "Vente", lignes: [{ article: "foret", quantite: 2 }] });
 }
 
 // Faux Apps Script : POST → doPost, GET → doGet, comme le déploiement en application web

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import ProductTags, { BientotDisponible, Tampons } from "./ProductTags";
+import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { CUISSON, FEUILLETES, Product, estDisponible, eur } from "@/lib/catalog";
+import { CUISSON, FEUILLETES, Product, eur } from "@/lib/catalog";
+import { useDisponibilite } from "@/hooks/useDisponibilite";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
 const catalogProduct = (id: string) => FEUILLETES.find((f) => f.id === id)!;
@@ -17,6 +18,7 @@ const SaltyPastriesSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { addFriand } = useCart();
+  const { statut } = useDisponibilite();
 
   const handleAdd = (id: string, name: string) => {
     addFriand(id, 1);
@@ -120,7 +122,7 @@ const SaltyPastriesSection = () => {
                   >
                     Voir les détails →
                   </button>
-                  {estDisponible(flavor.id) ? (
+                  {statut(flavor.id) === "disponible" ? (
                     <button
                       onClick={() => handleAdd(flavor.id, flavor.name)}
                       className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
@@ -128,7 +130,7 @@ const SaltyPastriesSection = () => {
                       + Panier
                     </button>
                   ) : (
-                    <BientotDisponible className="ml-auto" />
+                    <StatutProduit statut={statut(flavor.id)} className="ml-auto" />
                   )}
                 </div>
               </div>

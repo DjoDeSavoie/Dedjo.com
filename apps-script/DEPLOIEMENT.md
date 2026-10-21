@@ -289,7 +289,7 @@ Le **lot 1** installe le script seul : rien n'est encore visible sur le site, et
 
 ### 5. Ne pas mettre `STOCK_ACTIF` avant le lot 5
 
-Tant que la propriété `STOCK_ACTIF` est absente, les commandes du site fonctionnent **exactement comme avant** : le script n'ouvre même pas le classeur Stock. Au lot 5, `STOCK_ACTIF` à `oui` fera réserver les sachets de chaque commande sur le stock de Marseille.
+Tant que la propriété `STOCK_ACTIF` est absente, les commandes du site fonctionnent **exactement comme avant** : le script n'ouvre même pas le classeur Stock. Au lot 5, `STOCK_ACTIF` à `oui` fera réserver les sachets de chaque commande sur le stock de Marseille (ordre de mise en service : « Lot 5 » plus bas).
 
 ### Vérifier
 
@@ -400,7 +400,7 @@ La page n'est citée nulle part sur le site : ni menu, ni pied de page, ni `robo
 npm run atelier:local
 ```
 
-Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google. Le faux script charge `Stock.gs` au démarrage : après une mise à jour du script, relance la commande. Pour une seconde copie en même temps : `ATELIER_PORT=8889 npm run atelier:local`. Pour partir d'un congélateur vide, sans aucun passage (12 Lune et 10 Montagne à Marseille, rien d'autre) : `npm run atelier:local -- --sans-demo`.
+Le vrai script tourne alors sur un faux classeur en mémoire, avec un stock de démonstration inventé, derrière `netlify dev`. Ouvre `http://localhost:8888/atelier`, code `atelier-local-0000`. **Ctrl+C** arrête tout ; rien n'est écrit, ni sur le disque ni chez Google. Le faux script charge `Stock.gs` au démarrage : après une mise à jour du script, relance la commande. Pour une seconde copie en même temps : `ATELIER_PORT=8889 npm run atelier:local`. Pour partir d'un congélateur vide, sans aucun passage (12 Lune et 10 Montagne à Marseille, rien d'autre) : `npm run atelier:local -- --sans-demo`. Pour essayer le site relié au stock (lot 5 : `STOCK_ACTIF` à « oui », une commande de démonstration réservée, La Forêt épuisée) : `npm run atelier:local -- --stock-actif`, puis `http://localhost:8888/` et `http://localhost:8888/commande`.
 
 ### Lot 3 bis : traçabilité complète des ingrédients
 
@@ -466,6 +466,43 @@ Les calculs sont ceux du script depuis le lot 1 : **attendu** = stock « ferme �
 3. Tests sur ton ordinateur : `npm run test:atelier`, la fin doit afficher `# fail 0`.
 
 Les montants de caisse ne vivent que dans ton classeur Stock (onglet `Passages`) et dans l'Atelier. Le fichier exporté se télécharge sur ton appareil : garde-le pour toi.
+
+### Lot 5 : le site suit le stock
+
+Le site public prend sa disponibilité dans le stock de Marseille, et l'Atelier gère les commandes réservées :
+
+- **Disponibilité** : le site lit `/api/dispo` (statuts seulement, jamais de quantité), garde la réponse 60 secondes et la relit quand on revient sur l'onglet. Chaque produit affiche :
+  - **+ Panier** s'il est `disponible` ;
+  - « **Victime de son succès ! Reviens bientôt…** » s'il est épuisé à Marseille (`victime`) ;
+  - « **Bientôt disponible** » s'il n'a jamais été en stock (`bientot`).
+- **Secours** : si `/api/dispo` ne répond pas, ou tant que `STOCK_ACTIF` n'est pas à `oui`, le site garde la disponibilité écrite dans `src/lib/catalog.ts` (`DISPONIBILITE_SECOURS`), comme avant.
+- **Panier** : un produit qui devient « victime » pendant la visite est retiré du panier, avec le message « {Nom} est victime de son succès, on l'a retiré de ton panier. »
+- **Commande refusée** : si le panier dépasse ce qui reste à Marseille, le script refuse la commande et le message s'affiche tel quel sur `/commande` (« La Lune est victime de son succès : retire-le de ton panier pour valider ta commande. »). Le site relit alors les statuts.
+- **Onglet Commandes de l'Atelier** :
+  - **Réservations ouvertes**, regroupées par commande : n°, prénom, créneau, secteur, produits ;
+  - fiche d'une commande : produits réservés avec le stock de l'emplacement choisi, **Remise au client** (sortie depuis Marseille par défaut, modifiable ; motif « Commande D-xxxx » ; « Livrée » cochée dans le classeur des commandes) et **Commande annulée**, en deux temps (les sachets redeviennent commandables, rien ne sort du stock) ;
+  - **Sur le site** : le statut que le site affiche (ou afficherait) pour chaque produit, et le nombre de sachets commandables (stock de Marseille − réservations ouvertes − réserve hors site, sans les lots bloqués). Ces nombres restent dans l'Atelier.
+
+⚠️ Une fois `STOCK_ACTIF` à `oui`, **tout produit en stock à Marseille devient commandable**, même s'il est à `false` dans `DISPONIBILITE_SECOURS`. N'entre en stock un produit qu'avec son étiquette complète (dénomination, ingrédients, allergènes, poids net).
+
+#### Mettre en service le lot 5
+
+Le script ne change pas : les réservations sont prêtes depuis le lot 1. Dans l'ordre :
+
+1. **Importe le stock** (lot 3, « Reprise du stock »), puis saisis les productions faites depuis : le stock de Marseille doit être juste.
+2. **Vérifie les statuts dans l'Atelier** : onglet **Commandes**, section **Sur le site**. Le bandeau orange rappelle que le site n'applique pas encore ces statuts. Chaque produit doit avoir le statut et le nombre de sachets attendus ; règle la **réserve hors site** (Réglages › Articles) si tu gardes des sachets pour la ferme.
+3. **Mets `STOCK_ACTIF` à `oui`** : éditeur Apps Script › ⚙️ **Paramètres du projet** › **Propriétés du script** › **Ajouter une propriété** : `STOCK_ACTIF`, valeur `oui`, puis **Enregistrer**. Pas besoin de nouvelle version du déploiement : la propriété est lue à chaque commande. Dès cet instant, chaque commande réserve ses sachets.
+4. **Publie le site** : fusion de la branche dans `main`.
+
+Pour revenir en arrière : supprime `STOCK_ACTIF`. Les commandes repartent comme avant et le site reprend `DISPONIBILITE_SECOURS` (en une minute au plus, le temps du cache).
+
+#### Vérifier le lot 5
+
+1. Onglet **Commandes** de l'Atelier : le bandeau est vert (« Le site suit le stock de Marseille »).
+2. Sur `https://dedjo.com/commande` : les produits épuisés à Marseille affichent « Victime de son succès ! Reviens bientôt… », ceux jamais entrés en stock « Bientôt disponible ». Un changement de stock met jusqu'à deux minutes à apparaître (cache d'une minute sur Netlify, plus une minute dans le navigateur).
+3. Passe une vraie commande d'un sachet : elle apparaît dans **Réservations ouvertes**, et le nombre de sachets commandables du produit baisse d'un. **Commande annulée** la libère ; ou **Remise au client** sort le sachet du stock et coche « Livrée » dans le classeur des commandes.
+4. Sur ton ordinateur, les trois cas du brief : `npm run atelier:local -- --stock-actif` (site relié au stock : La Forêt affiche « Victime… », une commande de 9 Cabosse est refusée proprement), puis `npm run atelier:local` (sans `STOCK_ACTIF` : le site se comporte comme aujourd'hui).
+5. Tests : `npm run test:atelier`, la fin doit afficher `# fail 0`.
 
 ### Les propriétés du stock
 
@@ -533,6 +570,11 @@ Toutes passent par `doPost` avec `{ action, secret, … }` ; les écritures port
 | « Date et heure invalides. » | Date du passage à plus de 10 minutes dans le futur, ou à plus de 400 jours | Corriger la date et l'heure (heure du téléphone comprise) |
 | « compte supérieur au stock attendu, vérifie le passage précédent » | Un ajout oublié au passage précédent, ou une erreur de compte | Vérifier le passage précédent ; le passage s'enregistre quand même |
 | Écart « À compléter » | Encaissé laissé vide | Ouvrir la fiche du passage et saisir l'encaissé |
+| Le site garde l'ancienne disponibilité alors que `STOCK_ACTIF` est à `oui` | `/api/dispo` ne répond pas (le site se rabat sur `DISPONIBILITE_SECOURS`), ou cache encore valable | Attendre deux minutes ; sinon Netlify : **Logs > Functions > dispo**, ligne « Atelier DSP-… » |
+| Un produit en stock affiche « Victime de son succès » | Tout le stock de Marseille est réservé, gardé en réserve hors site ou dans des lots bloqués | Atelier › Commandes › **Sur le site** : le nombre commandable ; remettre ou annuler les commandes, baisser la réserve, lever le blocage |
+| Commande refusée « … est victime de son succès » alors que le produit est affiché disponible | Le panier dépasse le nombre commandable (le site ne connaît pas les quantités) | Normal : le client retire le produit ou en prend moins |
+| « Stock insuffisant … » à la remise d'une commande | Les sachets réservés ne sont plus à l'emplacement choisi (vendus, transférés) | Choisir un autre emplacement dans la fiche, ou saisir d'abord la production ou le transfert |
+| « Coche « Livrée » à la main dans le classeur des commandes. » | La commande n'a pas été trouvée dans l'onglet « Commandes » (ligne déplacée ou renommée) | Cocher « Livrée » à la main ; la sortie du stock, elle, est faite |
 
 ### Sécurité du stock
 

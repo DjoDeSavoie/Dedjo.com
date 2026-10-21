@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import ProductTags, { BientotDisponible, Tampons } from "./ProductTags";
+import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { CUISSON, Product, VIENNOISERIES, estDisponible, eur } from "@/lib/catalog";
+import { CUISSON, Product, VIENNOISERIES, eur } from "@/lib/catalog";
+import { useDisponibilite } from "@/hooks/useDisponibilite";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
 const catalogProduct = (id: string) => VIENNOISERIES.find((p) => p.id === id)!;
@@ -18,6 +19,7 @@ const SweetProductsSection = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [fabricationOpen, setFabricationOpen] = useState(false);
   const { addVienno } = useCart();
+  const { statut } = useDisponibilite();
 
   const handleAdd = (id: string) => {
     addVienno(id, 1);
@@ -110,7 +112,7 @@ const SweetProductsSection = () => {
                 >
                   Voir les détails →
                 </button>
-                {estDisponible(product.id) ? (
+                {statut(product.id) === "disponible" ? (
                   <button
                     onClick={() => handleAdd(product.id)}
                     className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
@@ -118,7 +120,7 @@ const SweetProductsSection = () => {
                     + Panier
                   </button>
                 ) : (
-                  <BientotDisponible className="ml-auto" />
+                  <StatutProduit statut={statut(product.id)} className="ml-auto" />
                 )}
               </div>
             </div>

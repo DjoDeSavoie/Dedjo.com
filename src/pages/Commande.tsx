@@ -4,9 +4,11 @@ import { ArrowLeft, Check, CheckCircle2, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
 import ProductLabelModal from "@/components/ProductLabelModal";
-import ProductTags, { BientotDisponible, Tampons } from "@/components/ProductTags";
+import ProductTags, { StatutProduit, Tampons } from "@/components/ProductTags";
 import LivraisonJauge from "@/components/LivraisonJauge";
 import { useCart } from "@/context/CartContext";
+import { CLE_DISPONIBILITE, useDisponibilite } from "@/hooks/useDisponibilite";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdresseLivraison, CommandePayload, envoyerCommande } from "@/lib/commande";
 import {
   CONFIG,
@@ -17,7 +19,6 @@ import {
   PRIX_SACHET,
   SECTEURS,
   Product,
-  estDisponible,
   eur,
   pluralize,
 } from "@/lib/catalog";
@@ -88,6 +89,8 @@ const Commande = () => {
     total,
     clear,
   } = useCart();
+  const { statut } = useDisponibilite();
+  const queryClient = useQueryClient();
 
   const [form, setForm] = useState<FormState>({
     secteur: "",
@@ -245,6 +248,8 @@ const Commande = () => {
     } else {
       setErreurEnvoi(resultat.error);
       setEnvoi("erreur");
+      // Un produit refusé faute de stock passe à « victime » : le panier se met à jour
+      queryClient.invalidateQueries({ queryKey: CLE_DISPONIBILITE });
     }
   };
 
@@ -288,8 +293,8 @@ const Commande = () => {
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 mt-auto">
-          {!estDisponible(p.id) ? (
-            <BientotDisponible />
+          {statut(p.id) !== "disponible" ? (
+            <StatutProduit statut={statut(p.id)} />
           ) : (
             <div className="flex items-center gap-1.5">
               <button

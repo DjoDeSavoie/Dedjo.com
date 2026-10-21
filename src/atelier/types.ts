@@ -273,4 +273,5 @@ export type Feuille =
   | { type: "blocage"; lot: string; decision: "bloque" | "leve"; tous?: string[] }
   | { type: "rappel"; lot: string }
   | { type: "nouveauPassage" }
-  | { type: "passage"; id: string };
+  | { type: "passage"; id: string }
+  | { type: "commande"; id: string };

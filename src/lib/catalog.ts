@@ -17,10 +17,13 @@ export const CONFIG = {
   fraisLivraison: 5, // Marseille : frais de livraison (en €) en dessous de ce seuil
 };
 
-/* ███  DISPONIBILITÉ — À MODIFIER  ███
+/* ███  DISPONIBILITÉ DE SECOURS — À MODIFIER  ███
+   La disponibilité vient du stock de Marseille (/api/dispo, voir src/hooks/useDisponibilite.ts).
+   Ce tableau ne sert que si le stock ne répond pas, ou tant que STOCK_ACTIF n'est pas à « oui »
+   dans le script :
    true  → le produit est commandable
    false → affiché « Bientôt disponible », impossible à ajouter au panier */
-export const DISPONIBILITE = {
+export const DISPONIBILITE_SECOURS = {
   lune: true,
   cabosse: true,
   grappe: false,
@@ -31,9 +34,14 @@ export const DISPONIBILITE = {
   goet: false,
 };
 
-export type ProductId = keyof typeof DISPONIBILITE;
+export type ProductId = keyof typeof DISPONIBILITE_SECOURS;
 
-export const estDisponible = (id: string): boolean => DISPONIBILITE[id as ProductId] === true;
+/** Statut d'un produit sur le site : commandable, épuisé à Marseille, ou jamais encore en stock. */
+export type StatutSite = "disponible" | "victime" | "bientot";
+
+/** Statut tiré de DISPONIBILITE_SECOURS (stock injoignable ou pas encore actif). */
+export const statutSecours = (id: string): StatutSite =>
+  DISPONIBILITE_SECOURS[id as ProductId] === true ? "disponible" : "bientot";
 
 /* ███  SECTEURS — retrait ou livraison  ███
    jour : jour de retrait / livraison (0 = dimanche … 5 = vendredi, 6 = samedi) */
@@ -116,7 +124,7 @@ export interface ProductLabel {
 }
 
 export interface Product {
-  /** Doit figurer dans DISPONIBILITE (vérifié par TypeScript). */
+  /** Doit figurer dans DISPONIBILITE_SECOURS (vérifié par TypeScript). */
   id: ProductId;
   name: string;
   emoji: string;
@@ -266,7 +274,7 @@ export const VIENNOISERIES: Product[] = [
 /* ===================================================================
    FEUILLETÉS SALÉS — sachet de 2 friands de la même gamme
    Allergènes en gras dans les ingrédients. Un produit ne passe à true dans
-   DISPONIBILITE qu'avec son étiquette complète (dénomination, ingrédients,
+   DISPONIBILITE_SECOURS, ou n'entre en stock, qu'avec son étiquette complète (dénomination, ingrédients,
    allergènes, poids net) — sécurité alimentaire.
    =================================================================== */
 const PREPARATION_FEUILLETE = `Préchauffe ton four à **${CUISSON.temperature} °C**. Enfourne tes friands directement sortis du congélateur, sans décongeler : **${CUISSON.minutes.feuilletes} minutes**.`;

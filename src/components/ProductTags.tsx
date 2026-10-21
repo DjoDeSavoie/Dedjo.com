@@ -1,15 +1,27 @@
-import { Clock, Flower2, Heart, Info, LucideIcon, Mountain, Snowflake, Sprout, Stamp } from "lucide-react";
-import { Product } from "@/lib/catalog";
+import { Clock, Flower2, Heart, Info, LucideIcon, Mountain, Snowflake, Sparkles, Sprout, Stamp } from "lucide-react";
+import { Product, StatutSite } from "@/lib/catalog";
 
-/** Remplace l'action « commander » d'un produit pas encore en vente (voir DISPONIBILITE). */
-export const BientotDisponible = ({ className = "" }: { className?: string }) => (
-  <span
-    className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold bg-[#FFF6DB] text-[#7a5a00] border border-[#F5C842] px-3 py-1.5 rounded-full ${className}`}
-  >
-    <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-    Bientôt disponible
-  </span>
-);
+const LIBELLES: Record<Exclude<StatutSite, "disponible">, { texte: string; icone: LucideIcon }> = {
+  victime: { texte: "Victime de son succès ! Reviens bientôt…", icone: Sparkles },
+  bientot: { texte: "Bientôt disponible", icone: Clock },
+};
+
+/**
+ * Remplace l'action « commander » d'un produit qu'on ne peut pas commander : épuisé à Marseille
+ * (victime) ou pas encore en vente (bientot). Le libellé peut passer à la ligne sur petit écran.
+ */
+export const StatutProduit = ({ statut, className = "" }: { statut: StatutSite; className?: string }) => {
+  if (statut === "disponible") return null;
+  const { texte, icone: Icone } = LIBELLES[statut];
+  return (
+    <span
+      className={`inline-flex max-w-full items-center gap-1.5 text-left text-xs font-semibold leading-snug bg-[#FFF6DB] text-[#7a5a00] border border-[#F5C842] px-3 py-1.5 rounded-2xl ${className}`}
+    >
+      <Icone className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+      {texte}
+    </span>
+  );
+};
 
 /** Icône et couleur d'encre de chaque label ; un label absent de la liste prend le tampon par défaut. */
 const TAMPONS: Record<string, { icone: LucideIcon; encre: string }> = {

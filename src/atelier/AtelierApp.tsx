@@ -17,6 +17,7 @@ import VueJournal from "./VueJournal";
 import VueReglages, { FormArticle, FormEmplacement } from "./VueReglages";
 import { FormBlocage, VueRappel } from "./tracabilite";
 import VueFerme, { FichePassage, FormPassage } from "./VueFerme";
+import VueCommandes, { FicheCommande } from "./VueCommandes";
 
 type Vue = "stock" | "saisir" | "ferme" | "commandes" | "journal" | "reglages";
 
@@ -193,7 +194,7 @@ export default function AtelierApp() {
               {vue === "stock" ? <VueStock /> : null}
               {vue === "saisir" ? <VueSaisir /> : null}
               {vue === "ferme" ? <VueFerme /> : null}
-              {vue === "commandes" ? <AVenir lot={5} texte="Les commandes du site, leurs réservations, la remise au client et l'annulation arrivent au lot 5, avec la disponibilité des produits calculée depuis le stock." /> : null}
+              {vue === "commandes" ? <VueCommandes /> : null}
               {vue === "journal" ? <VueJournal /> : null}
               {vue === "reglages" ? <VueReglages /> : null}
               {pile.map((p, i) => (
@@ -282,16 +283,9 @@ function FeuilleCourante({ feuille: f }: { feuille: Feuille }) {
       return <FormPassage />;
     case "passage":
       return <FichePassage id={f.id} />;
+    case "commande":
+      return <FicheCommande id={f.id} />;
     default:
       return null;
   }
-}
-
-function AVenir({ lot, texte }: { lot: number; texte: string }) {
-  return (
-    <div className="mt-7 grid justify-items-start gap-3 rounded-xl border border-dashed border-[#E6DCC6] p-5">
-      <h2 className="font-display text-xl font-semibold text-[#163F6B]">Bientôt (lot {lot})</h2>
-      <p className="max-w-[52ch] text-[#5E6A78]">{texte}</p>
-    </div>
-  );
 }
