@@ -36,7 +36,7 @@ const SaltyPastriesSection = () => {
     {
       id: "foret",
       name: "La Forêt",
-      description: "Champignons des bois, béchamel douce, fromage à fondue. Le goût de la forêt savoyarde, en format feuilleté.",
+      description: "Champignons de Paris, béchamel douce, fromages à fondue savoyarde. Le goût de la Savoie, en format feuilleté.",
       emoji: "🌲",
       color: "bg-product-foret",
     },
