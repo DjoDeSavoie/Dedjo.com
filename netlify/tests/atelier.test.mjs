@@ -199,8 +199,8 @@ test("relais : X-Atelier exigé, POST seulement, liste blanche d'actions", async
   assert.equal(script.appels.length, 0);
 });
 
-test("relais : les actions de traçabilité du lot 3 bis passent la liste blanche", async () => {
-  for (const action of ["stock.recette", "stock.blocage", "stock.rappel", "stock.registre"]) {
+test("relais : les actions de traçabilité (lot 3 bis) et de production (lot 6) passent la liste blanche", async () => {
+  for (const action of ["stock.recette", "stock.blocage", "stock.rappel", "stock.registre", "stock.production", "stock.production.reglages", "stock.production.plan"]) {
     const script = fauxScript({ ok: true });
     const res = await atelier({ action }, { script });
     assert.equal(res.status, 200, action);

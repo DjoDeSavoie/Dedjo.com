@@ -48,7 +48,7 @@ test("initialiserStock crée le classeur, ses onglets et le catalogue initial, s
   assert.equal(ss.fuseau, "Europe/Paris");
   assert.deepEqual(
     ss.getSheets().map((f) => f.getName()),
-    ["Articles", "Emplacements", "Lots", "Mouvements", "Reservations", "Passages", "PassagesDetail", "Recettes", "Blocages"]
+    ["Articles", "Emplacements", "Lots", "Mouvements", "Reservations", "Passages", "PassagesDetail", "Recettes", "Blocages", "Production"]
   );
   const articles = env.onglet("Articles");
   const produits = articles.filter((a) => a["Catégorie"] === "produit");
@@ -769,4 +769,134 @@ test("mise à jour du classeur : onglets et colonne du lot 3 bis créés au prem
   assert.equal(articles.lire(1, 14, 1, 1)[0][0], "Conservation (jours)");
   assert.deepEqual(articles.lire(2, 1, 1, 13)[0], avant);
   assert.equal(env.onglet("Articles").length, 29);
+});
+
+/* ===================================================================
+   PRODUCTION (lot 6) : réglages et plan en cours, dans l'onglet Production
+   =================================================================== */
+
+// Réglages INVENTÉS du § 6 de LOT-6-planification.md : aucune valeur réelle
+const REGLAGES_INVENTES = {
+  seuil: 4,
+  congel: { max: 2, heures: 10 },
+  v: {
+    cap: 100,
+    gRef: 100,
+    g: { lune: 100, cabosse: 80, grappe: 100, rose: 100 },
+    mainsLibres: true,
+    st: { pesage: 10, petrissage: 20, faconnage: 10, pointage: 40, formage: 10, froid1: 90, tourage: 15, froid2: 45, abaisse: 20, pousse: 90, sachet: 15 },
+  },
+  f: { cap: 20, st: { pesage: 10, frasage: 10, faconnage: 10, pointage: 20, formage: 10, froid1: 45, tourage: 15, froid2: 45, abaisse: 20, sachet: 15 } },
+  poste: { prep: 15, rangement: 15, nettoyage: 15 },
+  garn: [
+    { id: "t1", nom: "Découpe test", produits: ["montagne"], min: 20 },
+    { id: "t2", nom: "Cuisson test", produits: ["rose"], min: 15, fixe: true, feu: true, froid: 45 },
+  ],
+  todo: {},
+};
+const reglages = () => structuredClone(REGLAGES_INVENTES);
+const PLAN_ESSAI = {
+  fam: "both",
+  prods: { lune: 1, rose: 1, montagne: 1 },
+  mode: "traite",
+  date: "2026-10-24",
+  jours: { traite: [["07:00", "20:00"], ["07:00", "20:00"]], deux: [["16:00", "21:00"], ["07:00", "19:00"]] },
+  checks: {},
+};
+
+test("production : sans réglages ni plan, la lecture renvoie null ; l'onglet ne change pas le stock", () => {
+  const env = preparer();
+  assert.deepEqual(brut(env.appeler("stock.production")), { ok: true, reglages: null, plan: null });
+  // Ce lot n'apparaît pas dans la réponse publique ni dans l'état du stock
+  assert.deepEqual(Object.keys(env.appeler("stock.dispo")).sort(), ["actif", "maj", "ok", "produits"]);
+  const etat = env.appeler("stock.etat");
+  assert.equal("reglages" in etat || "plan" in etat || "production" in etat, false);
+});
+
+test("production : réglages enregistrés, identiques sans nouvelle ligne, remplacés avec la précédente close", () => {
+  const env = preparer();
+  const version = env.proprietes.get("STOCK_VERSION");
+  let r = env.appeler("stock.production.reglages", { reglages: reglages() });
+  assert.equal(r.ok, true, r.error);
+  assert.equal(r.message, "Réglages de production enregistrés");
+  const lu = env.appeler("stock.production");
+  assert.deepEqual(brut(lu.reglages), { ...reglages(), garn: [{ ...reglages().garn[0], fixe: false, feu: false, froid: 0 }, reglages().garn[1]] });
+  // Le cache du stock n'est pas vidé : seul l'onglet Production a changé
+  assert.equal(env.proprietes.get("STOCK_VERSION"), version);
+
+  // Mêmes réglages : rien d'écrit
+  assert.equal(env.appeler("stock.production.reglages", { reglages: reglages() }).ok, true);
+  assert.equal(env.onglet("Production").length, 1);
+
+  // Réglages modifiés : nouvelle ligne, l'ancienne est close, jamais effacée
+  const modifies = reglages();
+  modifies.congel.max = 3;
+  assert.equal(env.appeler("stock.production.reglages", { reglages: modifies }).ok, true);
+  const lignes = env.onglet("Production");
+  assert.equal(lignes.length, 2);
+  assert.ok(lignes[0]["Remplacée le"], "l'ancienne ligne est close");
+  assert.equal(lignes[1]["Remplacée le"], "");
+  assert.equal(env.appeler("stock.production").reglages.congel.max, 3);
+});
+
+test("production : réglages de la maquette convertis (noix-f → noix), valeurs invalides refusées sans rien écrire", () => {
+  const env = preparer();
+  const maquette = reglages();
+  maquette.v.g["noix-f"] = 50;
+  maquette.garn.push({ id: "t3", nom: "Garniture test", produits: ["noix-f"], min: 10, todo: true });
+  maquette.todo = { "v.g.noix-f": true };
+  assert.equal(env.appeler("stock.production.reglages", { reglages: maquette }).ok, true);
+  const lu = env.appeler("stock.production").reglages;
+  assert.equal(lu.v.g.noix, 50);
+  assert.equal(lu.v.g["noix-f"], undefined);
+  assert.deepEqual(lu.garn[2].produits, ["noix"]);
+  assert.deepEqual(lu.todo, { "v.g.noix": true });
+
+  const negatif = reglages();
+  negatif.v.st.pousse = -5;
+  assert.equal(env.appeler("stock.production.reglages", { reglages: negatif }).error, "Réglages : « v.st.pousse » doit être un nombre positif ou nul.");
+  const sansPlace = reglages();
+  sansPlace.congel.max = 0;
+  assert.equal(env.appeler("stock.production.reglages", { reglages: sansPlace }).error, "Réglages : « congel.max » doit être un nombre entier de 1 à 6.");
+  const incomplet = reglages();
+  delete incomplet.f;
+  assert.match(env.appeler("stock.production.reglages", { reglages: incomplet }).error, /^Réglages incomplets/);
+  assert.match(env.appeler("stock.production.reglages", { reglages: { ...reglages(), garn: [{ id: "x" }] } }).error, /garn\[0\]\.produits/);
+  assert.match(env.appeler("stock.production.reglages", { reglages: { ...reglages(), bourrage: "x".repeat(50001) } }).error, /50 ko/);
+  assert.equal(env.onglet("Production").length, 1);
+  // Les refus ne laissent rien dans les journaux
+  assert.deepEqual(env.journaux, []);
+});
+
+test("production : le plan en cours tient sur une ligne, mise à jour sur place, coches comprises", () => {
+  const env = preparer();
+  assert.equal(env.appeler("stock.production.plan", { plan: PLAN_ESSAI }).message, "Plan enregistré");
+  const coche = { ...PLAN_ESSAI, checks: { "2026-10-24|V1-pes-pesage": 1, "2026-10-24|P0-prep-prep": 1 } };
+  assert.equal(env.appeler("stock.production.plan", { plan: coche }).ok, true);
+  assert.equal(env.appeler("stock.production.plan", { plan: { ...coche, mode: "deux" } }).ok, true);
+  const lignes = env.onglet("Production");
+  assert.equal(lignes.length, 1);
+  assert.equal(lignes[0]["Clé"], "plan");
+  const lu = env.appeler("stock.production").plan;
+  assert.equal(lu.mode, "deux");
+  assert.deepEqual(lu.checks, coche.checks);
+  assert.equal(env.appeler("stock.production").reglages, null);
+
+  assert.equal(env.appeler("stock.production.plan", { plan: { ...PLAN_ESSAI, date: "2026-02-30" } }).error, "Plan : date invalide.");
+  assert.equal(env.appeler("stock.production.plan", { plan: { ...PLAN_ESSAI, prods: { lune: 10 } } }).error, "Plan : de 0 à 9 productions par produit.");
+  assert.equal(env.appeler("stock.production.plan", { plan: { ...PLAN_ESSAI, jours: { traite: [], deux: PLAN_ESSAI.jours.deux } } }).error, "Plan : de 1 à 4 jours d'une traite.");
+  assert.match(env.appeler("stock.production.plan", { plan: PLAN_ESSAI, idOperation: "x" }).error, /Identifiant d'opération/);
+  assert.equal(env.appeler("stock.production").plan.mode, "deux");
+});
+
+test("mise à jour du classeur : l'onglet Production du lot 6 est créé au premier appel", () => {
+  const env = preparer();
+  const ss = env.stock();
+  ss.deleteSheet(ss.getSheetByName("Production"));
+  env.proprietes.delete("STOCK_STRUCTURE");
+  assert.equal(env.appeler("stock.production").ok, true);
+  const f = ss.getSheetByName("Production");
+  assert.ok(f);
+  assert.deepEqual(f.lire(1, 1, 1, 4)[0], ["Clé", "Valeur", "Modifiée le", "Remplacée le"]);
+  assert.equal(env.proprietes.get("STOCK_STRUCTURE"), "3");
 });

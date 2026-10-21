@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { appeler, ErreurAtelier, nouvelIdOperation } from "./api";
-import type { Etat, Feuille, ResultatEcriture } from "./types";
+import type { Etat, Feuille, ResultatEcriture, Vue } from "./types";
 import type { Filtre } from "./outils";
 
 export interface ContexteAtelier {
@@ -18,6 +18,8 @@ export interface ContexteAtelier {
   notifier: (message: string, erreur?: boolean) => void;
   sessionTerminee: () => void;
   signalerReseau: (enLigne: boolean) => void;
+  /** Change de vue (lot 6 : liens vers Production et Réglages). */
+  allerA: (v: Vue) => void;
 }
 
 export const Contexte = createContext<ContexteAtelier | null>(null);

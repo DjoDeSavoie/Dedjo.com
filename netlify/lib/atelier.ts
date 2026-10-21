@@ -65,6 +65,10 @@ export const ACTIONS_ATELIER = [
   "stock.blocage",
   "stock.rappel",
   "stock.registre",
+  // Lot 6 : planification de production (réglages et plan en cours)
+  "stock.production",
+  "stock.production.reglages",
+  "stock.production.plan",
 ];
 const STATUTS = ["disponible", "victime", "bientot"];
 

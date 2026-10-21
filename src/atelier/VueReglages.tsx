@@ -1,5 +1,5 @@
-/* Vue Réglages : emplacements, articles (dont la réserve hors site et les codes lot), reprise du
-   stock de la maquette, exports CSV pour le PMS, déconnexion. */
+/* Vue Réglages : emplacements, articles (dont la réserve hors site et les codes lot), réglages de
+   production (lot 6), reprise du stock de la maquette, exports CSV pour le PMS, déconnexion. */
 
 import { FormEvent, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,6 +24,7 @@ import {
   TITRE_SECTION,
 } from "./composants";
 import { exporterRegistre } from "./exports";
+import { SectionProduction } from "./ReglagesProduction";
 import { articlesDe, aujourdhui, CATEGORIES, csv, EPS, GENRES, heure, jourIso, lireNombre, ordreSortie, qteLot, slug, telecharger, UNITES, unite, uniteEntiere } from "./outils";
 import type { Article, Categorie, Emplacement, PageJournal, Registre } from "./types";
 
@@ -89,6 +90,7 @@ export default function VueReglages() {
         })}
       </section>
 
+      <SectionProduction />
       <Reprise />
       <Exports />
       <Session />

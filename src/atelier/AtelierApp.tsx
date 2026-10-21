@@ -1,15 +1,15 @@
 /* L'Atelier : gestion du stock de Dedjo, pensée pour le téléphone d'abord.
-   En-tête (vue, synchro, Réglages), vue courante, barre du bas (Stock · Saisir · Ferme · Commandes ·
+   En-tête (vue, synchro, Production, Réglages), vue courante, barre du bas (Stock · Saisir · Ferme · Commandes ·
    Journal), feuilles qui montent pour les fiches et les saisies. */
 
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ClipboardList, Layers, Plus, Settings, ShoppingBag, Tractor, WifiOff } from "lucide-react";
+import { CalendarClock, ClipboardList, Layers, Plus, Settings, ShoppingBag, Tractor, WifiOff } from "lucide-react";
 import { appeler, ErreurAtelier } from "./api";
 import { Contexte, ContexteAtelier, NiveauFeuille } from "./contexte";
 import { BOUTON_PRINCIPAL, CARTE, DISCRET, Puce, Squelette } from "./composants";
 import type { Filtre } from "./outils";
-import type { Etat, Feuille } from "./types";
+import type { Etat, Feuille, Vue } from "./types";
 import Connexion from "./Connexion";
 import VueStock, { FicheArticle, FicheLot } from "./VueStock";
 import VueSaisir, { FormInventaire, FormLignes, FormLot, FormProduction, FormReception } from "./saisies";
@@ -18,8 +18,8 @@ import VueReglages, { FormArticle, FormEmplacement } from "./VueReglages";
 import { FormBlocage, VueRappel } from "./tracabilite";
 import VueFerme, { FichePassage, FormPassage } from "./VueFerme";
 import VueCommandes, { FicheCommande } from "./VueCommandes";
-
-type Vue = "stock" | "saisir" | "ferme" | "commandes" | "journal" | "reglages";
+import VueProduction, { FeuilleEnregistrerProduction } from "./VueProduction";
+import { FormCollerReglages, FormReglagesProduction } from "./ReglagesProduction";
 
 const TITRES: Record<Vue, string> = {
   stock: "Stock",
@@ -28,6 +28,7 @@ const TITRES: Record<Vue, string> = {
   commandes: "Commandes",
   journal: "Journal",
   reglages: "Réglages",
+  production: "Production",
 };
 
 const BARRE: { vue: Vue; libelle: string; icone: ReactNode }[] = [
@@ -105,19 +106,20 @@ export default function AtelierApp() {
   const fermer = useCallback(() => setPile([]), []);
   const signalerReseau = useCallback((ok: boolean) => setEnLigne(ok), []);
 
+  const allerA = useCallback((v: Vue) => {
+    setPile([]);
+    setVue(v);
+    window.scrollTo(0, 0);
+  }, []);
+
   const etat = requete.data;
   const valeur = useMemo<ContexteAtelier | null>(
     () =>
       etat
-        ? { etat, filtre, ouvrir, retour, fermer, profondeur: pile.length, notifier, sessionTerminee, signalerReseau }
+        ? { etat, filtre, ouvrir, retour, fermer, profondeur: pile.length, notifier, sessionTerminee, signalerReseau, allerA }
         : null,
-    [etat, filtre, ouvrir, retour, fermer, pile.length, notifier, sessionTerminee, signalerReseau]
+    [etat, filtre, ouvrir, retour, fermer, pile.length, notifier, sessionTerminee, signalerReseau, allerA]
   );
-
-  const allerA = (v: Vue) => {
-    setVue(v);
-    window.scrollTo(0, 0);
-  };
 
   if (!connecte) {
     return (
@@ -143,6 +145,15 @@ export default function AtelierApp() {
               <i className={`h-2 w-2 rounded-full ${synchro.point}`} aria-hidden="true" />
               {synchro.texte}
             </span>
+            <button
+              type="button"
+              aria-label="Production"
+              aria-current={vue === "production" ? "page" : undefined}
+              onClick={() => allerA("production")}
+              className={`grid h-11 w-11 flex-none place-items-center rounded-[10px] border ${vue === "production" ? "border-[#163F6B] bg-[#163F6B] text-[#FBF5E9]" : "border-[#E6DCC6] bg-[#FFFCF6] text-[#163F6B]"}`}
+            >
+              <CalendarClock className="h-5 w-5" aria-hidden="true" />
+            </button>
             <button
               type="button"
               aria-label="Réglages"
@@ -197,6 +208,7 @@ export default function AtelierApp() {
               {vue === "commandes" ? <VueCommandes /> : null}
               {vue === "journal" ? <VueJournal /> : null}
               {vue === "reglages" ? <VueReglages /> : null}
+              {vue === "production" ? <VueProduction /> : null}
               {pile.map((p, i) => (
                 <NiveauFeuille.Provider key={p.n} value={i}>
                   <div hidden={i !== pile.length - 1}>
@@ -260,7 +272,16 @@ function FeuilleCourante({ feuille: f }: { feuille: Feuille }) {
     case "lot":
       return <FicheLot id={f.id} />;
     case "production":
-      return <FormProduction article={f.article} quantite={f.quantite} retourApres={f.retour} />;
+      return (
+        <FormProduction
+          article={f.article}
+          quantite={f.quantite ?? f.sachets}
+          retourApres={f.retour}
+          fabrication={f.fabrication}
+          note={f.note}
+          emplacement={f.emplacement}
+        />
+      );
     case "reception":
       return <FormReception article={f.article} quantite={f.quantite} emplacement={f.emplacement} retourApres={f.retour} />;
     case "sortie":
@@ -285,6 +306,12 @@ function FeuilleCourante({ feuille: f }: { feuille: Feuille }) {
       return <FichePassage id={f.id} />;
     case "commande":
       return <FicheCommande id={f.id} />;
+    case "enregistrerProduction":
+      return <FeuilleEnregistrerProduction lignes={f.lignes} />;
+    case "reglagesProduction":
+      return <FormReglagesProduction />;
+    case "collerReglages":
+      return <FormCollerReglages />;
     default:
       return null;
   }

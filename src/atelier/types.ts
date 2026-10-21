@@ -261,7 +261,17 @@ export interface ResultatEcriture {
 export type Feuille =
   | { type: "article"; id: string }
   | { type: "lot"; id: string }
-  | { type: "production"; article?: string; quantite?: number; retour?: boolean }
+  | {
+      type: "production";
+      article?: string;
+      quantite?: number;
+      retour?: boolean;
+      /** Lot 6 : ouverte depuis le plan de production. */
+      sachets?: number;
+      fabrication?: string;
+      note?: string;
+      emplacement?: string;
+    }
   | { type: "reception"; article?: string; quantite?: number; emplacement?: string; retour?: boolean }
   | { type: "sortie" }
   | { type: "envoi" }
@@ -274,4 +284,19 @@ export type Feuille =
   | { type: "rappel"; lot: string }
   | { type: "nouveauPassage" }
   | { type: "passage"; id: string }
-  | { type: "commande"; id: string };
+  | { type: "commande"; id: string }
+  // Lot 6 : production planifiée
+  | { type: "enregistrerProduction"; lignes: LotPlanifie[] }
+  | { type: "reglagesProduction" }
+  | { type: "collerReglages" };
+
+/** Un lot à enregistrer après une production planifiée : un par produit et par jour de congélation. */
+export interface LotPlanifie {
+  article: string;
+  sachets: number;
+  /** Jour de congélation, AAAA-MM-JJ : la date de fabrication du lot. */
+  fabrication: string;
+}
+
+/** Vues de l'Atelier (barre du bas, en-tête). */
+export type Vue = "stock" | "saisir" | "ferme" | "commandes" | "journal" | "reglages" | "production";

@@ -118,22 +118,31 @@ export function FormProduction({
   article: articleInitial,
   quantite: quantiteInitiale,
   retourApres,
+  fabrication: fabricationInitiale,
+  note: noteInitiale,
+  emplacement: emplacementInitial,
 }: {
   article?: string;
   quantite?: number;
   /** Ouverte par-dessus un autre formulaire : y revenir après l'enregistrement. */
   retourApres?: boolean;
+  /** Lot 6 : pré-remplissage depuis le plan de production. */
+  fabrication?: string;
+  note?: string;
+  emplacement?: string;
 }) {
   const { etat, filtre, ouvrir, retour } = useAtelier();
   const fabricables = [...articlesDe(etat, "produit"), ...articlesDe(etat, "preparation")];
   const [articleId, setArticleId] = useState(articleInitial || (fabricables.length === 1 ? fabricables[0].id : ""));
   const [q, setQ] = useState(quantiteInitiale ? enTexte(quantiteInitiale) : "");
-  const [fabrication, setFabrication] = useState(aujourdhui());
+  const [fabrication, setFabrication] = useState(fabricationInitiale || aujourdhui());
   const [ddmSaisie, setDdmSaisie] = useState<string | null>(null);
   const [numeroSaisi, setNumeroSaisi] = useState<string | null>(null);
-  const [emplacement, setEmplacement] = useState(emplacementParDefaut(etat, filtre));
+  const [emplacement, setEmplacement] = useState(
+    emplacementInitial && etat.emplacements.some((e) => e.id === emplacementInitial) ? emplacementInitial : emplacementParDefaut(etat, filtre)
+  );
   const [lignes, setLignes] = useState<LigneIntrant[]>([]);
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(noteInitiale || "");
   const [confirmerSansMatieres, setConfirmerSansMatieres] = useState(false);
   const ecriture = useEcriture(retourApres ? () => retour() : undefined);
   const compteur = useRef(0);

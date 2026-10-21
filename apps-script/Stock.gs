@@ -131,6 +131,15 @@ const STOCK_ONGLETS = {
     ["reference", "Référence", "texte"],
     ["annule", "Annulé", "coche"],
   ],
+  // Lot 6. Production : réglages de production (savoir-faire, jamais dans le code) et plan en cours.
+  // « reglages » : une ligne par enregistrement, la précédente close (« Remplacée le »), jamais
+  // effacée ; « plan » : une seule ligne, mise à jour sur place (c'est un état de travail).
+  Production: [
+    ["cle", "Clé", "texte"],
+    ["valeur", "Valeur", "json"],
+    ["modifieeLe", "Modifiée le", "horodatage"],
+    ["remplaceeLe", "Remplacée le", "horodatage"],
+  ],
 };
 
 /* ===================================================================
@@ -1970,6 +1979,203 @@ const StockRegles = (() => {
     return { message: messageOperation(lignes, lots) };
   }
 
+  /* ---------- Production (lot 6) : réglages et plan en cours ---------- */
+  // Même validation que src/atelier/planification.ts, avec les mêmes messages. Aucune valeur par
+  // défaut : les réglages ne vivent que dans l'onglet Production. Les messages d'erreur citent le
+  // chemin d'une valeur (« v.st.pousse »), jamais la valeur elle-même.
+
+  const PRODUCTION_TAILLE_MAXI = 50000;
+  const ETAPES_PRODUCTION_V = ["pesage", "petrissage", "faconnage", "pointage", "formage", "froid1", "tourage", "froid2", "abaisse", "pousse", "sachet"];
+  const ETAPES_PRODUCTION_F = ["pesage", "frasage", "faconnage", "pointage", "formage", "froid1", "tourage", "froid2", "abaisse", "sachet"];
+  const ETAPES_POSTE = ["prep", "rangement", "nettoyage"];
+  const POSITIF = Number.MIN_VALUE;
+  const HEURE_HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+  const LIMITES_JOURS_PRODUCTION = { traite: { min: 1, max: 4 }, deux: { min: 2, max: 5 } };
+
+  const estObjetJson = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+  /** Id de la maquette : « noix-f » devient « noix ». */
+  const idProduitMaquette = (id) => (id === "noix-f" ? "noix" : id);
+
+  function nombreReglage(v, chemin, min, entier, max) {
+    const mini = min || 0;
+    const maxi = max === undefined ? Infinity : max;
+    if (typeof v !== "number" || !Number.isFinite(v) || v < mini || v > maxi || (entier && !Number.isInteger(v))) {
+      const attendu =
+        maxi < Infinity
+          ? `un nombre entier de ${mini} à ${maxi}`
+          : entier
+          ? `un nombre entier d'au moins ${mini}`
+          : mini === POSITIF
+          ? "un nombre supérieur à 0"
+          : mini > 0
+          ? `un nombre d'au moins ${mini}`
+          : "un nombre positif ou nul";
+      throw new ErreurStock(`Réglages : « ${chemin} » doit être ${attendu}.`);
+    }
+    return v;
+  }
+
+  function texteReglage(v, chemin, max) {
+    if (typeof v !== "string" || !v.trim() || v.length > max) throw new ErreurStock(`Réglages : « ${chemin} » doit être un texte (${max} caractères au plus).`);
+    return v.trim();
+  }
+
+  /** Réglages de production validés et convertis (copie de la maquette acceptée telle quelle). */
+  function lireReglagesProduction(brut) {
+    if (!estObjetJson(brut)) throw new ErreurStock("Réglages : un objet JSON est attendu.");
+    if (JSON.stringify(brut).length > PRODUCTION_TAILLE_MAXI) throw new ErreurStock("Réglages : 50 ko au plus.");
+    const congel = brut.congel;
+    const v = brut.v;
+    const f = brut.f;
+    const poste = brut.poste;
+    const garn = brut.garn;
+    const todo = brut.todo;
+    if (!estObjetJson(congel) || !estObjetJson(v) || !estObjetJson(f) || !estObjetJson(poste)) {
+      throw new ErreurStock("Réglages incomplets : seuil, congel, v, f, poste et garn sont attendus.");
+    }
+    if (!estObjetJson(v.st) || !estObjetJson(f.st) || !estObjetJson(v.g)) throw new ErreurStock("Réglages incomplets : durées des étapes (st) ou poids de pâte (g) manquants.");
+    if (typeof v.mainsLibres !== "boolean") throw new ErreurStock("Réglages : « v.mainsLibres » doit valoir true ou false.");
+    if (!Array.isArray(garn) || garn.length > 50) throw new ErreurStock("Réglages : « garn » doit être une liste (50 garnitures au plus).");
+
+    const g = {};
+    Object.keys(v.g).forEach((id) => {
+      if (id.length > 40) throw new ErreurStock("Réglages : id de produit trop long.");
+      g[idProduitMaquette(id)] = nombreReglage(v.g[id], `v.g.${id}`, POSITIF);
+    });
+    const stV = {};
+    ETAPES_PRODUCTION_V.forEach((k) => (stV[k] = nombreReglage(v.st[k], `v.st.${k}`)));
+    const stF = {};
+    ETAPES_PRODUCTION_F.forEach((k) => (stF[k] = nombreReglage(f.st[k], `f.st.${k}`)));
+    const p = {};
+    ETAPES_POSTE.forEach((k) => (p[k] = nombreReglage(poste[k], `poste.${k}`)));
+
+    const garnitures = garn.map((x, i) => {
+      if (!estObjetJson(x)) throw new ErreurStock(`Réglages : garniture n° ${i + 1} invalide.`);
+      const produits = x.produits;
+      if (!Array.isArray(produits) || produits.length > 20 || produits.some((id) => typeof id !== "string" || id.length > 40)) {
+        throw new ErreurStock(`Réglages : « garn[${i}].produits » doit être une liste d'ids de produits.`);
+      }
+      if (x.fixe !== undefined && typeof x.fixe !== "boolean") throw new ErreurStock(`Réglages : « garn[${i}].fixe » doit valoir true ou false.`);
+      if (x.feu !== undefined && typeof x.feu !== "boolean") throw new ErreurStock(`Réglages : « garn[${i}].feu » doit valoir true ou false.`);
+      const sortie = {
+        id: texteReglage(x.id, `garn[${i}].id`, 60),
+        nom: texteReglage(x.nom, `garn[${i}].nom`, 100),
+        produits: produits.map(idProduitMaquette),
+        min: nombreReglage(x.min, `garn[${i}].min`),
+        fixe: x.fixe === true,
+        feu: x.feu === true,
+        froid: x.froid === undefined ? 0 : nombreReglage(x.froid, `garn[${i}].froid`),
+      };
+      if (x.todo === true) sortie.todo = true;
+      return sortie;
+    });
+    const aConfirmer = {};
+    if (todo !== undefined) {
+      if (!estObjetJson(todo) || Object.keys(todo).length > 200) throw new ErreurStock("Réglages : « todo » invalide.");
+      Object.keys(todo).forEach((cle) => {
+        if (todo[cle] === true) aConfirmer[cle.replace(/^v\.g\.noix-f$/, "v.g.noix")] = true;
+      });
+    }
+    return {
+      seuil: nombreReglage(brut.seuil, "seuil"),
+      congel: { max: nombreReglage(congel.max, "congel.max", 1, true, 6), heures: nombreReglage(congel.heures, "congel.heures") },
+      v: { cap: nombreReglage(v.cap, "v.cap", 1), gRef: nombreReglage(v.gRef, "v.gRef", POSITIF), g, mainsLibres: v.mainsLibres, st: stV },
+      f: { cap: nombreReglage(f.cap, "f.cap", 1), st: stF },
+      poste: p,
+      garn: garnitures,
+      todo: aConfirmer,
+    };
+  }
+
+  /** Plan en cours validé : productions choisies, dates, horaires et étapes cochées. */
+  function lirePlanProduction(brut) {
+    if (!estObjetJson(brut)) throw new ErreurStock("Plan : un objet JSON est attendu.");
+    if (JSON.stringify(brut).length > PRODUCTION_TAILLE_MAXI) throw new ErreurStock("Plan : 50 ko au plus.");
+    const fam = brut.fam;
+    const mode = brut.mode;
+    const prods = brut.prods;
+    const jours = brut.jours;
+    const checks = brut.checks;
+    if (fam !== "both" && fam !== "v" && fam !== "f") throw new ErreurStock("Plan : famille invalide.");
+    if (mode !== "traite" && mode !== "deux") throw new ErreurStock("Plan : mode invalide.");
+    if (!jourValide(brut.date)) throw new ErreurStock("Plan : date invalide.");
+    if (!estObjetJson(prods) || Object.keys(prods).length > 40) throw new ErreurStock("Plan : productions invalides.");
+    const p = {};
+    Object.keys(prods).forEach((id) => {
+      const n = prods[id];
+      if (id.length > 40 || typeof n !== "number" || !Number.isInteger(n) || n < 0 || n > 9) throw new ErreurStock("Plan : de 0 à 9 productions par produit.");
+      if (n > 0) p[idProduitMaquette(id)] = n;
+    });
+    if (!estObjetJson(jours)) throw new ErreurStock("Plan : jours invalides.");
+    const lireJours = (liste, m) => {
+      const bornes = LIMITES_JOURS_PRODUCTION[m];
+      if (!Array.isArray(liste) || liste.length < bornes.min || liste.length > bornes.max) {
+        throw new ErreurStock(`Plan : de ${bornes.min} à ${bornes.max} jours ${m === "traite" ? "d'une traite" : "en deux temps"}.`);
+      }
+      return liste.map((h) => {
+        if (!Array.isArray(h) || h.length !== 2 || !h.every((x) => typeof x === "string" && HEURE_HHMM.test(x))) throw new ErreurStock("Plan : heure invalide (HH:MM).");
+        return [h[0], h[1]];
+      });
+    };
+    const c = {};
+    if (checks !== undefined) {
+      if (!estObjetJson(checks) || Object.keys(checks).length > 3000) throw new ErreurStock("Plan : étapes cochées invalides.");
+      Object.keys(checks).forEach((cle) => {
+        if (!/^\d{4}-\d{2}-\d{2}\|[^|]{1,120}$/.test(cle) || checks[cle] !== 1) throw new ErreurStock("Plan : étape cochée invalide.");
+        c[cle] = 1;
+      });
+    }
+    return { fam, prods: p, mode, date: brut.date, jours: { traite: lireJours(jours.traite, "traite"), deux: lireJours(jours.deux, "deux") }, checks: c };
+  }
+
+  /** Lignes en vigueur de l'onglet Production : { reglages, plan }, null si absentes. */
+  function productionActive(lignes) {
+    const valeur = (cle) => {
+      const actives = (lignes || []).filter((l) => l.cle === cle && !l.remplaceeLe);
+      const derniere = actives[actives.length - 1];
+      return derniere && estObjetJson(derniere.valeur) ? derniere.valeur : null;
+    };
+    return { reglages: valeur("reglages"), plan: valeur("plan") };
+  }
+
+  /**
+   * Écritures de l'onglet Production. Réglages : nouvelle ligne, la précédente close (rien si
+   * identiques) ; plan : une seule ligne, mise à jour sur place.
+   */
+  function planifierProduction(action, base, d, ctx) {
+    lireIdOperation(d.idOperation);
+    const lignes = base.production || [];
+    if (action === "stock.production.reglages") {
+      const reglages = lireReglagesProduction(d.reglages);
+      if (JSON.stringify(reglages).length > PRODUCTION_TAILLE_MAXI - 100) throw new ErreurStock("Réglages : 50 ko au plus.");
+      const actives = lignes.filter((l) => l.cle === "reglages" && !l.remplaceeLe);
+      const message = "Réglages de production enregistrés";
+      const derniere = actives[actives.length - 1];
+      if (actives.length === 1 && JSON.stringify(derniere.valeur) === JSON.stringify(reglages)) return { ecritures: null, resultat: { message } };
+      return {
+        ecritures: {
+          ajouts: { Production: [{ cle: "reglages", valeur: reglages, modifieeLe: ctx.maintenant, remplaceeLe: null }] },
+          majs: { Production: actives.map((l) => ({ ligne: l._ligne, champs: { remplaceeLe: ctx.maintenant } })) },
+        },
+        resultat: { message },
+      };
+    }
+    if (action === "stock.production.plan") {
+      const plan = lirePlanProduction(d.plan);
+      const actives = lignes.filter((l) => l.cle === "plan" && !l.remplaceeLe);
+      const message = "Plan enregistré";
+      if (!actives.length) {
+        return { ecritures: { ajouts: { Production: [{ cle: "plan", valeur: plan, modifieeLe: ctx.maintenant, remplaceeLe: null }] } }, resultat: { message } };
+      }
+      // Une seule ligne de plan : la première est mise à jour, d'éventuels doublons sont clos
+      const majs = [{ ligne: actives[0]._ligne, champs: { valeur: plan, modifieeLe: ctx.maintenant } }].concat(
+        actives.slice(1).map((l) => ({ ligne: l._ligne, champs: { remplaceeLe: ctx.maintenant } }))
+      );
+      return { ecritures: { majs: { Production: majs } }, resultat: { message } };
+    }
+    throw new ErreurStock("Action inconnue.");
+  }
+
   /** Prépare une écriture : { ecritures, resultat }. `ecritures` vaut null quand il n'y a rien à écrire. */
   function planifier(action, base, d, ctx) {
     const idOperation = lireIdOperation(d.idOperation);
@@ -2033,6 +2239,11 @@ const StockRegles = (() => {
     recettesActives,
     rappel,
     registre,
+    // lot 6
+    lireReglagesProduction,
+    lirePlanProduction,
+    productionActive,
+    planifierProduction,
   };
 })();
 
@@ -2044,7 +2255,7 @@ const StockClasseur = (() => {
   const VERROU_MS = 20000; // même attente que enregistrer() dans Code.gs : le verrou est partagé
   const CACHE_SECONDES = 600;
   const MORCEAU_CACHE = 30000; // caractères par valeur (CacheService accepte 100 Ko par valeur)
-  const LECTURES = ["stock.etat", "stock.dispo", "stock.lot", "stock.journal", "stock.rappel", "stock.registre"];
+  const LECTURES = ["stock.etat", "stock.dispo", "stock.lot", "stock.journal", "stock.rappel", "stock.registre", "stock.production"];
   const ECRITURES = [
     "stock.operation",
     "stock.annuler",
@@ -2055,9 +2266,13 @@ const StockClasseur = (() => {
     "stock.import",
     "stock.recette",
     "stock.blocage",
+    "stock.production.reglages",
+    "stock.production.plan",
   ];
+  // Lot 6 : écritures de l'onglet Production seul, sans relire le stock ni vider le cache
+  const ECRITURES_PRODUCTION = ["stock.production.reglages", "stock.production.plan"];
   // Structure du classeur : à augmenter quand un onglet ou une colonne s'ajoute (créés au premier appel)
-  const VERSION_STRUCTURE = "2";
+  const VERSION_STRUCTURE = "3";
   const TABLES = {
     articles: "Articles",
     emplacements: "Emplacements",
@@ -2068,9 +2283,11 @@ const StockClasseur = (() => {
     details: "PassagesDetail",
     recettes: "Recettes",
     blocages: "Blocages",
+    // Lu seulement à la demande (stock.production) : jamais dans la lecture complète du stock
+    production: "Production",
   };
   // Ordre d'écriture : les mouvements en dernier (ce sont eux qui font foi)
-  const ORDRE_ECRITURE = ["Articles", "Emplacements", "Recettes", "Lots", "Reservations", "Blocages", "PassagesDetail", "Passages", "Mouvements"];
+  const ORDRE_ECRITURE = ["Articles", "Emplacements", "Recettes", "Production", "Lots", "Reservations", "Blocages", "PassagesDetail", "Passages", "Mouvements"];
 
   const proprietes = () => PropertiesService.getScriptProperties();
 
@@ -2205,11 +2422,11 @@ const StockClasseur = (() => {
       .filter((objet) => objet[colonnes[0][0]] !== "");
   }
 
-  /** Lit les onglets du classeur (tous, ou seulement ceux de `tables`). */
+  /** Lit les onglets du classeur (tous sauf Production, ou seulement ceux de `tables`). */
   function lireBase(ss, tables) {
     const base = {};
     Object.keys(TABLES).forEach((cle) => {
-      base[cle] = !tables || tables.includes(cle) ? lireOnglet(ss, TABLES[cle]) : [];
+      base[cle] = (tables ? tables.includes(cle) : cle !== "production") ? lireOnglet(ss, TABLES[cle]) : [];
     });
     return base;
   }
@@ -2421,6 +2638,26 @@ const StockClasseur = (() => {
     });
   }
 
+  /**
+   * Lot 6 : réglages de production et plan en cours. Seul l'onglet Production est lu et écrit ; le
+   * stock et son cache ne changent pas. Rien de leur contenu ne va dans les journaux.
+   */
+  function ecrireProduction(action, demande) {
+    StockRegles.lireIdOperation(demande.idOperation);
+    return sousVerrou(() => {
+      const ss = classeur();
+      const { ecritures, resultat } = StockRegles.planifierProduction(action, lireBase(ss, ["production"]), demande, contexte());
+      if (ecritures) {
+        const ajouts = (ecritures.ajouts || {}).Production || [];
+        const majs = (ecritures.majs || {}).Production || [];
+        if (ajouts.length) ajouterLignes(ss, "Production", ajouts);
+        if (majs.length) modifierLignes(ss, "Production", majs);
+        SpreadsheetApp.flush();
+      }
+      return Object.assign({ ok: true }, resultat);
+    });
+  }
+
   /** Statuts du site seulement : jamais de quantité, de lot, de date ni rien sur la ferme. */
   function dispo() {
     const calcul = avecCache("dispo", () => {
@@ -2443,10 +2680,13 @@ const StockClasseur = (() => {
   }
 
   function executer(action, demande) {
+    if (ECRITURES_PRODUCTION.includes(action)) return ecrireProduction(action, demande);
     if (ECRITURES.includes(action)) return ecrire(action, demande);
     if (!LECTURES.includes(action)) return { ok: false, error: "Action inconnue." };
     if (action === "stock.dispo") return dispo();
     if (action === "stock.etat") return etat();
+    // Pas de cache : les réglages et le plan sont lus à chaque ouverture de l'onglet Production
+    if (action === "stock.production") return Object.assign({ ok: true }, StockRegles.productionActive(lireBase(classeur(), ["production"]).production));
     const base = lireBase(classeur());
     if (action === "stock.lot") return Object.assign({ ok: true }, StockRegles.ficheLot(base, demande.lot));
     if (action === "stock.registre") return Object.assign({ ok: true }, StockRegles.registre(base, demande));

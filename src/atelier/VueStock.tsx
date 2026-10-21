@@ -1,6 +1,7 @@
-/* Vue Stock : filtre par emplacement, alertes, stock par produit ; fiches article et lot. */
+/* Vue Stock : filtre par emplacement, alertes, stock par produit ; fiches article et lot.
+   Lot 6 : un produit à renflouer porte le lien « Planifier une production ». */
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { appeler, ErreurAtelier } from "./api";
 import { useAtelier } from "./contexte";
@@ -43,9 +44,11 @@ import {
 import type { Article, FicheLot as DonneesFicheLot, Lot } from "./types";
 import { exporterFicheLot } from "./exports";
 import { ArbreAmont, ListeAval } from "./tracabilite";
+import { estARenflouer, useProduction } from "./production";
 
 export default function VueStock() {
-  const { etat, filtre, ouvrir } = useAtelier();
+  const { etat, filtre, ouvrir, allerA } = useAtelier();
+  const { reglages } = useProduction();
   const [alertesSeules, setAlertesSeules] = useState(false);
   const al = alertes(etat, filtre);
   const nb = al.depassees + al.proches + al.sousSeuil.size;
@@ -92,7 +95,16 @@ export default function VueStock() {
             </div>
             <div className={`${CARTE} overflow-hidden`}>
               {articles.map((a) => (
-                <LigneArticle key={a.id} article={a} filtre={filtre} sousSeuil={al.sousSeuil.has(a.id)} ddm={al.ddm.get(a.id)} onClick={() => ouvrir({ type: "article", id: a.id })} />
+                <Fragment key={a.id}>
+                  <LigneArticle article={a} filtre={filtre} sousSeuil={al.sousSeuil.has(a.id)} ddm={al.ddm.get(a.id)} onClick={() => ouvrir({ type: "article", id: a.id })} />
+                  {reglages && a.categorie === "produit" && a.actif && estARenflouer(etat, a, reglages) ? (
+                    <div className="-mt-2 pb-2 pl-[38px] pr-3.5">
+                      <button type="button" className="min-h-9 text-[13.5px] font-bold text-[#163F6B] underline underline-offset-4" onClick={() => allerA("production")}>
+                        Planifier une production
+                      </button>
+                    </div>
+                  ) : null}
+                </Fragment>
               ))}
             </div>
           </section>

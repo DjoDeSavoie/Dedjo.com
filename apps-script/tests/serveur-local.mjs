@@ -9,6 +9,9 @@
    Option --stock-actif : STOCK_ACTIF à « oui » (le site suit le stock, les commandes réservent),
    avec une commande de démonstration réservée (D-0001) ; sans elle, le site garde sa disponibilité
    de secours, comme avant le lot 5.
+   Option --production : le stock de l'acceptation du lot 6 (Lune 3, Rose 0, Montagne 2, Cabosse 10
+   à Marseille), des matières et une recette de Lune inventées, et aucun réglage de production :
+   colle ensuite les réglages inventés du § 6 de LOT-6-planification.md dans Réglages › Production.
    Deux copies en même temps : ATELIER_PORT=8889 npm run atelier:local (site sur 8889, faux script
    sur 8791, Vite sur 5174). */
 
@@ -38,6 +41,15 @@ function operation(type, champs) {
 if (process.argv.includes("--sans-demo")) {
   operation("production", { article: "lune", quantite: 12, fabrication: ilYa(5) });
   operation("production", { article: "montagne", quantite: 10, fabrication: ilYa(5) });
+} else if (process.argv.includes("--production")) {
+  // Acceptation du lot 6 : données inventées, aucun réglage de production
+  operation("reception", { article: "mp-farine", quantite: 25, reception: ilYa(10), ddm: ilYa(-200), fournisseur: "Moulin d'exemple", numero: "FAR-ESSAI-1" });
+  operation("reception", { article: "mp-beurre", quantite: 10, reception: ilYa(5), ddm: ilYa(-40), fournisseur: "Laiterie d'exemple" });
+  const recette = env.appeler("stock.recette", { article: "lune", rendement: 10, composants: [{ article: "mp-farine", quantite: 1 }, { article: "mp-beurre", quantite: 0.5 }] });
+  if (!recette.ok) throw new Error(`Recette de démonstration refusée (${recette.error})`);
+  operation("production", { article: "lune", quantite: 3, fabrication: ilYa(20) });
+  operation("production", { article: "montagne", quantite: 2, fabrication: ilYa(15) });
+  operation("production", { article: "cabosse", quantite: 10, fabrication: ilYa(10) });
 } else {
   demo();
 }
