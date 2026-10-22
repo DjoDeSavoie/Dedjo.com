@@ -18,3 +18,6 @@ dist/
 
 # Briefs et maquettes de travail de l'Atelier (non publiés)
 docs/atelier/
+
+# Audit sécurité et RGPD : reste sur le disque, jamais dans le dépôt
+AUDIT_SECURITE_RGPD.md
