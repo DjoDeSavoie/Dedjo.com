@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
+import FeuilleteIllustration from "./FeuilleteIllustration";
 import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
 import { CUISSON, FEUILLETES, Product, eur } from "@/lib/catalog";
@@ -79,7 +80,7 @@ const SaltyPastriesSection = () => {
   return (
     <section id="salty-pastries" className="py-12 px-4 section-sky">
       <div className="container max-w-6xl">
-        <span className="text-5xl mb-4 block text-center">🥧</span>
+        <FeuilleteIllustration className="w-14 h-14 mb-2 mx-auto block" />
         <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Feuilletés Salés</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Une pâte feuilletée maison. Des garnitures du paysage savoyard.<br />

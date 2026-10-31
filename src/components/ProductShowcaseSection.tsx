@@ -1,5 +1,8 @@
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import fleurTati from "@/assets/fleurTati.png";
+import FeuilleteIllustration from "@/components/FeuilleteIllustration";
+import { PRIX_SACHET } from "@/lib/catalog";
 
 const ProductShowcaseSection = () => {
   const scrollToSection = (id: string) => {
@@ -9,7 +12,17 @@ const ProductShowcaseSection = () => {
     }
   };
 
-  const products = [
+  const products: {
+    emoji: string;
+    /** Illustration affichée à la place de l'emoji. */
+    illustration?: ReactNode;
+    title: string;
+    description: string;
+    sectionId: string;
+    bgColor: string;
+    borderColor: string;
+    hoverBg: string;
+  }[] = [
     {
       emoji: "🥐",
       title: "Viennoiseries",
@@ -22,6 +35,7 @@ const ProductShowcaseSection = () => {
     },
     {
       emoji: "🥟",
+      illustration: <FeuilleteIllustration className="w-14 h-14 mb-2" />,
       title: "Feuilletés salés",
       description:
         "Quatre garnitures savoyardes enveloppées dans une pâte feuilletée maison. En formats friands et bouchées apéritives. Sors-le du congélateur et glisse le au four. À partager sans façons.",
@@ -50,13 +64,15 @@ const ProductShowcaseSection = () => {
         </div>
         <h2 className="section-title">
           <span className="font-display font-bold text-3xl md:text-4xl text-foreground">
-            Nos Créations Artisanales
+            Des Créations Artisanales
           </span>
         </h2>
-        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground mb-3 max-w-2xl mx-auto">
           Préparées à la main. Façonnées avec soin. Partagées avec toi.<br />
-          Chaque création de Djo est pensée pour te donner le meilleur ... <br />
-          ... et que tu en fasses quelque chose de beau.
+          Chaque création de Djo est pensée pour te donner le meilleur et que tu en fasses quelque chose de beau.
+        </p>
+        <p className="text-center font-semibold text-foreground mb-12">
+          Prix unique de {PRIX_SACHET} euros par sachet
         </p>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -65,7 +81,7 @@ const ProductShowcaseSection = () => {
               key={product.title}
               className={`${product.bgColor} ${product.hoverBg} border-2 ${product.borderColor} rounded-2xl p-6 flex flex-col items-center text-center shadow-soft hover:shadow-lg transition-all duration-300 hover:scale-[1.02]`}
             >
-              <span className="text-5xl mb-4">{product.emoji}</span>
+              {product.illustration ?? <span className="text-5xl mb-4">{product.emoji}</span>}
               <h3 className="font-display text-xl text-foreground mb-3">
                 {product.title}
               </h3>
