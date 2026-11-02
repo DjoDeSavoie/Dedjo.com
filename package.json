@@ -9,6 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "photos": "node --experimental-strip-types scripts/photos.mjs",
     "atelier:local": "node apps-script/tests/serveur-local.mjs",
     "test:atelier": "node --test apps-script/tests/stock.test.mjs netlify/tests/atelier.test.mjs",
     "test:planification": "node --test --experimental-strip-types src/atelier/planification.test.ts"
@@ -82,6 +83,7 @@
     "globals": "^15.15.0",
     "netlify-cli": "^26.0.2",
     "postcss": "^8.5.6",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",

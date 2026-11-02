@@ -34,8 +34,15 @@ et ouvre `http://localhost:8888`.
 | `npm run build` | construit le site dans `dist/` |
 | `npm run preview` | sert la version construite |
 | `npm run lint` | vérifie le code avec ESLint |
+| `npm run photos` | prépare les photos des produits (voir ci-dessous) |
 | `npm run test:atelier` | tests du stock (script Apps Script et fonctions Netlify), sans Google ni Netlify |
 | `npm run atelier:local` | Atelier complet en local, sur un faux classeur et un stock de démonstration inventé (voir `apps-script/DEPLOIEMENT.md`) |
+
+## Photos des produits
+
+1. Dépose la photo, en JPEG ou PNG, dans `photos-originales/` (hors du dépôt) sous le nom `{id}-{n}.jpg`, ex. `lune-1.jpg` : n° 1 = photo de la carte, 2 et suivants = photos de la pop-up.
+2. Lance `npm run photos` : il crée `{id}-{n}-600.webp` et `-1200.webp` dans `src/assets/produits/`, recadrés en 4:3, sans aucune métadonnée (ni position GPS), et affiche leur poids.
+3. Vérifie avec `npm run dev`, puis commite les `.webp`. Pour retirer une photo, supprime ses deux `.webp` ; un produit sans photo garde son emoji.
 
 ## Secrets
 

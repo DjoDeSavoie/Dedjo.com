@@ -4,6 +4,7 @@ import { ArrowLeft, Check, CheckCircle2, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
 import ProductLabelModal from "@/components/ProductLabelModal";
+import PhotoProduit from "@/components/PhotoProduit";
 import ProductTags, { StatutProduit, Tampons } from "@/components/ProductTags";
 import LivraisonJauge from "@/components/LivraisonJauge";
 import { useCart } from "@/context/CartContext";
@@ -23,6 +24,7 @@ import {
   pluralize,
 } from "@/lib/catalog";
 import { CGV_VERSION, DUREE_CONSERVATION_MENTIONS, EDITEUR, LIENS_LEGAUX } from "@/lib/legal";
+import { TAILLES_PHOTO, photosDe } from "@/lib/photos";
 
 const GRAD = "linear-gradient(135deg,#185FA5 0%,#2A7FD0 100%)";
 const RAPPEL_CONGELE = "Tout est livré congelé, à conserver au congélateur, et cuire en direct dans ton four.";
@@ -275,12 +277,23 @@ const Commande = () => {
       >
         <Tampons product={p} />
         <div className="flex items-center gap-3">
-          <span
-            className="w-9 h-9 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-            style={{ backgroundColor: p.color }}
-          >
-            {p.emoji}
-          </span>
+          {photosDe(p.id).length ? (
+            // Le nom est écrit juste à côté : la vignette n'a pas besoin de texte alternatif
+            <PhotoProduit
+              photo={photosDe(p.id)[0]}
+              couleur={p.color}
+              sizes={TAILLES_PHOTO.pastille}
+              alt=""
+              className="w-9 h-9 rounded-full flex-shrink-0"
+            />
+          ) : (
+            <span
+              className="w-9 h-9 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+              style={{ backgroundColor: p.color }}
+            >
+              {p.emoji}
+            </span>
+          )}
           <div>
             <h3 className="text-foreground">
               {p.name}

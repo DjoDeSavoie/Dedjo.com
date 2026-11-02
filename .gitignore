@@ -21,3 +21,7 @@ docs/atelier/
 
 # Audit sécurité et RGPD : reste sur le disque, jamais dans le dépôt
 AUDIT_SECURITE_RGPD.md
+
+# Photos produits d'origine (avec leurs métadonnées, dont la position GPS) : seules les
+# versions préparées par npm run photos, dans src/assets/produits/, vont dans le dépôt
+photos-originales/
