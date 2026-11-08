@@ -69,7 +69,7 @@ const ACTIONS: { feuille: TypeFeuille; titre: string; detail: string; icone: Rea
   { feuille: { type: "production" }, titre: "Production", detail: "Nouveau lot de produits finis, avec les matières utilisées.", icone: <ChefHat /> },
   { feuille: { type: "reception" }, titre: "Réception", detail: "Arrivage de matières premières ou d'emballages.", icone: <PackageOpen /> },
   { feuille: { type: "sortie" }, titre: "Sortie", detail: "Vente, dégustation, perte ou matière utilisée.", icone: <ArrowUpRight /> },
-  { feuille: { type: "envoi" }, titre: "Envoi vers la ferme", detail: "De Marseille vers « En route », avant le passage à la ferme.", icone: <Truck /> },
+  { feuille: { type: "envoi" }, titre: "Envoi vers la ferme", detail: "De Marseille vers « En route », puis valide l'arrivée dans l'onglet Ferme.", icone: <Truck /> },
   { feuille: { type: "transfert" }, titre: "Transfert", detail: "D'un emplacement à un autre, n° de lot conservés.", icone: <ArrowLeftRight /> },
   { feuille: { type: "inventaire" }, titre: "Inventaire", detail: "Compter un emplacement et corriger les écarts.", icone: <ClipboardCheck /> },
 ];
@@ -465,25 +465,30 @@ export function FormReception({
 }
 
 /* ===================================================================
-   SORTIE, ENVOI VERS LA FERME, TRANSFERT : listes à quantités
+   SORTIE, ENVOI VERS LA FERME, ARRIVÉE À LA FERME, TRANSFERT : listes à quantités
    =================================================================== */
 
-export function FormLignes({ mode }: { mode: "sortie" | "envoi" | "transfert" }) {
+export function FormLignes({ mode }: { mode: "sortie" | "envoi" | "arrivee" | "transfert" }) {
   const { etat, filtre } = useAtelier();
-  const parDefaut = mode === "envoi" ? "marseille" : emplacementParDefaut(etat, filtre);
+  const parDefaut = mode === "envoi" ? "marseille" : mode === "arrivee" ? "route" : emplacementParDefaut(etat, filtre);
   const [de, setDe] = useState(parDefaut);
-  const [vers, setVers] = useState(etat.emplacements.find((e) => e.id !== parDefaut)?.id || "");
+  const [vers, setVers] = useState(mode === "arrivee" ? "ferme" : etat.emplacements.find((e) => e.id !== parDefaut)?.id || "");
   const [motif, setMotif] = useState(MOTIFS_SORTIE[0]);
   const [note, setNote] = useState("");
-  const [quantites, setQuantites] = useState<Record<string, string>>({});
+  // Arrivée : tout ce qui est en route est pré-rempli, à corriger si tout n'est pas arrivé
+  const [quantites, setQuantites] = useState<Record<string, string>>(() =>
+    mode === "arrivee"
+      ? Object.fromEntries(articlesProposes(etat, "route", false, false).map((a) => [a.id, String(stockLibre(etat, a.id, "route")).replace(".", ",")]))
+      : {}
+  );
   const ecriture = useEcriture();
   // Perte ou retour fournisseur : les lots bloqués comptent ; une préparation ne part qu'en perte ou « Autre »
   const avecBloques = mode === "sortie" && MOTIFS_LOT_BLOQUE.includes(motif);
   const avecPreparations = mode === "sortie" && MOTIFS_PREPARATION.includes(motif);
   const visibles = articlesProposes(etat, de, avecBloques, avecPreparations).map((a) => a.id);
   const choisies = Object.entries(quantites).filter(([id, v]) => lireNombre(v) > 0 && visibles.includes(id));
-  const titres = { sortie: "Sortie", envoi: "Envoi vers la ferme", transfert: "Transfert" };
-  const libelle = { sortie: "Enregistrer la sortie", envoi: "Enregistrer l'envoi", transfert: "Enregistrer le transfert" }[mode];
+  const titres = { sortie: "Sortie", envoi: "Envoi vers la ferme", arrivee: "Arrivée à la ferme", transfert: "Transfert" };
+  const libelle = { sortie: "Enregistrer la sortie", envoi: "Enregistrer l'envoi", arrivee: "Valider l'arrivée", transfert: "Enregistrer le transfert" }[mode];
   const options = etat.emplacements.map((e) => ({ valeur: e.id, libelle: e.court }));
 
   const changerDe = (v: string) => {
@@ -502,7 +507,10 @@ export function FormLignes({ mode }: { mode: "sortie" | "envoi" | "transfert" })
     const lignes = choisies.map(([article, v]) => ({ article, quantite: lireNombre(v) }));
     if (mode === "sortie") ecriture.envoyer("stock.operation", { type: "sortie", emplacement: de, motif, note: note.trim(), lignes });
     else if (mode === "envoi") ecriture.envoyer("stock.operation", { type: "envoi", note: note.trim(), lignes });
-    else {
+    // Arrivée : un transfert « En route » → ferme, sans changement côté script
+    else if (mode === "arrivee") {
+      ecriture.envoyer("stock.operation", { type: "transfert", de: "route", vers: "ferme", note: ["Arrivée à la ferme", note.trim()].filter(Boolean).join(" · "), lignes });
+    } else {
       if (!vers || vers === de) return ecriture.refuser("Choisis un emplacement de destination différent.");
       ecriture.envoyer("stock.operation", { type: "transfert", de, vers, note: note.trim(), lignes });
     }
@@ -523,7 +531,13 @@ export function FormLignes({ mode }: { mode: "sortie" | "envoi" | "transfert" })
       <form id="f-lignes" onSubmit={envoyer} noValidate className="flex flex-col gap-5">
         {mode === "envoi" ? (
           <p className={DISCRET}>
-            De <b>Marseille</b> vers <b>{nomCourt(etat, "route")}</b>. Au passage à la ferme, les sachets ajoutés au congélateur sont pris d'abord ici.
+            De <b>Marseille</b> vers <b>{nomCourt(etat, "route")}</b> : le stock de Marseille baisse tout de suite. Quand l'envoi est arrivé, valide-le dans l'onglet Ferme. Si
+            tu remplis toi-même le congélateur, ajoute plutôt les sachets au passage : ils sont pris d'abord sur « {nomCourt(etat, "route")} ».
+          </p>
+        ) : mode === "arrivee" ? (
+          <p className={DISCRET}>
+            De <b>{nomCourt(etat, "route")}</b> vers le congélateur de la <b>{nomCourt(etat, "ferme")}</b>, n° de lot conservés. Si tout n'est pas arrivé, corrige les quantités : ce
+            qui manque reste « {nomCourt(etat, "route")} ».
           </p>
         ) : (
           <ChoixPuces legende={mode === "sortie" ? "Depuis" : "De"} options={options} valeur={de} onChange={changerDe} />
@@ -536,7 +550,7 @@ export function FormLignes({ mode }: { mode: "sortie" | "envoi" | "transfert" })
             value={note}
             onChange={(e) => setNote(e.target.value)}
             autoComplete="off"
-            placeholder={mode === "sortie" ? "Client, occasion…" : "Ex. glacière, Chronofresh"}
+            placeholder={mode === "sortie" ? "Client, occasion…" : mode === "arrivee" ? "Ex. reçu par la ferme, glacière en bon état" : "Ex. glacière, Chronofresh"}
             className={CHAMP}
           />
         </Champ>

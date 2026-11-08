@@ -1,6 +1,7 @@
 /* Vue Ferme (lot 4) : congélateur de la ferme, passage en étapes (compter, retirer, ajouter,
    encaissé, récapitulatif), rapprochement de caisse, fiche d'un passage. Les calculs sont faits par
-   le script (apps-script/Stock.gs, planifierPassage) : le récapitulatif est un aperçu du script. */
+   le script (apps-script/Stock.gs, planifierPassage) : le récapitulatif est un aperçu du script.
+   Un envoi en route se valide à son arrivée (« Valider l'arrivée à la ferme ») sans attendre un passage. */
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { appeler, ErreurAtelier, nouvelIdOperation } from "./api";
@@ -87,11 +88,16 @@ export default function VueFerme() {
         </div>
         <p className={`${DISCRET} mt-2`}>
           {dernier
-            ? `Dernier passage : ${jourLong(dernier.horodatage).toLowerCase()} à ${heure(dernier.horodatage)}. Stock d'après le dernier compte et les ajouts.`
+            ? `Dernier passage : ${jourLong(dernier.horodatage).toLowerCase()} à ${heure(dernier.horodatage)}. Stock d'après le dernier compte, les ajouts et les arrivées.`
             : "Aucun passage enregistré."}
         </p>
         {enRoute.length ? (
-          <p className={`${DISCRET} mt-1`}>En route vers la ferme : {enRoute.map(({ a, q }) => `${a.nom} ${nombre(q)}`).join(" · ")}.</p>
+          <>
+            <p className={`${DISCRET} mt-1`}>En route vers la ferme : {enRoute.map(({ a, q }) => `${a.nom} ${nombre(q)}`).join(" · ")}.</p>
+            <button type="button" className={`${BOUTON_SECONDAIRE} mt-3 w-full`} onClick={() => ouvrir({ type: "arrivee" })}>
+              Valider l'arrivée à la ferme
+            </button>
+          </>
         ) : null}
         <button type="button" className={`${BOUTON_PRINCIPAL} mt-3 w-full`} onClick={() => ouvrir({ type: "nouveauPassage" })}>
           Nouveau passage

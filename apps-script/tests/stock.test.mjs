@@ -59,14 +59,16 @@ test("initialiserStock crée le classeur, ses onglets et le catalogue initial, s
   assert.equal(produits.find((a) => a.Id === "grappe")["Pièces par sachet"], 4);
   assert.ok(articles.some((a) => a.Id === "mp-farine" && a["Catégorie"] === "matiere"));
   assert.ok(articles.some((a) => a.Id === "emb-sacs" && a["Catégorie"] === "emballage"));
-  assert.equal(articles.length, 8 + 19 + 2);
+  assert.ok(articles.some((a) => a.Id === "mp-beurre" && a.Nom === "Beurre de tourage"));
+  assert.ok(articles.some((a) => a.Id === "mp-beurre-plaquette" && a.Nom === "Beurre plaquette"));
+  assert.equal(articles.length, 8 + 20 + 2);
   assert.deepEqual(
     env.onglet("Emplacements").map((e) => [e.Id, e["Compte pour le site"]]),
     [["marseille", "oui"], ["ferme", "non"], ["route", "non"]]
   );
 
   env.ctx.initialiserStock();
-  assert.equal(env.onglet("Articles").length, 29);
+  assert.equal(env.onglet("Articles").length, 30);
   assert.equal(env.stock(), ss);
   assert.deepEqual(brut(env.dispo()), { lune: "bientot", cabosse: "bientot", grappe: "bientot", rose: "bientot", montagne: "bientot", foret: "bientot", noix: "bientot", goet: "bientot" });
 });
@@ -768,7 +770,7 @@ test("mise à jour du classeur : onglets et colonne du lot 3 bis créés au prem
   assert.ok(ss.getSheetByName("Recettes") && ss.getSheetByName("Blocages"));
   assert.equal(articles.lire(1, 14, 1, 1)[0][0], "Conservation (jours)");
   assert.deepEqual(articles.lire(2, 1, 1, 13)[0], avant);
-  assert.equal(env.onglet("Articles").length, 29);
+  assert.equal(env.onglet("Articles").length, 30);
 });
 
 /* ===================================================================

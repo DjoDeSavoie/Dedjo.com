@@ -602,6 +602,15 @@ Le script crée seul, au premier appel après sa mise à jour, l'onglet `Product
 4. Sur ton ordinateur, l'acceptation complète avec des données inventées : `npm run atelier:local -- --production` (Lune 3, Rose 0, Montagne 2, Cabosse 10 à Marseille, sans réglages), puis colle les réglages inventés du § 6 de `LOT-6-planification.md` dans Réglages › Production et déroule le § 8.
 5. Tests : `npm run test:atelier` et `npm run test:planification`, chacun doit finir par `# fail 0`.
 
+### Arrivée à la ferme, et deux beurres
+
+- **Arrivée à la ferme** (site seulement, le script ne change pas) : un envoi fait baisser Marseille tout de suite et met les sachets « En route ». Quand ils sont arrivés, onglet Ferme › **Valider l'arrivée à la ferme** : les quantités en route sont pré-remplies (corrige-les si tout n'est pas arrivé, le reste reste en route), puis elles passent dans le congélateur de la ferme, n° de lot conservés. C'est un transfert « En route » → « Ferme » noté « Arrivée à la ferme » dans le journal. Au passage suivant, ces sachets font partie du stock attendu : compte-les avec le reste et ne les ajoute pas une seconde fois.
+- **Beurre de tourage et beurre plaquette** : le catalogue initial de `Stock.gs` a maintenant deux beurres, `mp-beurre` « Beurre de tourage » et `mp-beurre-plaquette` « Beurre plaquette ». Cela ne sert qu'à un classeur neuf : **rien à redéployer** pour ton classeur actuel, fais-le dans l'Atelier.
+  1. Réglages › Articles › **Beurre** › Modifier : renomme-le « Beurre de tourage » (ses lots et les recettes qui l'utilisent suivent).
+  2. Réglages › Articles › **Nouvel article** : matière première « Beurre plaquette », en kg (son identifiant sera `mp-beurre-plaquette`, le même que le catalogue initial : pas de doublon si tu relances un jour `initialiserStock`).
+  3. Si un lot reçu comme « Beurre » était en fait de la plaquette : sors-le de « Beurre de tourage » (Sortie › Autre, note « reclassé en plaquette ») et refais sa réception en « Beurre plaquette » avec le même n° de lot et la même DDM.
+  4. Dans tes recettes (Réglages › Articles › le produit › Recette), remplace le beurre par le bon des deux là où c'est de la plaquette.
+
 ### Les propriétés du stock
 
 | Propriété | Valeur |

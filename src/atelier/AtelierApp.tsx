@@ -286,6 +286,7 @@ function FeuilleCourante({ feuille: f }: { feuille: Feuille }) {
       return <FormReception article={f.article} quantite={f.quantite} emplacement={f.emplacement} retourApres={f.retour} />;
     case "sortie":
     case "envoi":
+    case "arrivee":
     case "transfert":
       return <FormLignes mode={f.type} />;
     case "inventaire":

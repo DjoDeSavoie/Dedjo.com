@@ -275,6 +275,7 @@ export type Feuille =
   | { type: "reception"; article?: string; quantite?: number; emplacement?: string; retour?: boolean }
   | { type: "sortie" }
   | { type: "envoi" }
+  | { type: "arrivee" }
   | { type: "transfert" }
   | { type: "inventaire" }
   | { type: "lotAction"; id: string; mode: "sortie" | "transfert" }

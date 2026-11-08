@@ -192,7 +192,9 @@ const StockRegles = (() => {
 
   const MATIERES_INITIALES = [
     ["mp-farine", "Farine de blé", "kg"],
-    ["mp-beurre", "Beurre", "kg"],
+    // Deux beurres qui ne s'échangent pas : le tourage pour le feuilletage, la plaquette pour le reste
+    ["mp-beurre", "Beurre de tourage", "kg"],
+    ["mp-beurre-plaquette", "Beurre plaquette", "kg"],
     ["mp-lait", "Lait", "L"],
     ["mp-sucre", "Sucre", "kg"],
     ["mp-levure", "Levure", "kg"],
