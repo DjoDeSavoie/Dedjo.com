@@ -9,7 +9,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="hero" className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-12 pt-24">
+    <section id="hero" className="flex flex-col items-center justify-center text-center px-4 pt-28 pb-8">
       <div className="flex items-center gap-4 mb-8 animate-fade-in">
         <Logo className="w-20 h-20" />
         {/* Slogan aligné à gauche sous « Dedjo » */}

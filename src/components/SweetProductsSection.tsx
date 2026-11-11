@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import { PhotoCarte } from "./PhotoProduit";
+import { BoutonPhoto } from "./PhotoProduit";
 import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
 import { CUISSON, Product, VIENNOISERIES, eur } from "@/lib/catalog";
-import { photosDe } from "@/lib/photos";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
@@ -84,9 +83,8 @@ const SweetProductsSection = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <Tampons product={product} />
-              <PhotoCarte product={product} onClick={() => handleProductClick(product.id)} />
               <div className="flex items-start gap-4">
-                {!photosDe(product.id).length && <span className="text-4xl">{product.emoji}</span>}
+                <span className="text-4xl">{product.emoji}</span>
                 <div>
                   {/* Titre, et pastille « Classique » / « Favorite du chef » à côté (le coin est aux tampons) */}
                   <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mb-2">
@@ -115,6 +113,7 @@ const SweetProductsSection = () => {
                 >
                   Voir les détails →
                 </button>
+                <BoutonPhoto product={product} />
                 {statut(product.id) === "disponible" ? (
                   <button
                     onClick={() => handleAdd(product.id)}

@@ -57,14 +57,14 @@ const ProductShowcaseSection = () => {
   ];
 
   return (
-    <section id="products-overview" className="py-12 px-4 bg-background">
+    <section id="products-overview" className="pt-8 pb-12 px-4 bg-background">
       <div className="container max-w-5xl">
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-2">
           {/* Le dessin sert de masque : sa couleur vient du fond (bleu de Dedjo) */}
           <span
             role="img"
             aria-label="Dessin de fleur de Tati"
-            className="w-20 h-20 bg-brand-night"
+            className="w-12 h-12 bg-brand-night"
             style={{
               WebkitMaskImage: `url(${fleurTati})`,
               maskImage: `url(${fleurTati})`,
@@ -77,15 +77,12 @@ const ProductShowcaseSection = () => {
             }}
           />
         </div>
-        <h2 className="section-title">
-          <span className="font-display font-bold text-3xl md:text-4xl text-brand-night">
+        <h2 className="section-title !mb-2">
+          <span className="font-display font-bold text-2xl md:text-3xl text-brand-night">
             Des Créations Artisanales
           </span>
         </h2>
-        <p className="text-center text-muted-foreground mb-3 max-w-2xl mx-auto">
-          Préparées à la main, façonnées avec soin, partagées avec toi.
-        </p>
-        <p className="text-center font-semibold text-foreground mb-12">
+        <p className="text-center text-sm md:text-base font-semibold text-foreground mb-6">
           Prix unique de {PRIX_SACHET} euros par sachet
         </p>
 

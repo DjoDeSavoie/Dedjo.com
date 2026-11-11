@@ -1,3 +1,5 @@
+import { Camera } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Product } from "@/lib/catalog";
 import { HAUTEUR_PHOTO, LARGEUR_PHOTO, Photo, TAILLES_PHOTO, photosDe } from "@/lib/photos";
@@ -29,21 +31,33 @@ const PhotoProduit = ({ photo, couleur, sizes, className, alt = photo.alt }: Pho
 );
 
 /**
- * Photo n° 1 en haut d'une carte produit : un clic ouvre la pop-up, comme « Voir les détails ».
- * Rien si le produit n'a pas de photo (la carte garde alors son emoji).
+ * Petit bouton appareil photo sur une carte produit : un clic ouvre la photo n° 1 en grand.
+ * Rien si le produit n'a pas de photo. La photo n'est pas affichée sur la carte, pour la garder compacte.
  */
-export const PhotoCarte = ({ product, onClick }: { product: Product; onClick: () => void }) => {
+export const BoutonPhoto = ({ product, className }: { product: Product; className?: string }) => {
   const photo = photosDe(product.id)[0];
   if (!photo) return null;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="block w-full mb-4 rounded-xl cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-    >
-      <PhotoProduit photo={photo} couleur={product.color} sizes={TAILLES_PHOTO.carte} />
-      <span className="sr-only">Voir les détails</span>
-    </button>
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          aria-label={`Voir la photo : ${product.name}`}
+          title="Voir la photo"
+          className={cn(
+            "inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/60 hover:bg-white/90 text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            className,
+          )}
+        >
+          <Camera className="w-4 h-4" aria-hidden="true" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md p-4">
+        <DialogTitle className="font-display text-xl">{product.name}</DialogTitle>
+        <DialogDescription className="sr-only">{photo.alt}</DialogDescription>
+        <PhotoProduit photo={photo} couleur={product.color} sizes={TAILLES_PHOTO.popup} />
+      </DialogContent>
+    </Dialog>
   );
 };
 
