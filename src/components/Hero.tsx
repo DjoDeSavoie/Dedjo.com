@@ -17,7 +17,7 @@ const Hero = () => {
           <h1 className="font-brand text-5xl md:text-6xl text-brand-night">
             Dedjo
           </h1>
-          <p className="font-display italic text-xl md:text-3xl text-handmade-dark">
+          <p className="font-display italic text-xl md:text-3xl text-brand-night">
             L'artisanat chez soi
           </p>
         </div>
