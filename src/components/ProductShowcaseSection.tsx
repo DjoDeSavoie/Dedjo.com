@@ -60,16 +60,30 @@ const ProductShowcaseSection = () => {
     <section id="products-overview" className="py-12 px-4 bg-background">
       <div className="container max-w-5xl">
         <div className="flex justify-center mb-4">
-          <img src={fleurTati} alt="Dessin de fleur de Tati" className="w-20 h-20" />
+          {/* Le dessin sert de masque : sa couleur vient du fond (bleu de Dedjo) */}
+          <span
+            role="img"
+            aria-label="Dessin de fleur de Tati"
+            className="w-20 h-20 bg-brand-night"
+            style={{
+              WebkitMaskImage: `url(${fleurTati})`,
+              maskImage: `url(${fleurTati})`,
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+            }}
+          />
         </div>
         <h2 className="section-title">
-          <span className="font-display font-bold text-3xl md:text-4xl text-foreground">
+          <span className="font-display font-bold text-3xl md:text-4xl text-brand-night">
             Des Créations Artisanales
           </span>
         </h2>
         <p className="text-center text-muted-foreground mb-3 max-w-2xl mx-auto">
-          Préparées à la main. Façonnées avec soin. Partagées avec toi.<br />
-          Chaque création de Djo est pensée pour te donner le meilleur et que tu en fasses quelque chose de beau.
+          Préparées à la main, façonnées avec soin, partagées avec toi.
         </p>
         <p className="text-center font-semibold text-foreground mb-12">
           Prix unique de {PRIX_SACHET} euros par sachet
