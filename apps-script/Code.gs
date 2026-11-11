@@ -56,7 +56,7 @@ const SECTEURS = {
 };
 
 // Signature des e-mails envoyés aux clients (texte ; les retours à la ligne sont conservés)
-const SIGNATURE = "À très vite,\nJo — Dedjo\nL'artisanat qui se partage · dedjo.com";
+const SIGNATURE = "À très vite,\nJo — Dedjo\nL'artisanat chez soi · dedjo.com";
 
 // Cuisson (four préchauffé, directement sorti du congélateur), rappelée dans l'e-mail de récapitulatif.
 // Recopiée de CUISSON dans src/lib/catalog.ts.
@@ -520,7 +520,7 @@ function emailClient(c, id) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;border-top:6px solid ${k.nuit};font-family:Arial,Helvetica,sans-serif;color:${k.texte};font-size:15px;line-height:1.55;">
 <tr><td style="padding:28px 28px 8px;">
   <p style="margin:0 0 4px;font-family:Georgia,serif;font-size:26px;color:${k.nuit};">Dedjo</p>
-  <p style="margin:0 0 20px;font-style:italic;color:#6b6b6b;font-size:13px;">L'artisanat qui se partage</p>
+  <p style="margin:0 0 20px;font-style:italic;color:#6b6b6b;font-size:13px;">L'artisanat chez soi</p>
   <p style="margin:0 0 6px;">Salut ${echapper(c.client.prenom)},</p>
   <p style="margin:0 0 20px;">${echapper(intro)}</p>
   <p style="margin:0 0 8px;font-family:Georgia,serif;font-size:18px;color:${k.nuit};">Commande ${echapper(id)}</p>

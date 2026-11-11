@@ -10,19 +10,18 @@ const Hero = () => {
 
   return (
     <section id="hero" className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-12 pt-24">
-      <div className="flex items-center gap-4 mb-4 animate-fade-in">
+      <div className="flex items-center gap-4 mb-8 animate-fade-in">
         <Logo className="w-20 h-20" />
-        <h1 className="font-brand text-5xl md:text-6xl text-brand-night">
-          Dedjo
-        </h1>
+        {/* Slogan aligné à gauche sous « Dedjo » */}
+        <div className="text-left">
+          <h1 className="font-brand text-5xl md:text-6xl text-brand-night">
+            Dedjo
+          </h1>
+          <p className="font-display italic text-xl md:text-3xl text-handmade-dark">
+            L'artisanat chez soi
+          </p>
+        </div>
       </div>
-      <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 animate-fade-in">
-  <span className="font-display italic text-2xl md:text-3xl text-handmade-dark">
-  L'artisanat
-</span>{" "}
-  pour se connecter à ce que l'on mange,<br />
-  et le partager avec fierté.
-</p>
       <div className="flex gap-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
         <button 
           onClick={() => scrollToSection("products-overview")}

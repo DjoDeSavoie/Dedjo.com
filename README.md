@@ -1,6 +1,6 @@
 # Dedjo.com
 
-Site de Dedjo, « L'artisanat qui se partage » : viennoiseries et feuilletés salés façonnés à la main, livrés congelés à Marseille ou à retirer au marché de la Ferme de la Goëttaz, en Savoie.
+Site de Dedjo, « L'artisanat chez soi » : viennoiseries et feuilletés salés façonnés à la main, livrés congelés à Marseille ou à retirer au marché de la Ferme de la Goëttaz, en Savoie.
 
 ## Technique
 
