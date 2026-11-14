@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import PreparationCuisson from "./PreparationCuisson";
+import PreparationCuisson, { BoutonQuestion } from "./PreparationCuisson";
 import FeuilleteIllustration from "./FeuilleteIllustration";
 import { BoutonPhoto } from "./PhotoProduit";
 import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
@@ -147,6 +147,7 @@ const SaltyPastriesSection = () => {
         {/* Préparation, comme sur l'étiquette */}
         <div className="mb-10">
           <PreparationCuisson variante="feuilletes" />
+          <BoutonQuestion sujet="feuilletes" />
         </div>
 
         {/* Sizes */}

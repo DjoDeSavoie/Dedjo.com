@@ -58,7 +58,7 @@ const NewsletterSection = () => {
         </div>
 
         {/* Contact form */}
-        <div>
+        <div id="contact">
           <h3 className="text-xl font-display mb-2 text-foreground">💬 Partagez vos idées</h3>
           <p className="text-muted-foreground mb-6 text-sm">
             Une idée de recette, une envie, un retour sur une fournée — j'aime savoir ce que tu en penses.<br />

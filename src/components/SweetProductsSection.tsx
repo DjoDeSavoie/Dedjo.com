@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
-import PreparationCuisson from "./PreparationCuisson";
+import PreparationCuisson, { BoutonQuestion } from "./PreparationCuisson";
 import { BoutonPhoto } from "./PhotoProduit";
 import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
@@ -137,6 +137,7 @@ const SweetProductsSection = () => {
         <div className="mb-8">
           <PreparationCuisson variante="viennoiseries" />
           <p className="text-center mt-4 text-sm text-muted-foreground italic">À partager et à offrir, comme une fleur, pour donner le sourire. 🌼</p>
+          <BoutonQuestion sujet="viennoiseries" />
         </div>
 
         {/* Fabrication accordion */}

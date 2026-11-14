@@ -1,7 +1,8 @@
-import { ChefHat, Clock, Flame, LucideIcon } from "lucide-react";
+import { ChefHat, Clock, Flame, LucideIcon, MessageCircleQuestion } from "lucide-react";
 import { CUISSON } from "@/lib/catalog";
+import { SujetQuestion, poserQuestion } from "@/lib/question";
 
-type Variante = "viennoiseries" | "feuilletes";
+type Variante = SujetQuestion;
 
 const CONCLUSIONS: Record<Variante, string> = {
   viennoiseries: "Laisse-les tiédir quelques minutes avant de déguster. Régale‑toi !",
@@ -62,5 +63,19 @@ const PreparationCuisson = ({ variante }: { variante: Variante }) => {
     </div>
   );
 };
+
+/** « J'ai une question » : emmène au formulaire de contact, réglé sur une question pour cette gamme. */
+export const BoutonQuestion = ({ sujet }: { sujet: SujetQuestion }) => (
+  <div className="flex justify-center mt-5">
+    <button
+      type="button"
+      onClick={() => poserQuestion(sujet)}
+      className="inline-flex items-center gap-2 rounded-full border border-foreground/30 bg-white px-5 py-2.5 font-display text-foreground hover:border-foreground/60 transition-colors"
+    >
+      <MessageCircleQuestion className="w-5 h-5" strokeWidth={1.5} aria-hidden="true" />
+      J'ai une question
+    </button>
+  </div>
+);
 
 export default PreparationCuisson;

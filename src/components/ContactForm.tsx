@@ -1,7 +1,22 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DUREE_CONSERVATION_MENTIONS, EDITEUR } from "@/lib/legal";
+import { QUESTION_EVENT, QuestionEventDetail, SujetQuestion } from "@/lib/question";
+
+const SOURCE_PAR_DEFAUT = "site dedjo.com";
+const PLACEHOLDER_PAR_DEFAUT = "Partagez vos idées, suggestions, questions...";
+
+const SUJETS: Record<SujetQuestion, { source: string; placeholder: string }> = {
+  viennoiseries: {
+    source: "site dedjo.com — question viennoiseries",
+    placeholder: "Ta question sur les viennoiseries…",
+  },
+  feuilletes: {
+    source: "site dedjo.com — question feuilletés salés",
+    placeholder: "Ta question sur les feuilletés salés…",
+  },
+};
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +26,30 @@ const ContactForm = () => {
     message: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [source, setSource] = useState(SOURCE_PAR_DEFAUT);
+  const [placeholder, setPlaceholder] = useState(PLACEHOLDER_PAR_DEFAUT);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+
+  // Bouton « J'ai une question » d'une gamme : catégorie Question, placeholder et source
+  // de la gamme, puis curseur dans le message une fois le défilement fini.
+  // Un message déjà saisi est conservé.
+  useEffect(() => {
+    let minuteur: number | undefined;
+    const onQuestion = (e: Event) => {
+      const { sujet } = (e as CustomEvent<QuestionEventDetail>).detail;
+      setFormData((f) => ({ ...f, category: "question" }));
+      setSource(SUJETS[sujet].source);
+      setPlaceholder(SUJETS[sujet].placeholder);
+      window.clearTimeout(minuteur);
+      minuteur = window.setTimeout(() => messageRef.current?.focus({ preventScroll: true }), 400);
+    };
+    window.addEventListener(QUESTION_EVENT, onQuestion);
+    return () => {
+      window.removeEventListener(QUESTION_EVENT, onQuestion);
+      window.clearTimeout(minuteur);
+    };
+  }, []);
 
   const categories = [
     { value: "idea", label: "💡 Idée générale" },
@@ -72,7 +110,7 @@ const ContactForm = () => {
         email: formData.email.trim(),
         category: formData.category,
         message: formData.message.trim(),
-        source: "site dedjo.com",
+        source,
       }),
     });
 
@@ -95,6 +133,8 @@ const ContactForm = () => {
     });
 
     setFormData({ name: "", email: "", category: "", message: "" });
+    setSource(SOURCE_PAR_DEFAUT);
+    setPlaceholder(PLACEHOLDER_PAR_DEFAUT);
   } catch (err: any) {
     toast({
       title: "Erreur d'envoi",
@@ -167,7 +207,8 @@ const ContactForm = () => {
         </label>
         <textarea
           id="contact-message"
-          placeholder="Partagez vos idées, suggestions, questions..."
+          ref={messageRef}
+          placeholder={placeholder}
           value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           rows={4}
