@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Clock } from "lucide-react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
 import FeuilleteIllustration from "./FeuilleteIllustration";
@@ -65,6 +66,7 @@ const SaltyPastriesSection = () => {
       name: "Bouchées Apéritives",
       description: "Vingt petites bouchées à partager debout, au coin du buffet, entre ceux qu'on aime. Parfaites pour que tout le monde s'y mette. Format : sachet de 20 bouchées.",
       emoji: "🎉",
+      bientot: true,
     },
     {
       name: "Le Friand",
@@ -156,14 +158,20 @@ const SaltyPastriesSection = () => {
 
         {/* Sizes */}
         <div>
-          <h3 className="font-display text-2xl text-center mb-6">Formats Disponibles</h3>
+          <h3 className="font-display text-2xl text-center mb-6">Formats</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {sizes.map((size, index) => (
               <div 
                 key={size.name}
-                className="bg-section-cream rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 animate-fade-in"
+                className="relative bg-section-cream rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
+                {size.bientot && (
+                  <span className="absolute -top-3.5 right-3 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border-[1.5px] border-solid border-[#185FA5]/60 bg-white px-2.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.05em] leading-none text-[#185FA5] shadow-sm -rotate-2">
+                    <Clock className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2.25} aria-hidden="true" />
+                    Arrivent bientôt
+                  </span>
+                )}
                 <div className="flex items-start gap-4">
                   <span className="text-4xl">{size.emoji}</span>
                   <div>

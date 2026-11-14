@@ -188,8 +188,8 @@ const ContactForm = () => {
         {isLoading ? "Envoi en cours..." : "Envoyer mon message 🌱"}
       </button>
       <p className="text-xs text-muted-foreground text-center">
-        Ton message sert uniquement à te répondre.
-        {DUREE_CONSERVATION_MENTIONS && ` Il est conservé ${DUREE_CONSERVATION_MENTIONS}.`}
+        Ton nom et ton e-mail servent uniquement à te répondre.
+        {DUREE_CONSERVATION_MENTIONS && ` Ils sont conservés ${DUREE_CONSERVATION_MENTIONS}.`}
         {EDITEUR.email && ` Tes droits : ${EDITEUR.email}.`} En savoir plus :{" "}
         <Link to="/confidentialite" className="underline underline-offset-2 hover:text-foreground">
           politique de confidentialité

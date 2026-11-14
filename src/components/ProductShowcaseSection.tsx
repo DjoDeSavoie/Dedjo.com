@@ -79,7 +79,7 @@ const ProductShowcaseSection = () => {
         </div>
         <h2 className="section-title !mb-2">
           <span className="font-display font-bold text-2xl md:text-3xl text-brand-night">
-            Des Créations Artisanales
+            Mes créations artisanales
           </span>
         </h2>
         <p className="text-center text-sm md:text-base font-semibold text-foreground mb-6">
