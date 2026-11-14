@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
+import PreparationCuisson from "./PreparationCuisson";
 import FeuilleteIllustration from "./FeuilleteIllustration";
 import { BoutonPhoto } from "./PhotoProduit";
 import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
-import { CUISSON, FEUILLETES, Product, eur } from "@/lib/catalog";
+import { FEUILLETES, Product, eur } from "@/lib/catalog";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
@@ -143,17 +144,9 @@ const SaltyPastriesSection = () => {
           </div>
         </div>
 
-        {/* Recipe Card */}
-        <div className="bg-card rounded-2xl p-6 mb-8 shadow-soft max-w-2xl mx-auto text-center">
-          <h3 className="text-2xl mb-2">🍽️ <span className="font-display font-bold text-2xl md:text-3xl text-foreground">La cuisson</span></h3>
-          <p className="text-muted-foreground italic mb-5">Simple. Direct. Bon.</p>
-          <p className="text-foreground leading-relaxed">
-            Direct du congélateur, dans ton four préchauffé à <strong>{CUISSON.temperature} °C</strong>.<br />
-            Laisse cuire <strong>{CUISSON.minutes.feuilletes} minutes</strong>.
-          </p>
-          <p className="font-display italic text-lg text-handmade-dark mt-4">
-            Laisse ton four faire le reste, et régale-toi.
-          </p>
+        {/* Préparation, comme sur l'étiquette */}
+        <div className="mb-10">
+          <PreparationCuisson variante="feuilletes" />
         </div>
 
         {/* Sizes */}

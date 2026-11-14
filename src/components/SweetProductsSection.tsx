@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
+import PreparationCuisson from "./PreparationCuisson";
 import { BoutonPhoto } from "./PhotoProduit";
 import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
@@ -132,21 +133,10 @@ const SweetProductsSection = () => {
 
         <br /> <br />
 
-        {/* Recipe Card */}
-        <div className="bg-card rounded-2xl p-6 mb-6 shadow-soft max-w-3xl mx-auto">
-          <h3 className="text-2xl mb-4 text-center">🔥 <span className="font-display font-bold text-2xl md:text-3xl text-foreground">Recette de Préparation</span></h3>
-          <div className="space-y-5 text-foreground leading-relaxed">
-            <div className="flex items-start gap-3">
-              <span className="text-xl flex-shrink-0">1️⃣</span>
-              <p>Préchauffe ton four à <strong>{CUISSON.temperature} °C</strong>.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-xl flex-shrink-0">2️⃣</span>
-              <p>Sors tes viennoiseries du congélateur, dispose-les sur une plaque recouverte de papier cuisson et enfourne-les directement, sans décongeler : <strong>{CUISSON.minutes.viennoiseries} minutes</strong>.</p>
-            </div>
-          </div>
-          <p className="text-center mt-6 text-lg">Régale-toi. 🥐</p>
-          <p className="text-center mt-2 text-muted-foreground italic">À partager et à offrir, comme une fleur, pour donner le sourire. 🌼</p>
+        {/* Préparation, comme sur l'étiquette */}
+        <div className="mb-8">
+          <PreparationCuisson variante="viennoiseries" />
+          <p className="text-center mt-4 text-sm text-muted-foreground italic">À partager et à offrir, comme une fleur, pour donner le sourire. 🌼</p>
         </div>
 
         {/* Fabrication accordion */}
