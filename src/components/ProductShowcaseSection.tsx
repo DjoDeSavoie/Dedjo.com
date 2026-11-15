@@ -77,10 +77,10 @@ const ProductShowcaseSection = () => {
             }}
           />
         </div>
-        <h2 className="section-title !mb-2">
-          <span className="font-display font-bold text-2xl md:text-3xl text-brand-night">
-            Mes créations artisanales
-          </span>
+        {/* Phrase longue : taille réduite, posée sur le h2 lui-même pour un interligne juste */}
+        <h2 className="font-display font-bold text-lg md:text-2xl leading-snug text-brand-night text-center text-balance max-w-2xl mx-auto mb-2">
+          Viennoiseries artisanales et feuilletés aux influences savoyardes, à cuire direct du congélateur. Livrés à
+          Marseille.
         </h2>
         <p className="text-center text-sm md:text-base font-semibold text-foreground mb-6">
           Prix unique de {PRIX_SACHET} euros par sachet

@@ -9,9 +9,17 @@ import PizzasSection from "@/components/PizzasSection";
 import NewsletterSection from "@/components/NewsletterSection";
 import HistoireSection from "@/components/HistoireSection";
 import Footer from "@/components/Footer";
+import { useMetaPage } from "@/lib/seo";
 
 const Index = () => {
   const { hash } = useLocation();
+
+  // Mêmes textes que le <title> et la description d'index.html : les garder identiques
+  useMetaPage({
+    titre: "Dedjo · Viennoiseries artisanales à cuire · Marseille & Savoie",
+    description:
+      "Viennoiseries et feuilletés aux influences savoyardes, façonnés à la main, à cuire direct du congélateur. Livrés à Marseille, à retirer en Savoie.",
+  });
 
   // Arrivée avec une ancre (ex. /#histoire) : aller à la section une fois les polices
   // chargées, pour que la mise en page ne bouge plus après le saut

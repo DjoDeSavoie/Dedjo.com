@@ -3,17 +3,45 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dedjo - L'artisanat chez soi</title>
-    <meta name="description" content="Dedjo — viennoiseries façonnées à la main, à cuire chez toi, direct du congélateur. Feuilletés salés savoyards et pizzas au four à bois chaque vendredi à la Ferme de la Goëttaz." />
+    <!-- Titre et description de l'accueil (lus par les robots qui n'exécutent pas le JavaScript) ;
+         les garder identiques à ceux de src/pages/Index.tsx. Les autres pages posent les leurs
+         (src/lib/seo.ts). -->
+    <title>Dedjo · Viennoiseries artisanales à cuire · Marseille &amp; Savoie</title>
+    <meta name="description" content="Viennoiseries et feuilletés aux influences savoyardes, façonnés à la main, à cuire direct du congélateur. Livrés à Marseille, à retirer en Savoie." />
     <meta name="author" content="Dedjo" />
 
-    <meta property="og:title" content="Dedjo - Viennoiseries & Pizzas Artisanales" />
-    <meta property="og:description" content="Viennoiseries façonnées à la main, à cuire chez toi, direct du congélateur. Feuilletés salés savoyards et pizzas au four à bois chaque vendredi à la Ferme de la Goëttaz." />
+    <!-- Partage sur les réseaux et les messageries ; image produite par scripts/partage.mjs -->
+    <meta property="og:title" content="Dedjo · Viennoiseries artisanales à cuire · Marseille &amp; Savoie" />
+    <meta property="og:description" content="Viennoiseries et feuilletés aux influences savoyardes, façonnés à la main, à cuire direct du congélateur. Livrés à Marseille, à retirer en Savoie." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/dedjo-logo-v3.svg" />
+    <meta property="og:url" content="https://dedjo.com/" />
+    <meta property="og:image" content="https://dedjo.com/partage-dedjo.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="La Lune, croissant artisanal Dedjo" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="/dedjo-logo-v3.svg" />
+    <meta name="twitter:image" content="https://dedjo.com/partage-dedjo.jpg" />
+
+    <!-- Données structurées : zone desservie, sans adresse postale, téléphone ni e-mail (volontaire) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Bakery",
+        "name": "Dedjo",
+        "url": "https://dedjo.com/",
+        "image": "https://dedjo.com/partage-dedjo.jpg",
+        "description": "Viennoiseries et feuilletés aux influences savoyardes, façonnés à la main, à cuire direct du congélateur. Livrés à Marseille, à retirer en Savoie.",
+        "slogan": "L'artisanat chez soi",
+        "areaServed": [
+          { "@type": "City", "name": "Marseille" },
+          { "@type": "City", "name": "Le Bourget-du-Lac" },
+          { "@type": "City", "name": "Aix-les-Bains" },
+          { "@type": "City", "name": "Chambéry" }
+        ],
+        "sameAs": ["https://instagram.com/Dedjo_"]
+      }
+    </script>
 
     <link rel="icon" type="image/svg+xml" href="/dedjo-logo-v3.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />

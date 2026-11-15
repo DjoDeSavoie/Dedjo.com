@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import Index from "./pages/Index";
-import Discover from "./pages/Discover";
 import Commande from "./pages/Commande";
 import MentionsLegales from "./pages/MentionsLegales";
 import Cgv from "./pages/Cgv";
@@ -27,7 +26,6 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/discover" element={<Discover />} />
             {/* L'histoire est désormais une section en bas de la page d'accueil */}
             <Route path="/histoire" element={<Navigate to="/#histoire" replace />} />
             <Route path="/commande" element={<Commande />} />

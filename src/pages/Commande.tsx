@@ -25,6 +25,7 @@ import {
 } from "@/lib/catalog";
 import { CGV_VERSION, DUREE_CONSERVATION_MENTIONS, EDITEUR, LIENS_LEGAUX } from "@/lib/legal";
 import { TAILLES_PHOTO, photosDe } from "@/lib/photos";
+import { useMetaPage } from "@/lib/seo";
 
 const GRAD = "linear-gradient(135deg,#185FA5 0%,#2A7FD0 100%)";
 const RAPPEL_CONGELE = "Tout est livré congelé, à conserver au congélateur, et cuire en direct dans ton four.";
@@ -78,6 +79,12 @@ const sachetsLabel = (p: Product, qty: number) =>
   `${pluralize(qty, "sachet", "sachets")} · ${qty * p.pieces} ${p.unit}`;
 
 const Commande = () => {
+  useMetaPage({
+    titre: "Commander tes viennoiseries · Dedjo",
+    description:
+      "Commande tes viennoiseries et feuilletés Dedjo : livraison à Marseille et alentours, ou retrait en Savoie, autour du Bourget-du-Lac, d'Aix-les-Bains et de Chambéry.",
+  });
+
   const {
     vienno,
     friand,
