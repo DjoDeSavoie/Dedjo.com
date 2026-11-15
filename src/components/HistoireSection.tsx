@@ -16,13 +16,13 @@ const HistoireSection = () => {
         <div className="space-y-6 text-foreground leading-relaxed text-lg">
 
           <p>
-            J'ai grandi dans une famille de paysans, dans une ferme savoyarde : nous cultivons la terre, ainsi que les valeurs humaines qu'elle suggère. Je suis un passionné de boulangerie, pâtisserie et de cuisine plus généralement. Cette flamme a été transmise par mes grands-parents. Je faisais les gâteaux avec ma grand-mère dès lors que j'ai su me tenir debout. Et mon grand-père, m'a enseigné, à sa manière, l'amour du pain et les valeurs qu'il incarne : « Le pain c'est sacré », comme il me l'a souvent répété.
+            J'ai grandi dans une famille de paysans, dans une ferme savoyarde : nous cultivons la terre, ainsi que les valeurs humaines qu'elle suggère. Je suis un passionné de boulangerie, de pâtisserie et de cuisine plus généralement. Cette flamme, ce sont mes grands-parents qui me l'ont transmise : je faisais les gâteaux avec ma grand-mère dès lors que j'ai su me tenir debout ; et mon grand-père m'a enseigné, à sa manière, l'amour du pain et les valeurs qu'il incarne : « Le pain c'est sacré », comme il me l'a souvent répété.
           </p>
 
           <div className="text-center text-2xl py-1">🌼</div>
 
           <p>
-            Peut être que cet amour pour l'artisanat culinaire est né de la grande technique et des connaissances qu'il est nécessaire de maîtriser pour mener à bon une recette et stimuler les sens. Peut-être incarne-t-il, par essence, toutes les valeurs qui m'ont été transmises par mes anciens. Peut-être me permet-t-il de sourire en partageant avec fierté, un croissant qui m'a demandé temps et travail pour parvenir à le maîtriser ?
+            Peut-être que cet amour pour l'artisanat culinaire est né de la grande technique et des connaissances qu'il est nécessaire de maîtriser pour mener à bien une recette et stimuler les sens, tout en gardant la simplicité d'une bonne bouffe. Peut-être incarne-t-il, par essence, toutes les valeurs qui m'ont été transmises par mes anciens. Peut-être me permet-il de sourire en partageant avec fierté un produit qui m'a demandé temps et travail pour parvenir à le maîtriser ?
           </p>
 
           <p>
