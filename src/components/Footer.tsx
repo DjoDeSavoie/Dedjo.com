@@ -56,6 +56,18 @@ const Footer = () => {
       <footer className="py-6 px-6 border-t border-border">
         <div className="container max-w-6xl flex flex-col items-center gap-2">
           <Logo className="w-8 h-8" />
+          {/* Zones desservies, en texte (lu par les moteurs de recherche) ; pas d'adresse postale */}
+          <div className="text-sm text-muted-foreground text-center text-balance space-y-1">
+            <p>
+              <span aria-hidden="true">📍</span> Livraison à Marseille et alentours
+            </p>
+            <p>
+              {/* Noms composés jamais coupés au trait d'union */}
+              <span aria-hidden="true">📍</span> En Savoie : Ferme de la Goëttaz, autour du{" "}
+              <span className="whitespace-nowrap">Bourget-du-Lac</span>, d'
+              <span className="whitespace-nowrap">Aix-les-Bains</span> et de Chambéry
+            </p>
+          </div>
           <p className="text-muted-foreground text-center text-sm">
             © 2026 Dedjo. Fait avec amour. 🥖
           </p>

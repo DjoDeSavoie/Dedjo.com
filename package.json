@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "photos": "node --experimental-strip-types scripts/photos.mjs",
+    "partage": "node scripts/partage.mjs",
     "atelier:local": "node apps-script/tests/serveur-local.mjs",
     "test:atelier": "node --test apps-script/tests/stock.test.mjs netlify/tests/atelier.test.mjs",
     "test:planification": "node --test --experimental-strip-types src/atelier/planification.test.ts"
