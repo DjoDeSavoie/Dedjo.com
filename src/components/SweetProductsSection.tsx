@@ -191,7 +191,7 @@ const SweetProductsSection = () => {
                 <span className="text-lg flex-shrink-0">❄️</span>
                 <div>
                   <p className="font-semibold mb-1">6 — La pré-pousse, puis la congélation</p>
-                  <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. La congélation préserve toute la fraîcheur du beurre, conserve les arômes de fermentation et stoppe la fermentation au bon moment. Quand tu les sors chez toi, elles reprennent leur pousse dans la chaleur du four. Le résultat est le même qu'à la sortie de mon labo — mais chez toi, à l'heure qui te convient.</p>
+                  <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. Le froid préserve toute la fraîcheur du beurre, garde les arômes et arrête la fermentation au bon moment. Chez toi, elles passent direct du congélateur au four, où elles libèrent leurs arômes parfumés de beurre et de ferments dans toutes les pièces de la maison. Le résultat est le même qu'à la sortie de mon labo, mais chez toi, à l'heure qui te convient.</p>
                 </div>
               </div>
               <div className="pt-4 border-t border-muted text-center">

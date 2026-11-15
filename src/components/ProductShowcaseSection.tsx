@@ -27,7 +27,7 @@ const ProductShowcaseSection = () => {
       emoji: "🥐",
       title: "Viennoiseries",
       description:
-        "Une pate pétrie, un feuilletage de beurre régulier. Façonnée puis bloquée en congélation pour conserver sa fraîcheur. Prépare ta viennoiseries quand tu le veux — un rituel sans pression.",
+        "Une pâte pétrie, un feuilletage de beurre régulier. Façonnées puis bloquées au congélateur pour garder leur fraîcheur. Enfourne-les direct du congélateur, quand tu veux : un rituel sans pression.",
       sectionId: "sweet-products",
       bgColor: "bg-[hsl(50,100%,85%)]",
       borderColor: "border-[hsl(45,100%,60%)]",
