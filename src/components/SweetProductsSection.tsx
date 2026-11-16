@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
 import PreparationCuisson, { BoutonQuestion } from "./PreparationCuisson";
@@ -7,6 +8,7 @@ import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
 import { CUISSON, Product, VIENNOISERIES, eur } from "@/lib/catalog";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
+import { ficheDe } from "@/lib/fiches";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
 const catalogProduct = (id: string) => VIENNOISERIES.find((p) => p.id === id)!;
@@ -77,6 +79,7 @@ const SweetProductsSection = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {cards.map((card, index) => {
             const product = catalogProduct(card.id);
+            const fiche = ficheDe(product.id);
             return (
             <div
               key={product.id}
@@ -105,6 +108,12 @@ const SweetProductsSection = () => {
                   <p className="text-xs font-semibold text-foreground/70 mt-2">
                     Sachet de {sachetInfo(product.id)}
                   </p>
+                  {/* Lien discret vers la fiche du produit (un vrai lien, suivi par Google) ; la pop-up reste */}
+                  {fiche && (
+                    <Link to={fiche.chemin} className="inline-block mt-1.5 py-0.5 text-xs font-semibold text-foreground/70 underline underline-offset-2 hover:text-foreground">
+                      Voir la fiche
+                    </Link>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-4 flex-wrap">

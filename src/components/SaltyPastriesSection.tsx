@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
@@ -9,6 +10,7 @@ import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
 import { useCart } from "@/context/CartContext";
 import { FEUILLETES, Product, eur } from "@/lib/catalog";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
+import { ficheDe } from "@/lib/fiches";
 
 /** Étiquette, sachet et prix viennent du catalogue. */
 const catalogProduct = (id: string) => FEUILLETES.find((f) => f.id === id)!;
@@ -118,6 +120,12 @@ const SaltyPastriesSection = () => {
                     <p className="text-foreground/80">{flavor.description}</p>
                     <ProductTags product={catalogProduct(flavor.id)} className="mt-2.5" />
                     <p className="text-xs font-semibold text-foreground/70 mt-2">Sachet de {sachetInfo(flavor.id)}</p>
+                    {/* Lien discret vers la fiche du produit (un vrai lien, suivi par Google) ; la pop-up reste */}
+                    {ficheDe(flavor.id) && (
+                      <Link to={ficheDe(flavor.id)!.chemin} className="inline-block mt-1.5 py-0.5 text-xs font-semibold text-foreground/70 underline underline-offset-2 hover:text-foreground">
+                        Voir la fiche
+                      </Link>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-4 flex-wrap">

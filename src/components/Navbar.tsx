@@ -3,12 +3,20 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ShoppingBasket } from "lucide-react";
 import Logo from "./Logo";
 import { useCart } from "@/context/CartContext";
+import { CHEMIN_MARSEILLE, CHEMIN_SAVOIE } from "@/lib/fiches";
 
 const navLinks = [
   { id: "sweet-products", label: "Viennoiseries" },
   { id: "salty-pastries", label: "Feuilletés Salés" },
   { id: "pizzas", label: "Les Pizzas" },
   { id: "newsletter", label: "Grandir ensemble" },
+];
+
+// Pages « où me trouver » : de vrais liens (Link), qui marchent depuis n'importe quelle page,
+// alors que les liens ci-dessus font défiler l'accueil jusqu'à une section
+const pageLinks = [
+  { to: CHEMIN_MARSEILLE, label: "Marseille" },
+  { to: CHEMIN_SAVOIE, label: "Savoie" },
 ];
 
 // Affiché à part, à gauche du menu, pour le distinguer des liens produits
@@ -87,7 +95,7 @@ const Navbar = () => {
     }`;
 
   const mobileLinkClass = (active: boolean) =>
-    `font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base ${
+    `block font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base ${
       active
         ? "text-primary bg-primary/10"
         : "text-foreground hover:text-primary hover:bg-primary/10"
@@ -114,14 +122,15 @@ const Navbar = () => {
             <span className="hidden lg:block w-px h-6 bg-border" aria-hidden="true" />
             <button
               onClick={() => goToSection(storyLink.id)}
-              className={`hidden lg:inline-block ${linkClass(activeSection === storyLink.id)}`}
+              className={`hidden lg:inline-block whitespace-nowrap ${linkClass(activeSection === storyLink.id)}`}
             >
               {storyLink.label}
             </button>
           </div>
 
-          {/* Navigation desktop */}
-          <ul className="hidden lg:flex items-center gap-6">
+          {/* Navigation desktop : liens sur une seule ligne, un peu plus serrés entre 1024 et 1280 px
+              pour que « Marseille » et « Savoie » tiennent sans retour à la ligne */}
+          <ul className="hidden lg:flex items-center gap-4 xl:gap-6 whitespace-nowrap">
             {navLinks.map((link) => (
               <li key={link.id}>
                 <button
@@ -130,6 +139,13 @@ const Navbar = () => {
                 >
                   {link.label}
                 </button>
+              </li>
+            ))}
+            {pageLinks.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className={linkClass(location.pathname === link.to)}>
+                  {link.label}
+                </Link>
               </li>
             ))}
             <li>
@@ -189,6 +205,18 @@ const Navbar = () => {
                   >
                     {link.label}
                   </button>
+                </li>
+              ))}
+              <li role="separator" className="border-t border-border mx-3" />
+              {pageLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={mobileLinkClass(location.pathname === link.to)}
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
               <li>

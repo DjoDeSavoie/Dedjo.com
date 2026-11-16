@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, CheckCircle2, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
@@ -101,8 +101,11 @@ const Commande = () => {
   const { statut } = useDisponibilite();
   const queryClient = useQueryClient();
 
-  const [form, setForm] = useState<FormState>({
-    secteur: "",
+  // Arrivée depuis /marseille ou /savoie (bouton « Commander » → /commande?secteur=…) : le secteur
+  // est déjà choisi. Une valeur inconnue est ignorée. Lu une seule fois, à l'ouverture de la page.
+  const [parametres] = useSearchParams();
+  const [form, setForm] = useState<FormState>(() => ({
+    secteur: SECTEURS.find((s) => s.id === parametres.get("secteur"))?.id ?? "",
     date: "",
     prenom: "",
     nom: "",
@@ -110,7 +113,7 @@ const Commande = () => {
     email: "",
     message: "",
     website: "",
-  });
+  }));
   const [adresse, setAdresse] = useState<AdresseLivraison | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [envoi, setEnvoi] = useState<EtatEnvoi>("repos");

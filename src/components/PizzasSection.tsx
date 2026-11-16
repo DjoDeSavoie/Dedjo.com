@@ -1,74 +1,11 @@
 import { useState } from "react";
 import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
+import { PIZZAS_SALEES, PIZZAS_SUCREES } from "@/lib/pizzas";
 
+/** Les pizzas (noms, descriptions, ingrédients) viennent de src/lib/pizzas.ts, partagé avec la page /savoie. */
 const PizzasSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-
-  const pateIngredients = "Pâte (farine, eau, huile d'olive, levure et sel)";
-  const fabricationAll = "Pâte pétrie sur place, étalée au rouleau, garnie devant vos yeux et cuite au four à bois.";
-  const bonASavoirAll = "Un savoir-faire bien rodé et une union familiale pour vous servir le meilleur.";
-  const whereToBuyAll = "Disponible à la Ferme De La Goëttaz lors des soirées pizzas";
-
-  const saltyPizzas: (ProductDetail & { color: string; isFavorite?: boolean; favoriteTooltip?: string })[] = [
-    {
-      name: "La Classique",
-      description: "Sauce tomate, jambon, oignons, fromage. Ce qu'on revient toujours chercher, parce que c'est juste bon.",
-      emoji: "🍕",
-      color: "bg-pizza-classique",
-      ingredients: [pateIngredients, "Sauce tomate", "Jambon", "Oignons de la ferme", "Fromage"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
-    },
-    {
-      name: "La Flam",
-      description: "Crème fraîche, lardons fumés, oignons — une flambée à la savoyarde. Notre création, notre préférée.",
-      emoji: "🥓",
-      color: "bg-pizza-flam",
-      isFavorite: true,
-      favoriteTooltip: "Favorite du chef",
-      ingredients: [pateIngredients, "Crème fraîche", "Lardons fumés", "Oignons", "Fromage râpé"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
-    },
-    {
-      name: "La Végé",
-      description: "Courgettes et oignons du jardin, sauce tomate, fromage. Ce que la ferme offre, simplement.",
-      emoji: "🥒",
-      color: "bg-pizza-vege",
-      ingredients: [pateIngredients, "Sauce tomate", "Courgettes du jardin", "Oignons du jardin", "Fromage"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
-    },
-  ];
-
-  const sweetPizzas: (ProductDetail & { color: string; isFavorite?: boolean; favoriteTooltip?: string })[] = [
-    {
-      name: "La Praline Rose",
-      description: "Praline rose de Lyon, crème AOP. Un classique sucré-croquant — en pizza.",
-      emoji: "🩷",
-      color: "bg-pizza-praline",
-      isFavorite: true,
-      favoriteTooltip: "Favorite du chef",
-      ingredients: [pateIngredients, "Pralines roses", "Crème AOP"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
-    },
-    {
-      name: "La Nut'",
-      description: "Pâte à tartiner chocolat-noisette. Pour finir sur une note douce.",
-      emoji: "🍫",
-      color: "bg-pizza-nut",
-      ingredients: [pateIngredients, "Pâte à tartiner chocolat-noisettes"],
-      madeBy: fabricationAll,
-      whereToBuy: whereToBuyAll,
-      additionalInfo: bonASavoirAll,
-    },
-  ];
 
   const handleProductClick = (product: ProductDetail) => {
     setSelectedProduct(product);
@@ -86,7 +23,7 @@ const PizzasSection = () => {
         <div className="mb-12">
           <h3 className="text-2xl text-center mb-6"><span className="font-display font-bold text-2xl md:text-3xl text-foreground">Pizzas Salées</span></h3>
           <div className="grid md:grid-cols-3 gap-6">
-            {saltyPizzas.map((pizza, index) => (
+            {PIZZAS_SALEES.map((pizza, index) => (
               <button 
                 key={pizza.name}
                 onClick={() => handleProductClick(pizza)}
@@ -116,7 +53,7 @@ const PizzasSection = () => {
         <div>
           <h3 className="text-2xl text-center mb-6"><span className="font-display font-bold text-2xl md:text-3xl text-foreground">Pizzas Sucrées</span></h3>
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {sweetPizzas.map((pizza, index) => (
+            {PIZZAS_SUCREES.map((pizza, index) => (
               <button 
                 key={pizza.name}
                 onClick={() => handleProductClick(pizza)}
