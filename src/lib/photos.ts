@@ -37,6 +37,8 @@ export const TAILLES_PHOTO = {
   popup: "(min-width: 448px) 400px, calc(100vw - 48px)",
   /** Pastille ronde de la page Commande. */
   pastille: "36px",
+  /** Fiche produit : pleine largeur sur mobile, une colonne sur deux à partir de 768 px. */
+  fiche: "(min-width: 1064px) 494px, (min-width: 768px) calc(50vw - 38px), calc(100vw - 40px)",
 };
 
 const FICHIERS = import.meta.glob<string>("/src/assets/produits/*.webp", { eager: true, import: "default" });

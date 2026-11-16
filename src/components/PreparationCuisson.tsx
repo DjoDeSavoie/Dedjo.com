@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
 import { ChefHat, Clock, Flame, LucideIcon, MessageCircleQuestion } from "lucide-react";
 import { CUISSON } from "@/lib/catalog";
+import { CHEMIN_GUIDE, LIEN_GUIDE } from "@/lib/fiches";
 import { SujetQuestion, poserQuestion } from "@/lib/question";
 
 type Variante = SujetQuestion;
@@ -11,7 +13,8 @@ const CONCLUSIONS: Record<Variante, string> = {
 
 /**
  * Encadré « Préparation » des étiquettes imprimées, en noir et blanc :
- * four chaud → enfourne → minutes de cuisson, puis la phrase de conclusion.
+ * four chaud → enfourne → minutes de cuisson, puis la phrase de conclusion
+ * et le lien vers le guide de cuisson.
  */
 const PreparationCuisson = ({ variante }: { variante: Variante }) => {
   const etapes: { icone: LucideIcon; titre: string; texte: string }[] = [
@@ -60,6 +63,14 @@ const PreparationCuisson = ({ variante }: { variante: Variante }) => {
       </ol>
 
       <p className="font-display text-base text-center mt-8">{CONCLUSIONS[variante]}</p>
+      <p className="text-center mt-3">
+        <Link
+          to={CHEMIN_GUIDE}
+          className="font-display text-sm text-foreground/70 underline underline-offset-4 hover:text-foreground"
+        >
+          {LIEN_GUIDE}
+        </Link>
+      </p>
     </div>
   );
 };

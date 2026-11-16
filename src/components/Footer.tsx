@@ -2,6 +2,9 @@ import { Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 import Logo from "./Logo";
 import { LIENS_LEGAUX } from "@/lib/legal";
+import { CHEMIN_GUIDE, CHEMIN_MARSEILLE, CHEMIN_SAVOIE } from "@/lib/fiches";
+
+const lienPied = "text-muted-foreground underline underline-offset-2 hover:text-foreground";
 
 const instagramPreviews = [
   { emoji: "🥐", label: "La Lune", desc: "Croissant pur beurre", bg: "bg-product-croissant" },
@@ -56,16 +59,28 @@ const Footer = () => {
       <footer className="py-6 px-6 border-t border-border">
         <div className="container max-w-6xl flex flex-col items-center gap-2">
           <Logo className="w-8 h-8" />
-          {/* Zones desservies, en texte (lu par les moteurs de recherche) ; pas d'adresse postale */}
+          {/* Zones desservies, en texte (lu par les moteurs de recherche) ; pas d'adresse postale.
+              Chaque ligne mène à sa page ; le guide de cuisson est cité en dessous. */}
           <div className="text-sm text-muted-foreground text-center text-balance space-y-1">
             <p>
-              <span aria-hidden="true">📍</span> Livraison à Marseille et alentours
+              <span aria-hidden="true">📍</span>{" "}
+              <Link to={CHEMIN_MARSEILLE} className={lienPied}>
+                Livraison à Marseille et alentours
+              </Link>
             </p>
             <p>
               {/* Noms composés jamais coupés au trait d'union */}
-              <span aria-hidden="true">📍</span> En Savoie : Ferme de la Goëttaz, autour du{" "}
-              <span className="whitespace-nowrap">Bourget-du-Lac</span>, d'
-              <span className="whitespace-nowrap">Aix-les-Bains</span> et de Chambéry
+              <span aria-hidden="true">📍</span>{" "}
+              <Link to={CHEMIN_SAVOIE} className={lienPied}>
+                En Savoie : Ferme de la Goëttaz, autour du <span className="whitespace-nowrap">Bourget-du-Lac</span>, d'
+                <span className="whitespace-nowrap">Aix-les-Bains</span> et de Chambéry
+              </Link>
+            </p>
+            <p>
+              <span aria-hidden="true">🔥</span>{" "}
+              <Link to={CHEMIN_GUIDE} className={lienPied}>
+                Conseils de cuisson
+              </Link>
             </p>
           </div>
           <p className="text-muted-foreground text-center text-sm">
@@ -73,11 +88,7 @@ const Footer = () => {
           </p>
           <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
             {LIENS_LEGAUX.map((lien) => (
-              <Link
-                key={lien.to}
-                to={lien.to}
-                className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
-              >
+              <Link key={lien.to} to={lien.to} className={lienPied}>
                 {lien.label}
               </Link>
             ))}

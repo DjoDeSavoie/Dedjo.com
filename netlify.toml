@@ -48,6 +48,42 @@
   to = "/index.html"
   status = 200
 
+# Pages de référencement (lot SEO 2) : Marseille, Savoie, fiches produits, guide de cuisson
+[[redirects]]
+  from = "/marseille"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/savoie"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/la-lune"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/la-cabosse"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/la-montagne"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/la-foret"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cuisson-viennoiseries-surgelees"
+  to = "/index.html"
+  status = 200
+
 [[redirects]]
   from = "/atelier"
   to = "/index.html"

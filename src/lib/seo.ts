@@ -3,13 +3,14 @@
    index.html porte ceux de l'accueil (lus par les robots qui n'exécutent
    pas le JavaScript) ; à l'affichage d'une page, useMetaPage les remplace
    par les siens. Chaque balise est créée si elle manque, jamais en double.
+   Les fiches produits ajoutent leurs données structurées (useDonneesStructurees).
    L'Atelier gère seul son titre et son noindex (src/pages/Atelier.tsx).
    =================================================================== */
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 /** Adresse publique du site, sans barre finale. */
-const ORIGINE_SITE = "https://dedjo.com";
+export const ORIGINE_SITE = "https://dedjo.com";
 
 type MetaPage = {
   /** Titre de l'onglet et des résultats de recherche. */
@@ -62,4 +63,22 @@ export function useMetaPage({ titre, description, indexer = true }: MetaPage) {
     if (indexer) document.head.querySelector('meta[name="robots"]')?.remove();
     else metaNommee("robots").content = "noindex";
   }, [titre, description, indexer, pathname]);
+}
+
+/**
+ * Pose un bloc de données structurées (JSON-LD) dans le <head> tant que la page est affichée ;
+ * il est retiré quand on la quitte, et remplacé si les données changent (ex. disponibilité).
+ * Le bloc « Bakery » d'index.html n'est jamais touché.
+ */
+export function useDonneesStructurees(donnees: Record<string, unknown>) {
+  const json = JSON.stringify(donnees);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.dataset.page = "oui"; // distingue ce bloc de celui d'index.html
+    script.textContent = json;
+    document.head.appendChild(script);
+    return () => script.remove();
+  }, [json]);
 }

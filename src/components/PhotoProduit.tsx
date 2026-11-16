@@ -12,10 +12,12 @@ interface PhotoProduitProps {
   className?: string;
   /** Texte alternatif ; "" quand le nom du produit est déjà écrit à côté. */
   alt?: string;
+  /** « eager » pour la photo principale d'une page (fiche produit) ; sinon chargée à l'approche de l'écran. */
+  chargement?: "lazy" | "eager";
 }
 
 /** Photo d'un produit, au format 4:3, en 600 ou 1200 px selon la place à l'écran. */
-const PhotoProduit = ({ photo, couleur, sizes, className, alt = photo.alt }: PhotoProduitProps) => (
+const PhotoProduit = ({ photo, couleur, sizes, className, alt = photo.alt, chargement = "lazy" }: PhotoProduitProps) => (
   <img
     src={photo.petite}
     srcSet={`${photo.petite} 600w, ${photo.grande} 1200w`}
@@ -23,7 +25,7 @@ const PhotoProduit = ({ photo, couleur, sizes, className, alt = photo.alt }: Pho
     width={LARGEUR_PHOTO}
     height={HAUTEUR_PHOTO}
     alt={alt}
-    loading="lazy"
+    loading={chargement}
     decoding="async"
     className={cn("block w-full h-auto aspect-[4/3] object-cover rounded-xl", className)}
     style={{ backgroundColor: couleur }}
