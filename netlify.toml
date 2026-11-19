@@ -19,6 +19,12 @@
   to = "/"
   status = 301
 
+# Ancienne page /histoire, devenue une section de l'accueil : redirection permanente vers l'accueil
+[[redirects]]
+  from = "/histoire"
+  to = "/"
+  status = 301
+
 # Application à page unique : chaque page du site (routes de src/App.tsx) sert index.html, et
 # React Router affiche la bonne page ; sans ces règles, ouvrir directement /commande ou /cgv
 # donne une erreur 404. Une règle par page plutôt qu'un « /* » : sous `netlify dev`, « /* »
@@ -40,11 +46,6 @@
 
 [[redirects]]
   from = "/confidentialite"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/histoire"
   to = "/index.html"
   status = 200
 
