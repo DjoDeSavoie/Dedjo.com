@@ -69,6 +69,11 @@ export default {
         "section-cream": "hsl(var(--section-cream))",
         // Crème des cartes (produits, pizzas, gammes) et des zones photo
         "creme-carte": "var(--creme-carte)",
+        // Couleurs d'état (src/index.css) : bg-info-fond, text-attente-encre, text-lien…
+        info: { fond: "var(--info-fond)", encre: "var(--info-encre)", bord: "var(--info-bord)" },
+        attente: { fond: "var(--attente-fond)", encre: "var(--attente-encre)" },
+        dispo: { fond: "var(--dispo-fond)", encre: "var(--dispo-encre)", bord: "var(--dispo-bord)" },
+        lien: { DEFAULT: "var(--lien)", survol: "var(--lien-survol)" },
         // Handmade colors
         "handmade": "hsl(var(--handmade))",
         "handmade-dark": "hsl(var(--handmade-dark))",

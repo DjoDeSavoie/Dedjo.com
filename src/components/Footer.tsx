@@ -3,15 +3,16 @@ import { Link } from "react-router-dom";
 import Logo from "./Logo";
 import { LIENS_LEGAUX } from "@/lib/legal";
 import { CHEMIN_GUIDE, CHEMIN_MARSEILLE, CHEMIN_SAVOIE } from "@/lib/fiches";
+import { BORDURE_PRODUIT } from "@/lib/bordures";
 
 const lienPied = "inline-block py-3 text-muted-foreground underline underline-offset-2 hover:text-foreground";
 
 /* Aperçus vers Instagram : cartes crème bordées de la couleur du produit, comme sur l'accueil */
 const instagramPreviews = [
-  { label: "La Lune", desc: "Croissant pur beurre", bordure: "border-product-croissant" },
-  { label: "La Cabosse", desc: "Pain au chocolat", bordure: "border-product-chocolat" },
-  { label: "La Rose", desc: "Praline rose & vanille", bordure: "border-product-rose" },
-  { label: "La Grappe", desc: "Roulé aux raisins", bordure: "border-product-raisin" },
+  { label: "La Lune", desc: "Croissant pur beurre", bordure: BORDURE_PRODUIT.lune },
+  { label: "La Cabosse", desc: "Pain au chocolat", bordure: BORDURE_PRODUIT.cabosse },
+  { label: "La Rose", desc: "Praline rose & vanille", bordure: BORDURE_PRODUIT.rose },
+  { label: "La Grappe", desc: "Roulé aux raisins", bordure: BORDURE_PRODUIT.grappe },
 ];
 
 const Footer = () => {

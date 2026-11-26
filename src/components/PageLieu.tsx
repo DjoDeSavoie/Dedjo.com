@@ -6,7 +6,8 @@ import PhotoProduit from "./PhotoProduit";
 import TexteRiche from "./TexteRiche";
 import { StatutProduit } from "./ProductTags";
 import { trierParStatut, useDisponibilite } from "@/hooks/useDisponibilite";
-import { ALL_PRODUCTS, ProductId, StatutSite } from "@/lib/catalog";
+import { ALL_PRODUCTS, StatutSite } from "@/lib/catalog";
+import { BORDURE_PRODUIT } from "@/lib/bordures";
 import { ficheDe, typeDe } from "@/lib/fiches";
 import { HAUTEUR_PHOTO, LARGEUR_PHOTO, TAILLES_PHOTO, photosDe } from "@/lib/photos";
 import { cn, defilement } from "@/lib/utils";
@@ -22,18 +23,6 @@ const MARGES = "px-4 md:px-8";
 
 /** Titre de section (h2) : Young Serif bleu nuit, aligné à gauche. */
 const CLASSE_TITRE = "font-display text-[1.75rem] md:text-[2.125rem] leading-[1.15] text-brand-night text-balance";
-
-/** Bordure de 2 px de la couleur de chaque produit (classes `product-*` de tailwind.config.ts). */
-const BORDURE_PRODUIT: Record<ProductId, string> = {
-  lune: "border-product-croissant",
-  cabosse: "border-product-chocolat",
-  grappe: "border-product-raisin",
-  rose: "border-product-rose",
-  montagne: "border-product-montagne",
-  foret: "border-product-foret",
-  goet: "border-product-goet",
-  noix: "border-product-noix",
-};
 
 /* ===================================================================
    Mise en page
@@ -384,7 +373,7 @@ export interface ElementCarte {
 
 /** « Disponible » : seul statut que StatutProduit n'affiche pas. */
 const Disponible = () => (
-  <span className="inline-flex items-center gap-1.5 text-xs font-bold leading-snug bg-[#e9f6ec] text-[#1f6b35] border border-[#9fd3ad] px-3 py-1.5 rounded-2xl">
+  <span className="inline-flex items-center gap-1.5 text-xs font-bold leading-snug bg-dispo-fond text-dispo-encre border border-dispo-bord px-3 py-1.5 rounded-2xl">
     <Check className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
     Disponible
   </span>

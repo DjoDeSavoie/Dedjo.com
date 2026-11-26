@@ -8,14 +8,8 @@ import { GrilleProduits } from "./CarteProduit";
 import { useCart } from "@/context/CartContext";
 import { FEUILLETES, Product, eur } from "@/lib/catalog";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
+import { BORDURE_PRODUIT } from "@/lib/bordures";
 
-/** Bordure de chaque carte (couleurs propres au site) ; le reste vient du catalogue. */
-const BORDURES: Record<string, string> = {
-  montagne: "border-product-montagne",
-  foret: "border-product-foret",
-  goet: "border-product-goet",
-  noix: "border-product-noix",
-};
 
 const SaltyPastriesSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -71,7 +65,7 @@ const SaltyPastriesSection = () => {
           <GrilleProduits
             produits={FEUILLETES}
             statut={statut}
-            bordures={BORDURES}
+            bordures={BORDURE_PRODUIT}
             onAjouter={handleAdd}
             onDetails={handleDetails}
           />
