@@ -15,9 +15,8 @@ import {
   QuiFaitToutCa,
   SectionTitree,
 } from "@/components/PageLieu";
-import { ALL_PRODUCTS, JOURS_SEMAINE, PRIX_SACHET, SECTEURS, eur } from "@/lib/catalog";
+import { JOURS_SEMAINE, PRIX_SACHET, SECTEURS, eur } from "@/lib/catalog";
 import { CHEMIN_GUIDE, CHEMIN_MARSEILLE, LIEN_GUIDE } from "@/lib/fiches";
-import { photosDe } from "@/lib/photos";
 import { PIZZAS_SALEES, PIZZAS_SUCREES } from "@/lib/pizzas";
 import { useMetaPage } from "@/lib/seo";
 
@@ -44,9 +43,6 @@ const PRATIQUE: FaitPratique[] = [
 ];
 
 const GALERIE = "La carte en images";
-/** La galerie ne s'affiche qu'à partir de deux produits en photo : avec la seule photo de La Lune,
-    elle répéterait celle du haut de page. */
-const AVEC_GALERIE = ALL_PRODUCTS.filter((p) => photosDe(p.id).length > 0).length >= 2;
 
 const CARTE = {
   titre: "À la carte",
@@ -105,11 +101,8 @@ const Savoie = () => {
       <Horizon lieu="savoie" />
       <BandeauPratique faits={PRATIQUE} />
 
-      {AVEC_GALERIE && (
-        <BlocLieu>
-          <GaleriePhotos titre={GALERIE} />
-        </BlocLieu>
-      )}
+      {/* Rien tant que moins de deux produits ont leur photo */}
+      <GaleriePhotos titre={GALERIE} />
 
       {/* Sans disponibilité : le stock affiché sur le site est celui de Marseille */}
       <BlocLieu>

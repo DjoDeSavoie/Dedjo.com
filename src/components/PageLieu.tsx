@@ -191,7 +191,7 @@ const COLONNES: Record<number, string> = { 2: "md:grid-cols-2", 3: "md:grid-cols
 
 /** 2 à 4 faits pratiques, séparés par des filets fins, sans carte ni icône ; 2 colonnes sur téléphone. */
 export const BandeauPratique = ({ faits }: { faits: FaitPratique[] }) => (
-  <div className={cn(MARGES, "pt-5 md:pt-8")}>
+  <div className={cn(MARGES, "pt-5 pb-6 md:pt-8 md:pb-8")}>
     {/* Les filets sont le fond de la grille, visible dans l'espace de 1 px entre les cases */}
     <ul className={cn(LARGEUR, "grid grid-cols-2 gap-px bg-border border-y border-border", COLONNES[faits.length])}>
       {faits.map(({ titre, texte }, i) => (
@@ -218,7 +218,13 @@ export const BandeauPratique = ({ faits }: { faits: FaitPratique[] }) => (
    Galerie photos
    =================================================================== */
 
-/** Les photos de carte des produits qui en ont, les produits disponibles d'abord, en bande horizontale. */
+/** En dessous de deux produits en photo, la galerie ne ferait que répéter la photo du haut de page. */
+const MINIMUM_GALERIE = 2;
+
+/**
+ * Les photos de carte des produits qui en ont, les produits disponibles d'abord, en bande horizontale,
+ * dans sa propre bande de page. Rien du tout tant que moins de deux produits ont leur photo.
+ */
 export const GaleriePhotos = ({ titre }: { titre: string }) => {
   const { statut } = useDisponibilite();
   const produits = trierParStatut(
@@ -248,7 +254,7 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
     };
   }, [produits.length]);
 
-  if (produits.length === 0) return null;
+  if (produits.length < MINIMUM_GALERIE) return null;
 
   /** Fait défiler la bande d'environ une largeur visible ; sans animation si « Réduire les animations ». */
   const defiler = (sens: 1 | -1) => {
@@ -285,43 +291,45 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
   ) : null;
 
   return (
-    <SectionTitree titre={titre} action={fleches}>
-      {/* Sur téléphone, la bande va jusqu'au bord de l'écran : la carte suivante dépasse à moitié */}
-      <ul
-        ref={bande}
-        className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-4 md:scroll-pl-0 -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:thin]"
-      >
-        {produits.map((p) => {
-          const photo = photosDe(p.id)[0];
-          const fiche = ficheDe(p.id);
-          const contenu = (
-            <>
-              <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.galerie} />
-              <p className="font-display text-lg md:text-xl leading-snug text-foreground mt-2 md:mt-3">{p.name}</p>
-              <p className="text-sm text-muted-foreground mt-0.5">{typeDe(p)}</p>
-            </>
-          );
-          const carte = cn("block h-full bg-creme-carte border-2 rounded-2xl p-2.5 md:p-3", BORDURE_PRODUIT[p.id]);
-          return (
-            <li key={p.id} className="snap-start flex-shrink-0 w-[64%] sm:w-[40%] md:w-[calc((100%-2rem)/3)]">
-              {fiche ? (
-                <Link
-                  to={fiche.chemin}
-                  className={cn(
-                    carte,
-                    "transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  )}
-                >
-                  {contenu}
-                </Link>
-              ) : (
-                <div className={carte}>{contenu}</div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </SectionTitree>
+    <BlocLieu>
+      <SectionTitree titre={titre} action={fleches}>
+        {/* Sur téléphone, la bande va jusqu'au bord de l'écran : la carte suivante dépasse à moitié */}
+        <ul
+          ref={bande}
+          className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-4 md:scroll-pl-0 -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:thin]"
+        >
+          {produits.map((p) => {
+            const photo = photosDe(p.id)[0];
+            const fiche = ficheDe(p.id);
+            const contenu = (
+              <>
+                <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.galerie} />
+                <p className="font-display text-lg md:text-xl leading-snug text-foreground mt-2 md:mt-3">{p.name}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{typeDe(p)}</p>
+              </>
+            );
+            const carte = cn("block h-full bg-creme-carte border-2 rounded-2xl p-2.5 md:p-3", BORDURE_PRODUIT[p.id]);
+            return (
+              <li key={p.id} className="snap-start flex-shrink-0 w-[64%] sm:w-[40%] md:w-[calc((100%-2rem)/3)]">
+                {fiche ? (
+                  <Link
+                    to={fiche.chemin}
+                    className={cn(
+                      carte,
+                      "transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    )}
+                  >
+                    {contenu}
+                  </Link>
+                ) : (
+                  <div className={carte}>{contenu}</div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </SectionTitree>
+    </BlocLieu>
   );
 };
 
