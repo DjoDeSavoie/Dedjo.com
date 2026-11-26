@@ -83,8 +83,8 @@ export const MOYENS_PAIEMENT = "en espèces ou par virement";
    Même valeur partout : fiches produits, sections de l'accueil, et CUISSON dans
    apps-script/Code.gs (rappel de l'e-mail de récapitulatif), et étiquettes imprimées.
    Les pages /marseille, /savoie, le guide de cuisson et les fiches lisent ces valeurs ; seules les
-   durées écrites en lettres (« vingt minutes », « Trente minutes ») sont à corriger à la main,
-   dans src/pages/Marseille.tsx et src/lib/fiches.ts. */
+   durées écrites en lettres (« Vingt minutes », « Trente minutes ») sont à corriger à la main,
+   dans src/lib/fiches.ts. */
 export const CUISSON = {
   temperature: 180,
   minutes: { viennoiseries: 20, feuilletes: 30 },
