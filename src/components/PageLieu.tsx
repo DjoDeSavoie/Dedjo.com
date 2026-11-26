@@ -60,7 +60,7 @@ export const BlocLieu = ({
 );
 
 /** Une section titrée (h2), reliée à son titre pour les lecteurs d'écran. */
-const SectionTitree = ({ titre, action, children }: { titre: string; action?: ReactNode; children: ReactNode }) => {
+export const SectionTitree = ({ titre, action, children }: { titre: string; action?: ReactNode; children: ReactNode }) => {
   const id = useId();
   return (
     <section aria-labelledby={id}>
