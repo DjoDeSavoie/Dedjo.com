@@ -142,7 +142,7 @@ const Marseille = () => {
               >
                 <div className="flex items-start gap-3">
                   <div>
-                    <h3 className="font-display font-semibold text-lg leading-snug text-foreground">
+                    <h3 className="font-display text-lg leading-snug text-foreground">
                       {fiche ? (
                         <Link to={fiche.chemin} className={CLASSE_LIEN}>
                           {p.name}
@@ -152,14 +152,14 @@ const Marseille = () => {
                       )}
                     </h3>
                     <p className="text-sm text-muted-foreground">{typeDe(p)}</p>
-                    <p className="text-sm font-semibold text-foreground/80 mt-0.5">
+                    <p className="text-sm font-bold text-foreground/80 mt-0.5">
                       Sachet de {p.pieces} {p.unit}
                     </p>
                   </div>
                 </div>
                 <div className="mt-auto">
                   {statut(p.id) === "disponible" ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold leading-snug bg-[#e9f6ec] text-[#1f6b35] border border-[#9fd3ad] px-3 py-1.5 rounded-2xl">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold leading-snug bg-[#e9f6ec] text-[#1f6b35] border border-[#9fd3ad] px-3 py-1.5 rounded-2xl">
                       <Check className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
                       {CARTE.disponible}
                     </span>

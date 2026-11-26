@@ -46,7 +46,7 @@ const NewsletterSection = () => {
         
         {/* Newsletter subscription */}
         <div className="mb-12">
-          <h3 className="text-xl font-display font-medium mb-4 text-foreground">S'abonner à la newsletter</h3>
+          <h3 className="text-xl font-display mb-4 text-foreground">S'abonner à la newsletter</h3>
           <NewsletterForm />
         </div>
 
@@ -55,7 +55,7 @@ const NewsletterSection = () => {
 
         {/* Contact form */}
         <div id="contact">
-          <h3 className="text-xl font-display font-medium mb-2 text-foreground">Partage tes idées</h3>
+          <h3 className="text-xl font-display mb-2 text-foreground">Partage tes idées</h3>
           <p className="text-muted-foreground mb-6 text-sm">
             <span className="block">Une idée de recette, une envie, un retour sur une fournée : j'aime savoir ce que tu en penses.</span>
             <span className="block italic">C'est comme ça qu'on grandit.</span>

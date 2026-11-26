@@ -35,7 +35,7 @@ const ProductLabelModal = ({ product, open, onOpenChange }: ProductLabelModalPro
             {product.name}
           </DialogTitle>
           {label.badge && (
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary text-left">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary text-left">
               {label.badge}
             </p>
           )}

@@ -50,7 +50,7 @@ const CarteProduit = ({ product, statut, bordure, badge, onAjouter, onDetails }:
       )}
 
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-        <h3 className={`font-display font-medium leading-snug text-foreground ${compacte ? "text-lg" : "text-xl"}`}>
+        <h3 className={`font-display leading-snug text-foreground ${compacte ? "text-lg" : "text-xl"}`}>
           {fiche ? (
             <Link to={fiche.chemin} className={`focus-visible:outline-none ${etendre}`}>
               {product.name}
@@ -67,15 +67,15 @@ const CarteProduit = ({ product, statut, bordure, badge, onAjouter, onDetails }:
           )}
         </h3>
         {marque && (
-          <span className="bg-white px-2.5 py-0.5 rounded-full text-xs font-semibold text-foreground border border-border">
+          <span className="bg-white px-2.5 py-0.5 rounded-full text-xs font-bold text-foreground border border-border">
             {marque}
           </span>
         )}
       </div>
-      <p className="text-sm font-semibold text-muted-foreground mt-0.5">{product.carte.type}</p>
+      <p className="text-sm font-bold text-muted-foreground mt-0.5">{product.carte.type}</p>
       <p className={`text-foreground/80 leading-relaxed mt-2 ${compacte ? "text-sm" : ""}`}>{product.carte.phrase}</p>
       <ProductTags product={product} className="mt-3" />
-      <p className="text-sm font-semibold text-foreground/70 mt-2">
+      <p className="text-sm font-bold text-foreground/70 mt-2">
         {product.pieces} {product.unit} · {eur(product.price)}
       </p>
 
@@ -85,7 +85,7 @@ const CarteProduit = ({ product, statut, bordure, badge, onAjouter, onDetails }:
             type="button"
             onClick={onAjouter}
             aria-label={`Ajouter un sachet de ${product.name} au panier`}
-            className="relative z-10 min-h-11 ml-auto bg-primary text-primary-foreground hover:bg-primary/90 px-5 rounded-full font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="relative z-10 min-h-11 ml-auto bg-primary text-primary-foreground hover:bg-primary/90 px-5 rounded-full font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             + Panier
           </button>

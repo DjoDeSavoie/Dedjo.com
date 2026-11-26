@@ -56,7 +56,7 @@ const PreparationCuisson = ({ variante }: { variante: Variante }) => {
               </>
             )}
             <Icone className="w-7 h-7 mb-3" strokeWidth={1.5} aria-hidden="true" />
-            <p className="font-display font-bold text-2xl md:text-3xl leading-8 md:leading-9">{titre}</p>
+            <p className="font-display text-2xl md:text-3xl leading-8 md:leading-9">{titre}</p>
             <p className="font-display text-sm text-foreground/60 mt-2 max-w-[13rem]">{texte}</p>
           </li>
         ))}

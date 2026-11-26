@@ -61,7 +61,7 @@ const ProductShowcaseSection = () => {
             >
               <h3 className="font-display text-xl text-foreground mb-3">{gamme.titre}</h3>
               <p className="text-foreground/80 text-sm leading-relaxed mb-5 flex-grow">{gamme.description}</p>
-              <span className="font-semibold text-foreground underline underline-offset-4 decoration-foreground/40 group-hover:decoration-foreground">
+              <span className="font-bold text-foreground underline underline-offset-4 decoration-foreground/40 group-hover:decoration-foreground">
                 {gamme.lien} <span aria-hidden="true">→</span>
               </span>
             </a>

@@ -91,7 +91,7 @@ const Navbar = () => {
   const isCommande = location.pathname === "/commande";
 
   const linkClass = (active: boolean) =>
-    `font-semibold transition-colors duration-200 text-sm ${
+    `font-bold transition-colors duration-200 text-sm ${
       active ? "text-primary" : "text-foreground hover:text-primary"
     }`;
 
@@ -152,7 +152,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/commande"
-                className={`relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                className={`relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all duration-200 ${
                   isCommande
                     ? "bg-primary text-primary-foreground"
                     : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
@@ -224,7 +224,7 @@ const Navbar = () => {
                 <Link
                   to="/commande"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-base font-semibold ${
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-base font-bold ${
                     isCommande
                       ? "bg-primary text-primary-foreground"
                       : "bg-primary/10 text-primary"

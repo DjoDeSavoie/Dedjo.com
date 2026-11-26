@@ -81,7 +81,7 @@ const FicheProduit = ({ id }: { id: ProductId }) => {
 
           <div>
             {/* 2. Titre */}
-            <h1 className="font-display font-bold text-3xl md:text-4xl leading-tight text-brand-night text-balance">
+            <h1 className="font-display text-3xl md:text-4xl leading-tight text-brand-night text-balance">
               {titreFiche(product)}
             </h1>
 
@@ -92,15 +92,15 @@ const FicheProduit = ({ id }: { id: ProductId }) => {
             {/* 4. Prix, contenu du sachet, disponibilité et ajout au panier */}
             <div className="mt-6 bg-card rounded-2xl shadow-soft p-5 flex flex-wrap items-center gap-x-5 gap-y-4">
               <div>
-                <p className="font-display font-bold text-3xl leading-none text-brand-night">{eur(product.price)}</p>
-                <p className="mt-1.5 text-sm font-semibold text-foreground/70">Sachet de {label.quantite}</p>
+                <p className="font-display text-3xl leading-none text-brand-night">{eur(product.price)}</p>
+                <p className="mt-1.5 text-sm font-bold text-foreground/70">Sachet de {label.quantite}</p>
                 <ProductTags product={product} className="mt-2" />
               </div>
               {disponible ? (
                 <button
                   type="button"
                   onClick={ajouterAuPanier}
-                  className="ml-auto bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2.5 rounded-full font-semibold transition-colors"
+                  className="ml-auto bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2.5 rounded-full font-bold transition-colors"
                 >
                   {AJOUTER}
                 </button>

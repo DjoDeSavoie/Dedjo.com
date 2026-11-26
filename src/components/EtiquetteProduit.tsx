@@ -22,7 +22,7 @@ export const RubriqueEtiquette = ({ titre, variante = "popup", children }: Rubri
   const Titre = variante === "page" ? "h3" : "h4";
   return (
     <div>
-      <Titre className="font-display font-medium text-foreground mb-1">{titre}</Titre>
+      <Titre className="font-display text-foreground mb-1">{titre}</Titre>
       <div className={`${variante === "page" ? "text-base" : "text-sm"} text-muted-foreground space-y-1`}>{children}</div>
     </div>
   );

@@ -140,7 +140,7 @@ export default function AtelierApp() {
         <header className="sticky top-0 z-20 bg-[#FBF5E9] pb-2.5 pt-3">
           <div className="flex items-center gap-2.5">
             <span className="font-brand text-[27px] leading-none text-[#163F6B]">Dedjo</span>
-            <span className="font-display text-[19px] italic leading-none text-[#5E6A78]">{TITRES[vue]}</span>
+            <span className="font-accroche text-[19px] italic leading-none text-[#5E6A78]">{TITRES[vue]}</span>
             <span className="ml-auto flex items-center gap-1.5 whitespace-nowrap text-[12px] text-[#5E6A78]" role="status">
               <i className={`h-2 w-2 rounded-full ${synchro.point}`} aria-hidden="true" />
               {synchro.texte}

@@ -15,9 +15,11 @@ export default {
     extend: {
       // Charte typographique Dedjo (polices chargées dans src/main.tsx)
       fontFamily: {
-        brand: ['"Young Serif"', "Georgia", "serif"], // nom de marque « Dedjo » uniquement
-        display: ['"Fraunces Variable"', '"Fraunces"', "Georgia", "serif"], // titres et accroches
-        body: ['"Nunito Variable"', '"Nunito"', "system-ui", "sans-serif"], // texte courant
+        // Young Serif n'a qu'une graisse (400) : pas de font-bold dessus, la hiérarchie se fait par la taille
+        brand: ['"Young Serif"', "Georgia", "serif"], // nom de marque « Dedjo »
+        display: ['"Young Serif"', "Georgia", "serif"], // titres et noms de produits
+        accroche: ['"Fraunces Variable"', '"Fraunces"', "Georgia", "serif"], // slogan, toujours en italique
+        body: ["Lato", "system-ui", "sans-serif"], // texte courant (400 et 700)
       },
       colors: {
         border: "hsl(var(--border))",

@@ -92,14 +92,14 @@ const Savoie = () => {
         <ul className="grid gap-3 sm:grid-cols-2 !mt-6 text-base">
           {[...PIZZAS_SALEES, ...PIZZAS_SUCREES].map((pizza) => (
             <li key={pizza.name} className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-5`}>
-              <h3 className="font-display font-medium text-xl leading-snug text-foreground mb-1">{pizza.name}</h3>
+              <h3 className="font-display text-xl leading-snug text-foreground mb-1">{pizza.name}</h3>
               <p className="text-sm leading-relaxed text-foreground/80">{pizza.description}</p>
             </li>
           ))}
         </ul>
 
         <div className="!mt-6 border-l-4 border-primary bg-white/70 rounded-2xl px-5 py-4 shadow-soft text-base">
-          <h3 className="text-sm font-semibold font-body text-primary uppercase tracking-widest mb-1.5">
+          <h3 className="text-sm font-bold font-body text-primary uppercase tracking-widest mb-1.5">
             {PIZZAS.dates.titre}
           </h3>
           <p>{PIZZAS.dates.texte}</p>

@@ -114,7 +114,7 @@ const GuideCuisson = () => {
             <thead>
               <tr className="bg-brand-night text-white">
                 {RESUME.colonnes.map((colonne) => (
-                  <th key={colonne} scope="col" className="px-3 py-3 sm:px-5 font-semibold">
+                  <th key={colonne} scope="col" className="px-3 py-3 sm:px-5 font-bold">
                     {colonne}
                   </th>
                 ))}
@@ -123,7 +123,7 @@ const GuideCuisson = () => {
             <tbody>
               {RESUME.lignes.map(([produit, temperature, temps]) => (
                 <tr key={produit} className="border-t border-border align-top">
-                  <th scope="row" className="px-3 py-3 sm:px-5 font-semibold text-foreground">
+                  <th scope="row" className="px-3 py-3 sm:px-5 font-bold text-foreground">
                     {produit}
                   </th>
                   <td className="px-3 py-3 sm:px-5 whitespace-nowrap">{temperature}</td>
