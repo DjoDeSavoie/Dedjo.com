@@ -1,6 +1,7 @@
 import type { MouseEvent } from "react";
 import FleurTati from "@/components/FleurTati";
 import { CUISSON } from "@/lib/catalog";
+import { defilement } from "@/lib/utils";
 
 /* Cartes de gamme : fond crème carte et bordure de 2 px de la couleur de la gamme, comme les
    cartes produits. Toute la carte est un lien vers la section de la gamme. */
@@ -43,7 +44,7 @@ const ProductShowcaseSection = () => {
     const element = document.getElementById(id);
     if (!element) return;
     e.preventDefault();
-    element.scrollIntoView({ behavior: "smooth" });
+    element.scrollIntoView({ behavior: defilement() });
   };
 
   return (

@@ -40,7 +40,13 @@ const CarteProduit = ({ product, statut, bordure, badge, onAjouter, onDetails }:
     >
       <Tampons product={product} />
       {photo && !compacte && (
-        <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.carte} alt="" className="mb-4" />
+        // Photo contenue dans une hauteur fixe : la carte voisine sans photo ne reste pas vide
+        <PhotoProduit
+          photo={photo}
+          sizes={TAILLES_PHOTO.carte}
+          alt=""
+          className="mb-4 h-48 md:h-52 aspect-auto object-contain"
+        />
       )}
 
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">

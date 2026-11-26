@@ -126,6 +126,24 @@
   [id] {
     scroll-margin-top: 73px;
   }
+
+  /* Focus toujours visible au clavier, même sur un élément sans anneau à lui */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* « Réduire les animations » : plus de mouvement, ni animation ni transition */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer utilities {
@@ -136,11 +154,11 @@
 
 @layer components {
   .card-pastry {
-    @apply bg-card rounded-2xl p-6 shadow-soft transition-all duration-300 hover:shadow-hover hover:-translate-y-1;
+    @apply bg-card rounded-2xl p-6 shadow-soft transition-all duration-300 hover:shadow-hover motion-safe:hover:-translate-y-0.5;
   }
 
   .btn-newsletter {
-    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-hover;
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-full transition-colors duration-200 hover:bg-primary/90;
   }
 
   .input-newsletter {

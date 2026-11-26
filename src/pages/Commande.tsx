@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { defilement } from "@/lib/utils";
 import { ArrowLeft, Check, CheckCircle2, Loader2, Snowflake } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
@@ -177,7 +178,7 @@ const Commande = () => {
   const showErrors = (errs: string[]): boolean => {
     setErrors(errs);
     if (errs.length > 0) {
-      setTimeout(() => errorsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+      setTimeout(() => errorsRef.current?.scrollIntoView({ behavior: defilement(), block: "center" }), 50);
       return true;
     }
     return false;
@@ -187,7 +188,7 @@ const Commande = () => {
   const afficherEtape = (n: Etape) => {
     setEtape(n);
     setErrors([]);
-    setTimeout(() => ongletsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    setTimeout(() => ongletsRef.current?.scrollIntoView({ behavior: defilement(), block: "start" }), 50);
   };
 
   /**
@@ -256,7 +257,7 @@ const Commande = () => {
       setEnvoi("succes");
       setCgvAcceptees(false); // chaque commande demande une nouvelle acceptation
       clear();
-      setTimeout(() => recapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      setTimeout(() => recapRef.current?.scrollIntoView({ behavior: defilement(), block: "start" }), 50);
     } else {
       setErreurEnvoi(resultat.error);
       setEnvoi("erreur");
@@ -270,7 +271,7 @@ const Commande = () => {
     setNumero("");
     setErrors([]);
     setEtape(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: defilement() });
   };
 
   /* ---------- Rendu d'une carte produit ----------
@@ -317,7 +318,7 @@ const Commande = () => {
                 onClick={() => add(p.id, -1)}
                 disabled={count <= 0}
                 aria-label={`Retirer un sachet de ${p.name}`}
-                className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-11 h-11 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 −
               </button>
@@ -331,7 +332,7 @@ const Commande = () => {
                 type="button"
                 onClick={() => add(p.id, 1)}
                 aria-label={`Ajouter un sachet de ${p.name}`}
-                className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc]"
+                className="w-11 h-11 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc]"
               >
                 +
               </button>
@@ -340,7 +341,7 @@ const Commande = () => {
           <button
             type="button"
             onClick={() => openInfo(p)}
-            className="text-sm font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0] text-right"
+            className="inline-flex items-center min-h-11 text-sm font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0] text-right"
           >
             Voir les infos de la création
           </button>
@@ -446,7 +447,7 @@ const Commande = () => {
         <button
           type="button"
           onClick={etapeSuivante}
-          className="rounded-2xl px-5 py-3 font-bold text-white text-right transition hover:-translate-y-0.5 hover:shadow-hover"
+          className="rounded-2xl px-5 py-3 font-bold text-white text-right transition hover:brightness-95"
           style={{ backgroundImage: GRAD }}
         >
           Suivant : {ETAPES[etape].titre.toLowerCase()} →
@@ -464,7 +465,7 @@ const Commande = () => {
         <div className="container max-w-3xl mx-auto">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-white/90 hover:text-white text-sm font-medium mb-3"
+            className="inline-flex items-center gap-1.5 min-h-11 text-white/90 hover:text-white text-sm font-medium mb-1"
           >
             <ArrowLeft className="w-4 h-4" /> Retour au site
           </Link>
@@ -793,7 +794,7 @@ const Commande = () => {
               disabled={envoi === "envoi" || !cgvAcceptees}
               aria-busy={envoi === "envoi"}
               aria-describedby={cgvAcceptees ? undefined : "cgv-aide"}
-              className={`w-full mt-4 rounded-2xl px-4 py-3.5 font-bold text-base text-white flex items-center justify-center gap-2 transition hover:-translate-y-0.5 hover:shadow-hover disabled:hover:translate-y-0 disabled:hover:shadow-none ${
+              className={`w-full mt-4 rounded-2xl px-4 py-3.5 font-bold text-base text-white flex items-center justify-center gap-2 transition hover:brightness-95 hover:shadow-hover disabled:hover:translate-y-0 disabled:hover:shadow-none ${
                 cgvAcceptees ? "disabled:opacity-80 disabled:cursor-wait" : "disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               style={{ backgroundImage: GRAD }}
@@ -870,14 +871,14 @@ const Commande = () => {
         )}
 
         {/* Liens légaux (nouvel onglet : le panier et le formulaire restent remplis) */}
-        <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm pb-6">
+        <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 text-sm pb-6">
           {LIENS_LEGAUX.map((lien) => (
             <Link
               key={lien.to}
               to={lien.to}
               target="_blank"
               rel="noopener"
-              className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+              className="inline-flex items-center min-h-11 text-muted-foreground underline underline-offset-2 hover:text-foreground"
             >
               {lien.label}
             </Link>
@@ -902,7 +903,7 @@ const Commande = () => {
             {envoi !== "succes" && (
               <button
                 type="button"
-                onClick={() => (etape < 3 ? etapeSuivante() : recapRef.current?.scrollIntoView({ behavior: "smooth" }))}
+                onClick={() => (etape < 3 ? etapeSuivante() : recapRef.current?.scrollIntoView({ behavior: defilement() }))}
                 className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
                 style={{ backgroundImage: GRAD }}
               >

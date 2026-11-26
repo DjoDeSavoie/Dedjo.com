@@ -4,7 +4,7 @@ import Logo from "./Logo";
 import { LIENS_LEGAUX } from "@/lib/legal";
 import { CHEMIN_GUIDE, CHEMIN_MARSEILLE, CHEMIN_SAVOIE } from "@/lib/fiches";
 
-const lienPied = "text-muted-foreground underline underline-offset-2 hover:text-foreground";
+const lienPied = "inline-block py-3 text-muted-foreground underline underline-offset-2 hover:text-foreground";
 
 /* Aperçus vers Instagram : cartes crème bordées de la couleur du produit, comme sur l'accueil */
 const instagramPreviews = [
@@ -47,7 +47,7 @@ const Footer = () => {
             href="https://instagram.com/Dedjo_"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-full font-semibold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Instagram className="w-5 h-5" />
             Suivre @Dedjo_ sur Instagram
@@ -61,7 +61,7 @@ const Footer = () => {
           <Logo className="w-8 h-8" />
           {/* Zones desservies, en texte (lu par les moteurs de recherche) ; pas d'adresse postale.
               Chaque ligne mène à sa page ; le guide de cuisson est cité en dessous. */}
-          <div className="text-sm text-muted-foreground text-center text-balance space-y-1">
+          <div className="text-sm text-muted-foreground text-center text-balance">
             <p>
               <Link to={CHEMIN_MARSEILLE} className={lienPied}>
                 Livraison à Marseille et alentours

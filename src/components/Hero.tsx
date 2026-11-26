@@ -2,6 +2,7 @@ import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { PRIX_SACHET } from "@/lib/catalog";
 import { HAUTEUR_PHOTO, LARGEUR_PHOTO, photosDe } from "@/lib/photos";
+import { defilement } from "@/lib/utils";
 
 /* Photo de La Lune, détourée, posée directement sur le fond du site */
 const photoLune = photosDe("lune")[0];
@@ -12,7 +13,7 @@ const Hero = () => {
     const element = document.getElementById("products-overview");
     if (!element) return;
     e.preventDefault();
-    element.scrollIntoView({ behavior: "smooth" });
+    element.scrollIntoView({ behavior: defilement() });
   };
 
   return (

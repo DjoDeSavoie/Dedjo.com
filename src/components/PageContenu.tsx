@@ -124,7 +124,7 @@ export const BoutonCommander = ({ secteur }: { secteur: "marseille" | "savoie" }
   <div className="py-10 px-5 text-center bg-background">
     <Link
       to={`/commande?secteur=${secteur}`}
-      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-9 py-3.5 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
+      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-9 py-3.5 rounded-full text-lg font-semibold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <ShoppingBasket className="w-5 h-5" aria-hidden="true" />
       Commander
