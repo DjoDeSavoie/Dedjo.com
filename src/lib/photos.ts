@@ -13,7 +13,9 @@ import { ALL_PRODUCTS } from "@/lib/catalog";
 /* ███  TEXTES ALTERNATIFS — À MODIFIER  ███
    Par défaut : « {nom} — {type} ». Pour décrire une photo précise, ajoute
    sa clé {id}-{n}, ex. "lune-2": "La Lune coupée en deux, le feuilletage bien visible". */
-const ALT: Record<string, string> = {};
+const ALT: Record<string, string> = {
+  "lune-2": "Un brunch vu du dessus : La Lune garnie de fromage fondu, une Cabosse et un café",
+};
 
 export interface Photo {
   n: number;
