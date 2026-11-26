@@ -15,6 +15,7 @@ import { ALL_PRODUCTS } from "@/lib/catalog";
    sa clé {id}-{n}, ex. "lune-2": "La Lune coupée en deux, le feuilletage bien visible". */
 const ALT: Record<string, string> = {
   "lune-2": "Un brunch vu du dessus : La Lune garnie de fromage fondu, une Cabosse et un café",
+  "cabosse-1": "Deux Cabosses l'une sur l'autre, celle du bas coupée sur son feuilletage et ses barres de chocolat",
 };
 
 export interface Photo {
