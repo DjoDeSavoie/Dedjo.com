@@ -38,3 +38,8 @@ export function useDisponibilite() {
   const statut = useCallback((id: string): StatutSite => (statuts && statuts[id]) || statutSecours(id), [statuts]);
   return { statut, depuisStock: statuts !== null };
 }
+
+/** Ordre d'affichage : les produits disponibles, puis épuisés, puis pas encore en vente. */
+const RANG: Record<StatutSite, number> = { disponible: 0, victime: 1, bientot: 2 };
+export const trierParStatut = <T extends { id: string }>(liste: T[], statut: (id: string) => StatutSite): T[] =>
+  [...liste].sort((a, b) => RANG[statut(a.id)] - RANG[statut(b.id)]);

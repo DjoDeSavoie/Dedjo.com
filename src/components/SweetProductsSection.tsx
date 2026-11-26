@@ -1,22 +1,29 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Croissant, LucideIcon, Snowflake, Truck } from "lucide-react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
 import PreparationCuisson, { BoutonQuestion } from "./PreparationCuisson";
-import { BoutonPhoto } from "./PhotoProduit";
-import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
+import { GrilleProduits } from "./CarteProduit";
 import { useCart } from "@/context/CartContext";
-import { CUISSON, Product, VIENNOISERIES, eur } from "@/lib/catalog";
+import { CUISSON, PRIX_SACHET, Product, VIENNOISERIES, eur } from "@/lib/catalog";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
-import { ficheDe } from "@/lib/fiches";
 
-/** Étiquette, sachet et prix viennent du catalogue. */
-const catalogProduct = (id: string) => VIENNOISERIES.find((p) => p.id === id)!;
-
-const sachetInfo = (id: string) => {
-  const p = catalogProduct(id);
-  return `${p.pieces} ${p.unit} · ${eur(p.price)}`;
+/** Bordure de chaque carte (couleurs propres au site) ; le reste vient du catalogue. */
+const BORDURES: Record<string, string> = {
+  lune: "border-product-croissant",
+  cabosse: "border-product-chocolat",
+  grappe: "border-product-raisin",
+  rose: "border-product-rose",
 };
+/** Pastille du site, montrée seulement sur une carte sans tampon. */
+const BADGES: Record<string, string> = { lune: "Classique", rose: "Favorite du chef" };
+
+/** Bandeau d'arguments : trois faits, sans carte ni émoji. Durée et prix lus dans le catalogue. */
+const ARGUMENTS: { icone: LucideIcon; titre: string; texte: string }[] = [
+  { icone: Croissant, titre: "Pur beurre", texte: "Façonnées à la main, à Marseille." },
+  { icone: Snowflake, titre: "Sans décongeler", texte: `Du congélateur au four, ${CUISSON.minutes.viennoiseries} minutes.` },
+  { icone: Truck, titre: `${PRIX_SACHET} € le sachet`, texte: "Livré le samedi matin à Marseille." },
+];
 
 const SweetProductsSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -25,24 +32,15 @@ const SweetProductsSection = () => {
   const { addVienno } = useCart();
   const { statut } = useDisponibilite();
 
-  const handleAdd = (id: string) => {
-    addVienno(id, 1);
-    toast.success(`1 sachet de ${catalogProduct(id).name} ajouté au panier 🥐`, {
-      description: sachetInfo(id),
+  const handleAdd = (p: Product) => {
+    addVienno(p.id, 1);
+    toast.success(`1 sachet de ${p.name} ajouté au panier 🥐`, {
+      description: `${p.pieces} ${p.unit} · ${eur(p.price)}`,
     });
   };
 
-  // Couleur de carte et pastille propres au site ; nom, description, pastilles et sachet
-  // viennent du catalogue (texte des étiquettes).
-  const cards: { id: string; color: string; badge?: { icon: string; label: string; tooltip?: string } }[] = [
-    { id: "lune", color: "border-product-croissant", badge: { icon: "🌼", label: "Classique" } },
-    { id: "cabosse", color: "border-product-chocolat" },
-    { id: "grappe", color: "border-product-raisin" },
-    { id: "rose", color: "border-product-rose", badge: { icon: "❤️", label: "Favorite du chef", tooltip: "Favorite du chef" } },
-  ];
-
-  const handleProductClick = (id: string) => {
-    setSelectedProduct(catalogProduct(id));
+  const handleDetails = (p: Product) => {
+    setSelectedProduct(p);
     setModalOpen(true);
   };
 
@@ -55,20 +53,17 @@ const SweetProductsSection = () => {
           Une viennoiserie à enfourner chez soi facilement, pour embaumer la maison d'une douce odeur de boulangerie.
         </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 max-w-3xl mx-auto">
-          {[
-            { icon: "🧈", title: "Beurre de qualité", desc: "Façonnées à la main" },
-            { icon: "🏠", title: "Cuites chez toi", desc: "Dans ton propre four" },
-            { icon: "☀️", title: `Prêtes en ${CUISSON.minutes.viennoiseries} min`, desc: "Le matin au réveil" },
-            { icon: "🥂", title: "Petit dej' et brunch", desc: "Par toi, pour eux" },
-          ].map((arg) => (
-            <div key={arg.title} className="bg-card rounded-2xl p-4 text-center shadow-soft">
-              <span className="text-3xl block mb-2">{arg.icon}</span>
-              <p className="font-semibold text-foreground text-sm">{arg.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">{arg.desc}</p>
-            </div>
+        <ul className="grid md:grid-cols-3 max-w-4xl mx-auto mb-10 divide-y md:divide-y-0 md:divide-x divide-border">
+          {ARGUMENTS.map(({ icone: Icone, titre, texte }) => (
+            <li key={titre} className="flex items-start gap-3 py-4 md:py-1 md:px-6 first:md:pl-0 last:md:pr-0">
+              <Icone className="w-5 h-5 mt-1 flex-shrink-0 text-brand-night" strokeWidth={1.5} aria-hidden="true" />
+              <div className="text-left">
+                <p className="font-display font-medium text-xl leading-snug text-brand-night">{titre}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{texte}</p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <ProductLabelModal
           product={selectedProduct}
@@ -76,69 +71,14 @@ const SweetProductsSection = () => {
           onOpenChange={setModalOpen}
         />
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {cards.map((card, index) => {
-            const product = catalogProduct(card.id);
-            const fiche = ficheDe(product.id);
-            return (
-            <div
-              key={product.id}
-              className={`bg-creme-carte border-2 ${card.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <Tampons product={product} />
-              <div className="flex items-start gap-4">
-                <span className="text-4xl">{product.emoji}</span>
-                <div>
-                  {/* Titre, et pastille « Classique » / « Favorite du chef » à côté (le coin est aux tampons) */}
-                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mb-2">
-                    <h3 className="font-display text-xl text-foreground">{product.name}</h3>
-                    {card.badge && (
-                      <span
-                        className="bg-white/90 px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1 shadow-soft"
-                        title={card.badge.tooltip}
-                      >
-                        <span>{card.badge.icon}</span>
-                        <span className="text-foreground">{card.badge.label}</span>
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-foreground/80 text-sm leading-relaxed">{product.label.description}</p>
-                  <ProductTags product={product} className="mt-2.5" />
-                  <p className="text-xs font-semibold text-foreground/70 mt-2">
-                    Sachet de {sachetInfo(product.id)}
-                  </p>
-                  {/* Lien discret vers la fiche du produit (un vrai lien, suivi par Google) ; la pop-up reste */}
-                  {fiche && (
-                    <Link to={fiche.chemin} className="inline-block mt-1.5 py-0.5 text-xs font-semibold text-foreground/70 underline underline-offset-2 hover:text-foreground">
-                      Voir la fiche
-                    </Link>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 mt-4 flex-wrap">
-                <button
-                  onClick={() => handleProductClick(product.id)}
-                  className="text-sm font-medium bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-full transition-colors"
-                >
-                  Voir les détails →
-                </button>
-                <BoutonPhoto product={product} />
-                {statut(product.id) === "disponible" ? (
-                  <button
-                    onClick={() => handleAdd(product.id)}
-                    className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
-                  >
-                    + Panier
-                  </button>
-                ) : (
-                  <StatutProduit statut={statut(product.id)} className="ml-auto" />
-                )}
-              </div>
-            </div>
-            );
-          })}
-        </div>
+        <GrilleProduits
+          produits={VIENNOISERIES}
+          statut={statut}
+          bordures={BORDURES}
+          badges={BADGES}
+          onAjouter={handleAdd}
+          onDetails={handleDetails}
+        />
 
         <br /> <br />
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ProductDetailModal, { ProductDetail } from "./ProductDetailModal";
-import { PIZZAS_SALEES, PIZZAS_SUCREES } from "@/lib/pizzas";
+import { PIZZAS_SALEES, PIZZAS_SUCREES, Pizza } from "@/lib/pizzas";
 
 /** Les pizzas (noms, descriptions, ingrédients) viennent de src/lib/pizzas.ts, partagé avec la page /savoie. */
 const PizzasSection = () => {
@@ -12,6 +12,23 @@ const PizzasSection = () => {
     setModalOpen(true);
   };
 
+  // Toute la carte ouvre la pop-up de composition ; pas de prix
+  const cartePizza = (pizza: Pizza) => (
+    <button
+      key={pizza.name}
+      type="button"
+      onClick={() => handleProductClick(pizza)}
+      aria-haspopup="dialog"
+      className={`group bg-creme-carte border-2 ${pizza.color} rounded-2xl p-5 text-left flex flex-col transition-transform duration-200 motion-safe:hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
+    >
+      <h4 className="font-display font-medium text-xl leading-snug mb-1.5 text-foreground">{pizza.name}</h4>
+      <p className="text-foreground/80 flex-grow">{pizza.description}</p>
+      <span className="mt-4 text-sm font-semibold text-foreground/70 underline underline-offset-4 decoration-foreground/30 group-hover:text-foreground group-hover:decoration-foreground">
+        Voir la composition
+      </span>
+    </button>
+  );
+
   return (
     <section id="pizzas" className="py-12 px-4 section-yellow">
       <div className="container max-w-6xl">
@@ -19,64 +36,16 @@ const PizzasSection = () => {
         <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Les Pizzas</span></h2>
 
 
-        {/* Salty Pizzas */}
+        {/* Pizzas salées */}
         <div className="mb-12">
           <h3 className="text-2xl text-center mb-6"><span className="font-display font-bold text-2xl md:text-3xl text-foreground">Pizzas Salées</span></h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            {PIZZAS_SALEES.map((pizza, index) => (
-              <button 
-                key={pizza.name}
-                onClick={() => handleProductClick(pizza)}
-                className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {pizza.isFavorite && (
-                  <div 
-                    className="absolute top-3 right-3 text-2xl cursor-help" 
-                    title={pizza.favoriteTooltip}
-                  >
-                    🔥
-                  </div>
-                )}
-                <div className="text-center">
-                  <span className="text-4xl block mb-3">{pizza.emoji}</span>
-                  <h4 className="font-display text-xl mb-2 text-foreground">{pizza.name}</h4>
-                  <p className="text-foreground/80 text-sm">{pizza.description}</p>
-                  <p className="text-sm text-white mt-3 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
-                </div>
-              </button>
-            ))}
-          </div>
+          <div className="grid md:grid-cols-3 gap-6">{PIZZAS_SALEES.map(cartePizza)}</div>
         </div>
 
-        {/* Sweet Pizzas */}
+        {/* Pizzas sucrées */}
         <div>
           <h3 className="text-2xl text-center mb-6"><span className="font-display font-bold text-2xl md:text-3xl text-foreground">Pizzas Sucrées</span></h3>
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {PIZZAS_SUCREES.map((pizza, index) => (
-              <button 
-                key={pizza.name}
-                onClick={() => handleProductClick(pizza)}
-                className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {pizza.isFavorite && (
-                  <div 
-                    className="absolute top-3 right-3 text-2xl cursor-help" 
-                    title={pizza.favoriteTooltip}
-                  >
-                    🌹
-                  </div>
-                )}
-                <div className="text-center">
-                  <span className="text-4xl block mb-3">{pizza.emoji}</span>
-                  <h4 className="font-display text-xl mb-2 text-foreground">{pizza.name}</h4>
-                  <p className="text-foreground/80 text-sm">{pizza.description}</p>
-                  <p className="text-sm text-white mt-3 font-medium bg-foreground/40 inline-block px-3 py-1 rounded-full">Cliquez pour les détails →</p>
-                </div>
-              </button>
-            ))}
-          </div>
+          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">{PIZZAS_SUCREES.map(cartePizza)}</div>
 
           <br /><br /><br />
         </div>

@@ -2,7 +2,7 @@ import { Clock, Flower2, Heart, Info, LucideIcon, Mountain, Snowflake, Sparkles,
 import { Product, StatutSite } from "@/lib/catalog";
 
 const LIBELLES: Record<Exclude<StatutSite, "disponible">, { texte: string; icone: LucideIcon }> = {
-  victime: { texte: "Victime de son succès ! Reviens bientôt…", icone: Sparkles },
+  victime: { texte: "Victime de son succès, de retour bientôt", icone: Sparkles },
   bientot: { texte: "Bientôt disponible", icone: Clock },
 };
 

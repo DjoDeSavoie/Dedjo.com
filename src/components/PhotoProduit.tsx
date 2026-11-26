@@ -1,8 +1,5 @@
-import { Camera } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Product } from "@/lib/catalog";
-import { HAUTEUR_PHOTO, LARGEUR_PHOTO, Photo, TAILLES_PHOTO, photosDe } from "@/lib/photos";
+import { HAUTEUR_PHOTO, LARGEUR_PHOTO, Photo } from "@/lib/photos";
 
 interface PhotoProduitProps {
   photo: Photo;
@@ -31,36 +28,5 @@ const PhotoProduit = ({ photo, sizes, className, alt = photo.alt, chargement = "
     className={cn("block w-full h-auto aspect-[4/3] object-cover rounded-xl bg-creme-carte", className)}
   />
 );
-
-/**
- * Petit bouton appareil photo sur une carte produit : un clic ouvre la photo n° 1 en grand.
- * Rien si le produit n'a pas de photo. La photo n'est pas affichée sur la carte, pour la garder compacte.
- */
-export const BoutonPhoto = ({ product, className }: { product: Product; className?: string }) => {
-  const photo = photosDe(product.id)[0];
-  if (!photo) return null;
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          aria-label={`Voir la photo : ${product.name}`}
-          title="Voir la photo"
-          className={cn(
-            "inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/60 hover:bg-white/90 text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            className,
-          )}
-        >
-          <Camera className="w-4 h-4" aria-hidden="true" />
-        </button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md p-4">
-        <DialogTitle className="font-display text-xl">{product.name}</DialogTitle>
-        <DialogDescription className="sr-only">{photo.alt}</DialogDescription>
-        <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.popup} />
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 export default PhotoProduit;

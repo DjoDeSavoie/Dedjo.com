@@ -146,6 +146,8 @@ export interface Product {
   price: number;
   /** Petite note affichée dans la pop-up (« Bon à savoir »). */
   note?: string;
+  /** Textes courts des cartes du site : le type en une ligne, puis une phrase. */
+  carte: { type: string; phrase: string };
   label: ProductLabel;
 }
 
@@ -171,6 +173,10 @@ export const VIENNOISERIES: Product[] = [
     pieces: 6,
     unit: "pièces",
     price: PRIX_SACHET,
+    carte: {
+      type: "Croissant pur beurre",
+      phrase: "Un croissant parfumé au goût prononcé de beurre, un feuilletage croustillant, au cœur riche et moelleux.",
+    },
     label: {
       badge: "Le classique",
       description:
@@ -199,6 +205,10 @@ export const VIENNOISERIES: Product[] = [
     pieces: 6,
     unit: "pièces",
     price: PRIX_SACHET,
+    carte: {
+      type: "Pain au chocolat pur beurre",
+      phrase: "Une pâte feuilletée parfumée, au cœur chaud, coulant et chocolaté qui se dévoile bouchée après bouchée.",
+    },
     label: {
       badge: "La controverse",
       description:
@@ -228,6 +238,10 @@ export const VIENNOISERIES: Product[] = [
     unit: "pièces",
     price: PRIX_SACHET,
     note: "💡 Une suggestion d'Apolline (avec deux ailes) et de ses parents",
+    carte: {
+      type: "Roulé crème et raisins",
+      phrase: "Crème à la vanille et raisins secs, dans une pâte feuilletée au beurre.",
+    },
     label: {
       badge: "L'intemporel",
       description:
@@ -256,6 +270,10 @@ export const VIENNOISERIES: Product[] = [
     pieces: 4,
     unit: "pièces",
     price: PRIX_SACHET,
+    carte: {
+      type: "Feuilleté crème et pralines roses",
+      phrase: "Crème à la vanille et pralines roses fondantes.",
+    },
     label: {
       badge: "La création originale",
       description:
@@ -292,6 +310,10 @@ export const FEUILLETES: Product[] = [
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
+    carte: {
+      type: "Friand reblochon, lardons, oignons",
+      phrase: "La tartiflette, en feuilleté.",
+    },
     label: {
       description: "Lardons, oignons et reblochon — un clin d'œil à la tartiflette.",
       preparation: PREPARATION_FEUILLETE,
@@ -315,6 +337,10 @@ export const FEUILLETES: Product[] = [
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
+    carte: {
+      type: "Feuilleté champignons et fromages",
+      phrase: "Champignons de Paris, béchamel et fromages à fondue savoyarde.",
+    },
     label: {
       description: "Champignons de Paris, béchamel douce et fromages à fondue savoyarde.",
       preparation: PREPARATION_FEUILLETE,
@@ -338,6 +364,10 @@ export const FEUILLETES: Product[] = [
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
+    carte: {
+      type: "Feuilleté chèvre, miel et noix",
+      phrase: "Chèvre frais, miel local et cerneaux de noix.",
+    },
     label: {
       description: "Chèvre, miel local et cerneaux de noix — le sucré-salé qui surprend.",
       preparation: PREPARATION_FEUILLETE,
@@ -359,6 +389,10 @@ export const FEUILLETES: Product[] = [
     pieces: 2,
     unit: "friands",
     price: PRIX_SACHET,
+    carte: {
+      type: "Feuilleté poireaux et chèvre",
+      phrase: "Poireaux de la Goëttaz et chèvre frais.",
+    },
     label: {
       description: "Poireaux cueillis à la Goëttaz et fromage de chèvre frais.",
       preparation: PREPARATION_FEUILLETE,
