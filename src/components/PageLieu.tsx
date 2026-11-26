@@ -238,12 +238,19 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
   useEffect(() => {
     const el = bande.current;
     if (!el) return;
-    const mesurer = () =>
-      setPosition({
+    // Ne redessine la galerie que si l'état des flèches change, pas à chaque pixel de défilement
+    const mesurer = () => {
+      const suivante = {
         deborde: el.scrollWidth > el.clientWidth + 1,
         debut: el.scrollLeft <= 1,
         fin: el.scrollLeft + el.clientWidth >= el.scrollWidth - 1,
-      });
+      };
+      setPosition((avant) =>
+        avant.deborde === suivante.deborde && avant.debut === suivante.debut && avant.fin === suivante.fin
+          ? avant
+          : suivante,
+      );
+    };
     mesurer();
     el.addEventListener("scroll", mesurer, { passive: true });
     const observateur = new ResizeObserver(mesurer);
