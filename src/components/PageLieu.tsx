@@ -54,7 +54,7 @@ export const BlocLieu = ({
   className?: string;
   children: ReactNode;
 }) => (
-  <div className={cn(MARGES, "py-8 md:py-12", FONDS[fond], className)}>
+  <div className={cn(MARGES, "py-6 md:py-8", FONDS[fond], className)}>
     <div className={LARGEUR}>{children}</div>
   </div>
 );
@@ -64,7 +64,7 @@ export const SectionTitree = ({ titre, action, children }: { titre: string; acti
   const id = useId();
   return (
     <section aria-labelledby={id}>
-      <div className="flex items-end justify-between gap-4 mb-5">
+      <div className="flex items-end justify-between gap-4 mb-4">
         <h2 id={id} className={CLASSE_TITRE}>
           {titre}
         </h2>
@@ -90,7 +90,7 @@ export const LienCommander = ({ secteur, className }: { secteur: "marseille" | "
 
 /** Bouton « Commander » de fin de page, centré. */
 export const FinCommander = ({ secteur }: { secteur: "marseille" | "savoie" }) => (
-  <div className={cn(MARGES, "pt-2 pb-12 md:pb-16 text-center")}>
+  <div className={cn(MARGES, "pt-2 pb-10 md:pb-14 text-center")}>
     <LienCommander secteur={secteur} />
   </div>
 );
@@ -114,20 +114,20 @@ interface EnTeteLieuProps {
 /** Haut d'une page de lieu : lieu, h1, intro, bouton, et la photo de La Lune (à droite sur ordinateur). */
 export const EnTeteLieu = ({ lieu, titre, intro, secteur }: EnTeteLieuProps) => (
   <header className={cn(MARGES, "pt-24 md:pt-32 pb-4 md:pb-6")}>
-    <div className={cn(LARGEUR, "grid gap-6 md:grid-cols-[1.15fr_1fr] md:items-center md:gap-12")}>
+    <div className={cn(LARGEUR, "grid gap-5 md:grid-cols-[1.15fr_1fr] md:items-center md:gap-12")}>
       <div>
         <p className="text-sm text-muted-foreground">{lieu}</p>
         <h1 className="font-display text-[2rem] md:text-[2.75rem] leading-[1.1] text-brand-night text-balance mt-2">
           {titre}
         </h1>
-        <p className="mt-4 text-lg leading-relaxed text-foreground/90 max-w-[36rem]">{intro}</p>
-        <LienCommander secteur={secteur} className="mt-6" />
+        <p className="mt-3 text-base md:text-lg leading-relaxed text-foreground/90 max-w-[36rem]">{intro}</p>
+        <LienCommander secteur={secteur} className="mt-5" />
       </div>
       {photoLune && (
         <img
           src={photoLune.petite}
           srcSet={`${photoLune.petite} 600w, ${photoLune.grande} 1200w`}
-          sizes="(min-width: 1088px) 410px, (min-width: 768px) calc(43vw - 48px), 288px"
+          sizes="(min-width: 1088px) 410px, (min-width: 768px) calc(43vw - 48px), 224px"
           width={LARGEUR_PHOTO}
           height={HAUTEUR_PHOTO}
           alt={photoLune.alt}
@@ -135,7 +135,7 @@ export const EnTeteLieu = ({ lieu, titre, intro, secteur }: EnTeteLieuProps) => 
           // React 18 ne connaît que l'attribut HTML en minuscules
           {...{ fetchpriority: "high" }}
           decoding="async"
-          className="block w-full h-auto max-w-72 mx-auto md:max-w-none"
+          className="block w-full h-auto max-w-56 mx-auto md:max-w-none"
         />
       )}
     </div>
@@ -191,14 +191,14 @@ const COLONNES: Record<number, string> = { 2: "md:grid-cols-2", 3: "md:grid-cols
 
 /** 2 à 4 faits pratiques, séparés par des filets fins, sans carte ni icône ; 2 colonnes sur téléphone. */
 export const BandeauPratique = ({ faits }: { faits: FaitPratique[] }) => (
-  <div className={cn(MARGES, "pt-6 md:pt-8")}>
+  <div className={cn(MARGES, "pt-5 md:pt-8")}>
     {/* Les filets sont le fond de la grille, visible dans l'espace de 1 px entre les cases */}
     <ul className={cn(LARGEUR, "grid grid-cols-2 gap-px bg-border border-y border-border", COLONNES[faits.length])}>
       {faits.map(({ titre, texte }, i) => (
         <li
           key={titre}
           className={cn(
-            "bg-background py-4 pr-3 md:py-5 md:pr-6",
+            "bg-background py-3.5 pr-3 md:py-5 md:pr-6",
             // Première colonne collée au bord, les autres décalées du filet
             i % 2 === 1 ? "pl-4" : "pl-0",
             i > 0 && "md:pl-6",
@@ -257,15 +257,16 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
   };
 
   const classeFleche =
-    "inline-flex items-center justify-center w-11 h-11 rounded-full border border-foreground/50 bg-card text-foreground transition-colors hover:bg-foreground/5 disabled:opacity-40 disabled:hover:bg-card";
+    "inline-flex items-center justify-center w-11 h-11 rounded-full border border-foreground/50 bg-card text-foreground transition-colors hover:bg-foreground/5 aria-disabled:opacity-40 aria-disabled:cursor-default aria-disabled:hover:bg-card";
 
-  // Flèches sur ordinateur, seulement quand tout ne tient pas
+  // Flèches sur ordinateur, seulement quand tout ne tient pas. aria-disabled plutôt que disabled :
+  // le bouton garde le focus du clavier quand on arrive au bout de la bande.
   const fleches = position.deborde ? (
     <div className="hidden md:flex gap-2 flex-shrink-0">
       <button
         type="button"
-        onClick={() => defiler(-1)}
-        disabled={position.debut}
+        onClick={() => !position.debut && defiler(-1)}
+        aria-disabled={position.debut}
         aria-label="Photos précédentes"
         className={classeFleche}
       >
@@ -273,8 +274,8 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
       </button>
       <button
         type="button"
-        onClick={() => defiler(1)}
-        disabled={position.fin}
+        onClick={() => !position.fin && defiler(1)}
+        aria-disabled={position.fin}
         aria-label="Photos suivantes"
         className={classeFleche}
       >
@@ -296,11 +297,11 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
           const contenu = (
             <>
               <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.galerie} />
-              <p className="font-display text-xl leading-snug text-foreground mt-3">{p.name}</p>
+              <p className="font-display text-lg md:text-xl leading-snug text-foreground mt-2 md:mt-3">{p.name}</p>
               <p className="text-sm text-muted-foreground mt-0.5">{typeDe(p)}</p>
             </>
           );
-          const carte = cn("block h-full bg-creme-carte border-2 rounded-2xl p-3", BORDURE_PRODUIT[p.id]);
+          const carte = cn("block h-full bg-creme-carte border-2 rounded-2xl p-2.5 md:p-3", BORDURE_PRODUIT[p.id]);
           return (
             <li key={p.id} className="snap-start flex-shrink-0 w-[64%] sm:w-[40%] md:w-[calc((100%-2rem)/3)]">
               {fiche ? (
@@ -334,10 +335,10 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
  */
 export const EtapesEnLigne = ({ titre, etapes }: { titre: string; etapes: string[] }) => (
   <SectionTitree titre={titre}>
-    <ol className="grid gap-5 md:grid-cols-3 md:gap-8">
+    <ol className="grid gap-4 md:grid-cols-3 md:gap-8">
       {etapes.map((etape, i) => (
         <li key={i} className="flex items-start gap-4 md:block">
-          <span aria-hidden="true" className="font-display text-5xl leading-none text-brand-night w-8 flex-shrink-0">
+          <span aria-hidden="true" className="font-display text-4xl md:text-5xl leading-none text-brand-night w-7 flex-shrink-0">
             {i + 1}
           </span>
           <p className="leading-relaxed text-foreground/90 pt-1 md:pt-0 md:mt-3">
@@ -366,7 +367,6 @@ export interface ElementCarte {
   statut?: StatutSite;
 }
 
-
 /** « Disponible » : seul statut que StatutProduit n'affiche pas. */
 const Disponible = () => (
   <span className="inline-flex items-center gap-1.5 text-xs font-bold leading-snug bg-[#e9f6ec] text-[#1f6b35] border border-[#9fd3ad] px-3 py-1.5 rounded-2xl">
@@ -391,34 +391,40 @@ export const CarteCompacte = ({
     <>
       <ul className="grid md:grid-cols-2 md:gap-x-10 border-t border-border md:border-t-0">
         {elements.map((e) => {
-          const nom = <span className="block font-display text-lg leading-snug">{e.nom}</span>;
-          const type = <span className="block text-sm leading-snug text-muted-foreground mt-0.5">{e.type}</span>;
+          const aDroite = Boolean(e.contenu || e.statut);
           return (
             <li
               key={e.cle}
-              className="flex items-start justify-between gap-4 py-3 border-b border-border md:[&:nth-child(-n+2)]:border-t"
+              className={cn(
+                // Le lien du nom couvre toute la ligne (zone tactile de plus de 44 px)
+                "relative grid gap-x-4 py-2.5 border-b border-border md:[&:nth-child(-n+2)]:border-t",
+                aDroite ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-1",
+              )}
             >
               {e.chemin ? (
                 <Link
                   to={e.chemin}
-                  className="group block min-h-11 min-w-0 text-foreground rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="font-display text-lg leading-snug text-brand-night underline decoration-brand-night/30 underline-offset-4 hover:decoration-brand-night after:absolute after:inset-0 after:content-['']"
                 >
-                  <span className="block font-display text-lg leading-snug text-brand-night underline decoration-brand-night/30 underline-offset-4 group-hover:decoration-brand-night">
-                    {e.nom}
-                  </span>
-                  {type}
+                  {e.nom}
                 </Link>
               ) : (
-                <div className="min-w-0 text-foreground">
-                  {nom}
-                  {type}
-                </div>
+                <span className="font-display text-lg leading-snug text-foreground">{e.nom}</span>
               )}
-              {(e.contenu || e.statut) && (
-                <div className="flex flex-col items-end gap-1.5 text-right flex-shrink-0 max-w-[45%]">
-                  {e.contenu && <span className="text-sm text-foreground/80 pt-0.5">{e.contenu}</span>}
-                  {e.statut === "disponible" ? <Disponible /> : e.statut && <StatutProduit statut={e.statut} />}
-                </div>
+              {aDroite && <span className="text-sm text-foreground/80 text-right pt-1">{e.contenu}</span>}
+              <span
+                className={cn(
+                  "text-sm leading-snug text-muted-foreground mt-0.5",
+                  // Sans statut, le type prend toute la largeur
+                  !e.statut && aDroite && "col-span-2",
+                )}
+              >
+                {e.type}
+              </span>
+              {e.statut && (
+                <span className="justify-self-end text-right mt-1 max-w-[12rem]">
+                  {e.statut === "disponible" ? <Disponible /> : <StatutProduit statut={e.statut} />}
+                </span>
               )}
             </li>
           );

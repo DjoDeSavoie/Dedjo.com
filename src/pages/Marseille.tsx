@@ -114,7 +114,7 @@ const Marseille = () => {
       </BlocLieu>
 
       <BlocLieu>
-        <div className="grid gap-10 md:grid-cols-[1fr_1.4fr] md:gap-16">
+        <div className="grid gap-12 md:grid-cols-[1fr_1.4fr] md:gap-16">
           <QuiFaitToutCa titre={QUI.titre} texte={QUI.texte} />
           <QuestionsRepliees titre={QUESTIONS.titre} questions={QUESTIONS.liste} />
         </div>
