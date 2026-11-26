@@ -48,21 +48,14 @@ const FONDS = {
 interface SectionPageProps {
   /** Titre de la section (h2). */
   titre: string;
-  /** Emoji décoratif au-dessus du titre, comme sur l'accueil. */
-  emoji?: string;
   fond?: keyof typeof FONDS;
   children: ReactNode;
 }
 
 /** Une section d'une page : fond de couleur, titre centré, contenu en colonne étroite. */
-export const SectionPage = ({ titre, emoji, fond = "clair", children }: SectionPageProps) => (
+export const SectionPage = ({ titre, fond = "clair", children }: SectionPageProps) => (
   <section className={`py-10 md:py-12 px-5 ${FONDS[fond]}`}>
     <div className="max-w-3xl mx-auto">
-      {emoji && (
-        <span className="text-4xl mb-3 block text-center" aria-hidden="true">
-          {emoji}
-        </span>
-      )}
       <h2 className="font-display font-bold text-2xl md:text-3xl leading-tight text-foreground text-center text-balance mb-5">
         {titre}
       </h2>
@@ -142,7 +135,6 @@ export const BoutonCommander = ({ secteur }: { secteur: "marseille" | "savoie" }
 export interface LienPage {
   to: string;
   label: string;
-  emoji?: string;
 }
 
 /** Liens vers d'autres pages, en bas de page. `titre` n'est lu que par les lecteurs d'écran. */
@@ -155,11 +147,6 @@ export const LiensPages = ({ titre, liens }: { titre: string; liens: LienPage[] 
             to={lien.to}
             className="h-full flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3 text-sm font-semibold leading-snug text-foreground shadow-soft transition-all duration-200 hover:shadow-hover hover:border-primary"
           >
-            {lien.emoji && (
-              <span className="text-xl leading-none" aria-hidden="true">
-                {lien.emoji}
-              </span>
-            )}
             {lien.label}
           </Link>
         </li>

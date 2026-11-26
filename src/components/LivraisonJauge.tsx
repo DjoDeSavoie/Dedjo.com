@@ -43,11 +43,11 @@ const LivraisonJauge = ({ sachets, className = "" }: { sachets: number; classNam
               key={fete}
               className={`inline-block font-bold text-brand-night ${celebrer ? "motion-safe:animate-jauge-pop" : ""}`}
             >
-              🎉 Livraison offerte ! <s className="font-normal text-muted-foreground">{eur(CONFIG.fraisLivraison)}</s>
+              Livraison offerte ! <s className="font-normal text-muted-foreground">{eur(CONFIG.fraisLivraison)}</s>
             </span>
           ) : (
             <span className="text-muted-foreground">
-              🚚 Plus que <strong className="text-foreground">{pluralize(restant, "sachet", "sachets")}</strong> pour
+              Plus que <strong className="text-foreground">{pluralize(restant, "sachet", "sachets")}</strong> pour
               économiser <strong className="text-[#8a5a09]">{eur(CONFIG.fraisLivraison)}</strong> de livraison à Marseille
             </span>
           )}

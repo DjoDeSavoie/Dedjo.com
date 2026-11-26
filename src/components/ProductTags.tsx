@@ -47,7 +47,7 @@ export const Tampons = ({ product }: { product: Product }) => {
           <span
             key={label}
             data-tampon
-            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border-[1.5px] border-solid bg-white px-2.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.05em] leading-none shadow-sm ${
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border-[1.5px] border-solid bg-white px-2.5 py-1.5 text-xs font-bold uppercase tracking-[0.05em] leading-none shadow-sm ${
               i % 2 ? "rotate-1" : "-rotate-2"
             }`}
             style={{ color: encre, borderColor: `${encre}99` }}
@@ -68,7 +68,7 @@ const ProductTags = ({ product, className = "" }: { product: Product; className?
 
   return (
     <div className={`flex flex-wrap gap-1.5 ${className}`}>
-      <span className="inline-flex items-center gap-1 text-[0.7rem] font-semibold bg-[#eaf3fb] border border-[#cfe3f6] text-[#16527f] px-2 py-0.5 rounded-full">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold bg-[#eaf3fb] border border-[#cfe3f6] text-[#16527f] px-2 py-0.5 rounded-full">
         <Info className="w-3 h-3" aria-hidden="true" />
         Contient : {allergens.map((a) => a.toLowerCase()).join(", ")}
       </span>

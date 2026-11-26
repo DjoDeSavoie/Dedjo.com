@@ -7,8 +7,8 @@ import { CHEMIN_MARSEILLE, CHEMIN_SAVOIE } from "@/lib/fiches";
 
 const navLinks = [
   { id: "sweet-products", label: "Viennoiseries" },
-  { id: "salty-pastries", label: "Feuilletés Salés" },
-  { id: "pizzas", label: "Les Pizzas" },
+  { id: "salty-pastries", label: "Feuilletés salés" },
+  { id: "pizzas", label: "Les pizzas" },
   { id: "newsletter", label: "Grandir ensemble" },
 ];
 

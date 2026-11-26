@@ -3,7 +3,7 @@
    Les fichiers sont préparés par « npm run photos » (voir le README) dans
    src/assets/produits/ : {id}-{n}-600.webp et {id}-{n}-1200.webp, au format 4:3.
    n° 1 = photo de la carte, n° 2 et suivants = photos de la pop-up.
-   Un produit sans photo garde son emoji.
+   Un produit sans photo n'a pas de zone image.
 
    Fichier à part de catalog.ts : l'Atelier et ses tests Node lisent le
    catalogue et ne savent pas charger une image.

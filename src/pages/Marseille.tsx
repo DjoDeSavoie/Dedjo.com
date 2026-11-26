@@ -113,24 +113,24 @@ const Marseille = () => {
         <p>{INTRO}</p>
       </EnTetePage>
 
-      <SectionPage titre={POURQUOI.titre} emoji="🔥">
+      <SectionPage titre={POURQUOI.titre}>
         <p>{POURQUOI.texte}</p>
       </SectionPage>
 
-      <SectionPage titre={COMMENT.titre} emoji="🧺" fond="ciel">
+      <SectionPage titre={COMMENT.titre} fond="ciel">
         <Etapes etapes={COMMENT.etapes} />
       </SectionPage>
 
-      <SectionPage titre={OU.titre} emoji="📍">
+      <SectionPage titre={OU.titre}>
         <p className="text-center">{OU.texte}</p>
       </SectionPage>
 
-      <SectionPage titre={TARIFS.titre} emoji="🏷️" fond="jaune">
+      <SectionPage titre={TARIFS.titre} fond="jaune">
         <Points points={TARIFS.lignes} puce="✓" />
       </SectionPage>
 
       {/* Carte : nom, type, pièces par sachet et disponibilité (stock de Marseille, comme sur l'accueil) */}
-      <SectionPage titre={CARTE.titre} emoji="🥐">
+      <SectionPage titre={CARTE.titre}>
         <ul className="grid gap-3 md:grid-cols-2">
           {ALL_PRODUCTS.map((p) => {
             const fiche = ficheDe(p.id);
@@ -141,9 +141,6 @@ const Marseille = () => {
                 style={{ borderTopColor: p.color }}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-3xl leading-none" aria-hidden="true">
-                    {p.emoji}
-                  </span>
                   <div>
                     <h3 className="font-display font-semibold text-lg leading-snug text-foreground">
                       {fiche ? (
@@ -176,11 +173,11 @@ const Marseille = () => {
         </ul>
       </SectionPage>
 
-      <SectionPage titre={QUI.titre} emoji="👨‍🍳" fond="creme">
+      <SectionPage titre={QUI.titre} fond="creme">
         <p>{QUI.texte}</p>
       </SectionPage>
 
-      <SectionPage titre={QUESTIONS.titre} emoji="💬" fond="ciel">
+      <SectionPage titre={QUESTIONS.titre} fond="ciel">
         <Faq questions={QUESTIONS.liste} />
       </SectionPage>
 

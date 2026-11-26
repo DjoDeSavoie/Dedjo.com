@@ -1,6 +1,6 @@
 /* ===================================================================
    PIZZAS DES VENDREDIS — source unique
-   Lues par la section « Les Pizzas » de l'accueil (PizzasSection.tsx,
+   Lues par la section « Les pizzas du vendredi » de l'accueil (PizzasSection.tsx,
    avec sa pop-up de détails) et par la carte de la page /savoie.
    Aucun prix de pizza n'est affiché sur le site.
 
@@ -9,10 +9,11 @@
 export interface Pizza {
   name: string;
   description: string;
+  /** Pas affiché sur le site public (gardé pour mémoire). */
   emoji: string;
   /** Couleur de la bordure de la carte (classe Tailwind, voir tailwind.config.ts). */
   color: string;
-  /** Favorite du chef : un petit emoji dans le coin de la carte de l'accueil. */
+  /** Favorite du chef (plus affiché sur le site). */
   isFavorite?: boolean;
   favoriteTooltip?: string;
   ingredients: string[];
@@ -29,7 +30,7 @@ const whereToBuyAll = "Disponible à la Ferme De La Goëttaz lors des soirées p
 export const PIZZAS_SALEES: Pizza[] = [
   {
     name: "La Classique",
-    description: "Sauce tomate, jambon, oignons, fromage. Ce qu'on revient toujours chercher, parce que c'est juste bon.",
+    description: "Sauce tomate, jambon, oignons, fromage.",
     emoji: "🍕",
     color: "border-pizza-classique",
     ingredients: [pateIngredients, "Sauce tomate", "Jambon", "Oignons de la ferme", "Fromage"],
@@ -39,7 +40,7 @@ export const PIZZAS_SALEES: Pizza[] = [
   },
   {
     name: "La Flam",
-    description: "Crème fraîche, lardons fumés, oignons — une flambée à la savoyarde. Notre création, notre préférée.",
+    description: "Crème fraîche, lardons fumés et oignons, à la savoyarde.",
     emoji: "🥓",
     color: "border-pizza-flam",
     isFavorite: true,
@@ -51,7 +52,7 @@ export const PIZZAS_SALEES: Pizza[] = [
   },
   {
     name: "La Végé",
-    description: "Courgettes et oignons du jardin, sauce tomate, fromage. Ce que la ferme offre, simplement.",
+    description: "Courgettes et oignons du jardin, sauce tomate, fromage.",
     emoji: "🥒",
     color: "border-pizza-vege",
     ingredients: [pateIngredients, "Sauce tomate", "Courgettes du jardin", "Oignons du jardin", "Fromage"],
@@ -64,7 +65,7 @@ export const PIZZAS_SALEES: Pizza[] = [
 export const PIZZAS_SUCREES: Pizza[] = [
   {
     name: "La Praline Rose",
-    description: "Praline rose de Lyon, crème AOP. Un classique sucré-croquant — en pizza.",
+    description: "Pralines roses de Lyon et crème AOP.",
     emoji: "🩷",
     color: "border-pizza-praline",
     isFavorite: true,
@@ -76,7 +77,7 @@ export const PIZZAS_SUCREES: Pizza[] = [
   },
   {
     name: "La Nut'",
-    description: "Pâte à tartiner chocolat-noisette. Pour finir sur une note douce.",
+    description: "Pâte à tartiner chocolat-noisette.",
     emoji: "🍫",
     color: "border-pizza-nut",
     ingredients: [pateIngredients, "Pâte à tartiner chocolat-noisettes"],

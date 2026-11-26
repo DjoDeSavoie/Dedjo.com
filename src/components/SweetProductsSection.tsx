@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Croissant, LucideIcon, Snowflake, Truck } from "lucide-react";
+import { ChevronDown, Croissant, LucideIcon, Snowflake, Truck } from "lucide-react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
 import PreparationCuisson, { BoutonQuestion } from "./PreparationCuisson";
@@ -34,7 +34,7 @@ const SweetProductsSection = () => {
 
   const handleAdd = (p: Product) => {
     addVienno(p.id, 1);
-    toast.success(`1 sachet de ${p.name} ajouté au panier 🥐`, {
+    toast.success(`1 sachet de ${p.name} ajouté au panier`, {
       description: `${p.pieces} ${p.unit} · ${eur(p.price)}`,
     });
   };
@@ -47,8 +47,7 @@ const SweetProductsSection = () => {
   return (
     <section id="sweet-products" className="py-12 px-4 section-cream">
       <div className="container max-w-6xl">
-        <span className="text-5xl mb-4 block text-center">🥐</span>
-        <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Viennoiseries</span></h2>
+        <h2 className="section-title">Viennoiseries</h2>
         <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
           Une viennoiserie à enfourner chez soi facilement, pour embaumer la maison d'une douce odeur de boulangerie.
         </p>
@@ -80,73 +79,58 @@ const SweetProductsSection = () => {
           onDetails={handleDetails}
         />
 
-        <br /> <br />
-
         {/* Préparation, comme sur l'étiquette */}
-        <div className="mb-8">
+        <div className="mt-12 mb-8">
           <PreparationCuisson variante="viennoiseries" />
-          <p className="text-center mt-4 text-sm text-muted-foreground italic">À partager et à offrir, comme une fleur, pour donner le sourire. 🌼</p>
+          <p className="text-center mt-4 text-sm text-muted-foreground italic">À partager et à offrir, comme une fleur, pour donner le sourire.</p>
           <BoutonQuestion sujet="viennoiseries" />
         </div>
 
         {/* Fabrication accordion */}
         <div className="max-w-3xl mx-auto mb-8">
           <button
+            type="button"
             onClick={() => setFabricationOpen(!fabricationOpen)}
-            className="w-full bg-card rounded-2xl p-5 shadow-soft flex items-center justify-between text-left hover:shadow-hover transition-all duration-200"
+            aria-expanded={fabricationOpen}
+            className="w-full bg-card rounded-2xl p-5 shadow-soft flex items-center justify-between gap-4 text-left transition-shadow duration-200 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <span className="font-display font-bold text-xl text-foreground">Comment naissent tes viennoiseries ?</span>
-            <span className="text-2xl text-primary transition-transform duration-300" style={{ transform: fabricationOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+            <span className="font-display font-medium text-xl text-foreground">Comment naissent tes viennoiseries ?</span>
+            <ChevronDown
+              className={`w-6 h-6 flex-shrink-0 text-primary transition-transform duration-300 motion-reduce:transition-none ${fabricationOpen ? "rotate-180" : ""}`}
+              aria-hidden="true"
+            />
           </button>
 
           {fabricationOpen && (
             <div className="bg-white/70 rounded-2xl px-6 py-6 mt-2 shadow-soft space-y-5 text-foreground leading-relaxed text-sm">
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">🌾</span>
-                <div>
-                  <p className="font-semibold mb-1">1 — La détrempe (pétrissage)</p>
-                  <p>Farine, eau, lait, levure, sel, sucre et du beurre. On pétrit jusqu'à obtenir une pâte souple et homogène. C'est la base — ce que les boulangers appellent la détrempe.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">1. La détrempe (pétrissage)</p>
+                <p>Farine, eau, lait, levure, sel, sucre et du beurre. On pétrit jusqu'à obtenir une pâte souple et homogène. C'est la base, ce que les boulangers appellent la détrempe.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">⏳</span>
-                <div>
-                  <p className="font-semibold mb-1">2 — Le pointage</p>
-                  <p>La pâte repose au frais. Les levures s'activent doucement, la pâte commence à vivre. Cette étape développe les arômes — c'est là que le caractère se construit.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">2. Le pointage</p>
+                <p>La pâte repose au frais. Les levures s'activent doucement, la pâte commence à vivre. Cette étape développe les arômes : c'est là que le caractère se construit.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">🧈</span>
-                <div>
-                  <p className="font-semibold mb-1">3 — L'enchâssage du beurre</p>
-                  <p>Un bloc de beurre de tourage — le meilleur que je trouve — est enfermé dans la détrempe. Tout commence ici : c'est ce beurre qui va créer le feuilletage.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">3. L'enchâssage du beurre</p>
+                <p>Un bloc de beurre de tourage, le meilleur que je trouve, est enfermé dans la détrempe. Tout commence ici : c'est ce beurre qui va créer le feuilletage.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">📐</span>
-                <div>
-                  <p className="font-semibold mb-1">4 — Le tourage (lamination)</p>
-                  <p>On étale, on plie, on tourne. Plusieurs fois. Chaque pli crée des couches de pâte et de beurre alternées. C'est ce qui donne ce feuilletage qu'on voit éclater à la cuisson.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">4. Le tourage (lamination)</p>
+                <p>On étale, on plie, on tourne. Plusieurs fois. Chaque pli crée des couches de pâte et de beurre alternées. C'est ce qui donne ce feuilletage qu'on voit éclater à la cuisson.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">✋</span>
-                <div>
-                  <p className="font-semibold mb-1">5 — Le façonnage</p>
-                  <p>Chaque pièce est découpée et roulée à la main. Un croissant, un pain au chocolat, une rose — chacun a sa forme, ses gestes, sa technique.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">5. Le façonnage</p>
+                <p>Chaque pièce est découpée et roulée à la main. Un croissant, un pain au chocolat, une rose : chacun a sa forme, ses gestes, sa technique.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">❄️</span>
-                <div>
-                  <p className="font-semibold mb-1">6 — La pré-pousse, puis la congélation</p>
-                  <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. Le froid préserve toute la fraîcheur du beurre, garde les arômes et arrête la fermentation au bon moment. Chez toi, elles passent direct du congélateur au four, où elles libèrent leurs arômes parfumés de beurre et de ferments dans toutes les pièces de la maison. Le résultat est le même qu'à la sortie de mon labo, mais chez toi, à l'heure qui te convient.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">6. La pré-pousse, puis la congélation</p>
+                <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. Le froid préserve toute la fraîcheur du beurre, garde les arômes et arrête la fermentation au bon moment. Chez toi, elles passent direct du congélateur au four, où elles libèrent leurs arômes parfumés de beurre et de ferments dans toutes les pièces de la maison. Le résultat est le même qu'à la sortie de mon labo, mais chez toi, à l'heure qui te convient.</p>
               </div>
               <div className="pt-4 border-t border-muted text-center">
                 <p className="italic text-muted-foreground">
-                  Tu vois, rien de sorcier. Le plus dur, je l'ai déjà fait pour toi —<br />
-                  il te reste juste à mettre le four en route, et partager tout ça. 🥐
+                  Tu vois, rien de sorcier. Le plus dur, je l'ai déjà fait pour toi : il te reste juste à mettre le four
+                  en route, et partager tout ça.
                 </p>
               </div>
             </div>

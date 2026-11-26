@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Check, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, CheckCircle2, Loader2, Snowflake } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
 import ProductLabelModal from "@/components/ProductLabelModal";
@@ -295,14 +295,7 @@ const Commande = () => {
               alt=""
               className="w-9 h-9 rounded-full flex-shrink-0"
             />
-          ) : (
-            <span
-              className="w-9 h-9 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-              style={{ backgroundColor: p.color }}
-            >
-              {p.emoji}
-            </span>
-          )}
+          ) : null}
           <div>
             <h3 className="text-foreground">
               {p.name}
@@ -363,7 +356,7 @@ const Commande = () => {
       .map((p) => (
         <li key={p.id} className="flex justify-between gap-3 py-1.5 border-b border-dashed border-border text-sm">
           <span>
-            {p.emoji} {p.name}{" "}
+            {p.name}{" "}
             <span className="text-muted-foreground">· {sachetsLabel(p, counts[p.id])}</span>
           </span>
           <span className="whitespace-nowrap">{eur(counts[p.id] * p.price)}</span>
@@ -485,7 +478,7 @@ const Commande = () => {
       <main className="container max-w-3xl mx-auto px-4">
         {/* Rappel congelé */}
         <div className="flex gap-3 items-center bg-[#eaf3fb] border border-[#cfe3f6] text-[#16527f] rounded-2xl px-4 py-3 my-6 text-sm">
-          <span className="text-xl leading-none">❄️</span>
+          <Snowflake className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} aria-hidden="true" />
           <p>{RAPPEL_CONGELE}</p>
         </div>
 
@@ -519,10 +512,7 @@ const Commande = () => {
         <>
         {/* Viennoiseries */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="text-2xl">🥐</span>
-            <h2 className={sectionTitle}>Les viennoiseries</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-1`}>Les viennoiseries</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             Vendues en sachet, <strong>{eur(PRIX_SACHET)} le sachet</strong>. Compose ton panier comme tu veux, autant de sachets de chaque création.
           </p>
@@ -533,10 +523,7 @@ const Commande = () => {
 
         {/* Feuilletés */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="text-2xl">🥧</span>
-            <h2 className={sectionTitle}>Les feuilletés salés</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-1`}>Les feuilletés salés</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             De gros friands feuilletés, garnis à la main. Chaque sachet contient {FEUILLETES[0].pieces} {FEUILLETES[0].unit} de la même gamme, pour <strong>{eur(PRIX_SACHET)}</strong>.
           </p>
@@ -547,12 +534,8 @@ const Commande = () => {
 
         {/* Pizzas (mention) */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-3">
-            <span className="text-2xl">🍕</span>
-            <h2 className={sectionTitle}>Les pizzas du vendredi</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-3`}>Les pizzas du vendredi</h2>
           <div className="bg-card rounded-2xl shadow-soft p-4 flex gap-3.5 items-start border-l-4 border-[#F5C842]">
-            <span className="text-3xl leading-none">🔥</span>
             <p className="text-foreground text-sm leading-relaxed">
               Mes pizzas au feu de bois, c'est <strong>uniquement sur place</strong>, les vendredis dédiés à la Ferme de la Goëttaz. <strong>À commander sur place</strong> — on se retrouve là-bas, on garnit, on enfourne. À très vite !
             </p>
@@ -564,10 +547,7 @@ const Commande = () => {
         {/* ===== Onglet 2 : où je te retrouve ===== */}
         {etape === 2 && (
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="text-2xl">📍</span>
-            <h2 className={sectionTitle}>Où je te retrouve ?</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-4`}>Où je te retrouve ?</h2>
 
           <fieldset className="mb-4">
             <legend className="block font-bold mb-1.5 text-sm">
@@ -634,7 +614,7 @@ const Commande = () => {
               ))}
             </select>
             <p className="text-sm text-muted-foreground mt-1.5">
-              🗓️ Pense à commander quelques jours à l'avance — je prépare tout à la main.
+              Pense à commander quelques jours à l'avance — je prépare tout à la main.
             </p>
           </div>
         </section>
@@ -647,10 +627,7 @@ const Commande = () => {
         <>
         {/* Coordonnées */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="text-2xl">✍️</span>
-            <h2 className={sectionTitle}>Tes coordonnées</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-4`}>Tes coordonnées</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="prenom" className="block font-bold mb-1.5 text-sm">
@@ -712,7 +689,7 @@ const Commande = () => {
         <section ref={recapRef} className="my-8 scroll-mt-24">
           <div className="bg-card rounded-2xl shadow-soft p-5">
             <h2 className="text-xl font-bold mb-2.5">
-              🧺 Ma commande
+              Ma commande
             </h2>
             <ul className="list-none m-0 p-0">
               {totalSachets === 0 && (
@@ -735,7 +712,7 @@ const Commande = () => {
               {isLivraison && totalSachets > 0 && (
                 <li className="flex justify-between gap-3 py-1.5 text-sm">
                   <span>
-                    🚚 Livraison ({secteur?.nom})
+                    Livraison ({secteur?.nom})
                     {!livraisonOfferte && (
                       <span className="block text-xs text-[#8a5a09]">
                         Ajoute {pluralize(sachetsManquants, "sachet", "sachets")} et elle devient offerte
@@ -873,7 +850,7 @@ const Commande = () => {
             )}
 
             <p className="mt-3.5 text-sm text-muted-foreground text-center">
-              Aucun paiement en ligne : tu règles quand tu récupères ta commande. 💛
+              Aucun paiement en ligne : tu règles quand tu récupères ta commande.
             </p>
           </div>
         </section>

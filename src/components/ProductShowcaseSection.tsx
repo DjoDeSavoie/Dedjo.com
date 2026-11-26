@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react";
 import FleurTati from "@/components/FleurTati";
+import { CUISSON } from "@/lib/catalog";
 
 /* Cartes de gamme : fond crème carte et bordure de 2 px de la couleur de la gamme, comme les
    cartes produits. Toute la carte est un lien vers la section de la gamme. */
@@ -13,7 +14,7 @@ const GAMMES: {
   {
     titre: "Viennoiseries",
     description:
-      "Une pâte pétrie, un feuilletage de beurre régulier. Façonnées puis bloquées au congélateur pour garder leur fraîcheur. Enfourne-les direct du congélateur, quand tu veux : un rituel sans pression.",
+      `Croissants et pains au chocolat pur beurre, façonnés à la main et surgelés crus. ${CUISSON.minutes.viennoiseries} minutes au four, sans décongeler.`,
     lien: "Voir les viennoiseries",
     sectionId: "sweet-products",
     bordure: "border-[hsl(45,100%,60%)]",
@@ -21,7 +22,7 @@ const GAMMES: {
   {
     titre: "Feuilletés salés",
     description:
-      "Quatre garnitures savoyardes enveloppées dans une pâte feuilletée maison. En formats friands et bouchées apéritives. Sors-le du congélateur et glisse le au four. À partager sans façons.",
+      `Quatre garnitures savoyardes dans une pâte feuilletée maison, en friands. ${CUISSON.minutes.feuilletes} minutes au four, sans décongeler.`,
     lien: "Voir les feuilletés",
     sectionId: "salty-pastries",
     bordure: "border-[hsl(140,50%,50%)]",
@@ -29,7 +30,7 @@ const GAMMES: {
   {
     titre: "Pizzas du vendredi",
     description:
-      "La pâte pétrie sur place. Les légumes de la Goëttaz. Le four à bois. Chaque vendredi soir, on se retrouve — et on te propose une pizza qu'on est fiers de manger nous-mêmes.",
+      "Au feu de bois, à la Ferme de la Goëttaz, certains vendredis soir. Pâte pétrie sur place, légumes de la ferme.",
     lien: "Voir les pizzas",
     sectionId: "pizzas",
     bordure: "border-[hsl(25,100%,60%)]",

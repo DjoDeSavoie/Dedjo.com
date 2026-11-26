@@ -85,48 +85,42 @@ const Savoie = () => {
         <p>{INTRO}</p>
       </EnTetePage>
 
-      <SectionPage titre={PIZZAS.titre} emoji="🍕" fond="jaune">
+      <SectionPage titre={PIZZAS.titre} fond="jaune">
         <p>{PIZZAS.texte}</p>
 
         {/* La carte : nom et description de chaque pizza, sans prix */}
         <ul className="grid gap-3 sm:grid-cols-2 !mt-6 text-base">
           {[...PIZZAS_SALEES, ...PIZZAS_SUCREES].map((pizza) => (
-            <li key={pizza.name} className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-5 shadow-soft flex items-start gap-3.5`}>
-              <span className="text-3xl leading-none" aria-hidden="true">
-                {pizza.emoji}
-              </span>
-              <div>
-                <h3 className="font-display text-lg leading-snug text-foreground mb-1">{pizza.name}</h3>
-                <p className="text-sm leading-relaxed text-foreground/80">{pizza.description}</p>
-              </div>
+            <li key={pizza.name} className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-5`}>
+              <h3 className="font-display font-medium text-xl leading-snug text-foreground mb-1">{pizza.name}</h3>
+              <p className="text-sm leading-relaxed text-foreground/80">{pizza.description}</p>
             </li>
           ))}
         </ul>
 
         <div className="!mt-6 border-l-4 border-primary bg-white/70 rounded-2xl px-5 py-4 shadow-soft text-base">
           <h3 className="text-sm font-semibold font-body text-primary uppercase tracking-widest mb-1.5">
-            <span aria-hidden="true">🗓️ </span>
             {PIZZAS.dates.titre}
           </h3>
           <p>{PIZZAS.dates.texte}</p>
         </div>
       </SectionPage>
 
-      <SectionPage titre={MAGASIN.titre} emoji="🧊">
+      <SectionPage titre={MAGASIN.titre}>
         <p>{MAGASIN.texte}</p>
       </SectionPage>
 
-      <SectionPage titre={A_L_AVANCE.titre} emoji="🧺" fond="ciel">
+      <SectionPage titre={A_L_AVANCE.titre} fond="ciel">
         <p>{A_L_AVANCE.texte}</p>
       </SectionPage>
 
-      <SectionPage titre={SAVEURS.titre} emoji="🏔️">
+      <SectionPage titre={SAVEURS.titre}>
         <p>
           <TexteRiche texte={SAVEURS.texte} />
         </p>
       </SectionPage>
 
-      <SectionPage titre={QUESTIONS.titre} emoji="💬" fond="creme">
+      <SectionPage titre={QUESTIONS.titre} fond="creme">
         <Faq questions={QUESTIONS.liste} />
       </SectionPage>
 

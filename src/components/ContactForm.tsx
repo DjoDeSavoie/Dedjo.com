@@ -52,12 +52,12 @@ const ContactForm = () => {
   }, []);
 
   const categories = [
-    { value: "idea", label: "💡 Idée générale" },
-    { value: "recipe", label: "🥐 Suggestion de recette" },
-    { value: "product", label: "🛒 Gamme de produits" },
-    { value: "question", label: "❓ Question" },
-    { value: "feedback", label: "💬 Retour d'expérience" },
-    { value: "other", label: "✨ Autre" },
+    { value: "idea", label: "Idée générale" },
+    { value: "recipe", label: "Suggestion de recette" },
+    { value: "product", label: "Gamme de produits" },
+    { value: "question", label: "Question" },
+    { value: "feedback", label: "Retour d'expérience" },
+    { value: "other", label: "Autre" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,7 +128,7 @@ const ContactForm = () => {
     }
 
     toast({
-      title: "Message envoyé ! 🌱",
+      title: "Message envoyé !",
       description: "Merci pour ta contribution.",
     });
 
@@ -226,7 +226,7 @@ const ContactForm = () => {
         className="w-full btn-newsletter disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={isLoading}
       >
-        {isLoading ? "Envoi en cours..." : "Envoyer mon message 🌱"}
+        {isLoading ? "Envoi en cours..." : "Envoyer mon message"}
       </button>
       <p className="text-xs text-muted-foreground text-center">
         Ton nom et ton e-mail servent uniquement à te répondre.

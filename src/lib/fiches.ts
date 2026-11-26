@@ -91,5 +91,5 @@ export const titreFiche = (p: Product): string => `${p.name} — ${typeDe(p)}`;
 export const liensFiches = (sauf?: string) =>
   FICHES.filter((f) => f.id !== sauf).map((f) => {
     const p = produit(f.id);
-    return { to: f.chemin, label: titreFiche(p), emoji: p.emoji };
+    return { to: f.chemin, label: titreFiche(p) };
   });

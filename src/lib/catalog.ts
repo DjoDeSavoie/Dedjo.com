@@ -237,7 +237,7 @@ export const VIENNOISERIES: Product[] = [
     pieces: 4,
     unit: "pièces",
     price: PRIX_SACHET,
-    note: "💡 Une suggestion d'Apolline (avec deux ailes) et de ses parents",
+    note: "Une suggestion d'Apolline (avec deux ailes) et de ses parents",
     carte: {
       type: "Roulé crème et raisins",
       phrase: "Crème à la vanille et raisins secs, dans une pâte feuilletée au beurre.",

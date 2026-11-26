@@ -6,11 +6,12 @@ import { CHEMIN_GUIDE, CHEMIN_MARSEILLE, CHEMIN_SAVOIE } from "@/lib/fiches";
 
 const lienPied = "text-muted-foreground underline underline-offset-2 hover:text-foreground";
 
+/* Aperçus vers Instagram : cartes crème bordées de la couleur du produit, comme sur l'accueil */
 const instagramPreviews = [
-  { emoji: "🥐", label: "La Lune", desc: "Croissant pur beurre", bg: "bg-product-croissant" },
-  { emoji: "🍫", label: "La Cabosse", desc: "Pain au chocolat", bg: "bg-[#d4a87a]" },
-  { emoji: "🌹", label: "La Rose", desc: "Praline rose & vanille", bg: "bg-product-rose" },
-  { emoji: "🍇", label: "La Grappe", desc: "Roulé aux raisins", bg: "bg-product-raisin" },
+  { label: "La Lune", desc: "Croissant pur beurre", bordure: "border-product-croissant" },
+  { label: "La Cabosse", desc: "Pain au chocolat", bordure: "border-product-chocolat" },
+  { label: "La Rose", desc: "Praline rose & vanille", bordure: "border-product-rose" },
+  { label: "La Grappe", desc: "Roulé aux raisins", bordure: "border-product-raisin" },
 ];
 
 const Footer = () => {
@@ -24,7 +25,7 @@ const Footer = () => {
             <h2 className="font-display text-3xl text-foreground">@Dedjo_</h2>
           </div>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            Suivez nos créations au quotidien — croissants tout chauds, enfournements du matin et moments en famille.
+            Suis nos créations au quotidien : croissants tout chauds, enfournements du matin et moments en famille.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -34,10 +35,9 @@ const Footer = () => {
                 href="https://instagram.com/Dedjo_"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${item.bg} rounded-2xl aspect-square flex flex-col items-center justify-center gap-2 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1`}
+                className={`bg-creme-carte border-2 ${item.bordure} rounded-2xl aspect-square flex flex-col items-center justify-center gap-1 p-3 text-center transition-transform duration-200 motion-safe:hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
               >
-                <span className="text-4xl">{item.emoji}</span>
-                <span className="text-sm font-semibold text-foreground">{item.label}</span>
+                <span className="font-display font-medium text-lg text-foreground">{item.label}</span>
                 <span className="text-xs text-foreground/70">{item.desc}</span>
               </a>
             ))}
@@ -63,28 +63,25 @@ const Footer = () => {
               Chaque ligne mène à sa page ; le guide de cuisson est cité en dessous. */}
           <div className="text-sm text-muted-foreground text-center text-balance space-y-1">
             <p>
-              <span aria-hidden="true">📍</span>{" "}
               <Link to={CHEMIN_MARSEILLE} className={lienPied}>
                 Livraison à Marseille et alentours
               </Link>
             </p>
             <p>
               {/* Noms composés jamais coupés au trait d'union */}
-              <span aria-hidden="true">📍</span>{" "}
               <Link to={CHEMIN_SAVOIE} className={lienPied}>
                 En Savoie : Ferme de la Goëttaz, autour du <span className="whitespace-nowrap">Bourget-du-Lac</span>, d'
                 <span className="whitespace-nowrap">Aix-les-Bains</span> et de Chambéry
               </Link>
             </p>
             <p>
-              <span aria-hidden="true">🔥</span>{" "}
               <Link to={CHEMIN_GUIDE} className={lienPied}>
                 Conseils de cuisson
               </Link>
             </p>
           </div>
           <p className="text-muted-foreground text-center text-sm">
-            © 2026 Dedjo. Fait avec amour. 🥖
+            © 2026 Dedjo. Fait avec amour.
           </p>
           <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
             {LIENS_LEGAUX.map((lien) => (
