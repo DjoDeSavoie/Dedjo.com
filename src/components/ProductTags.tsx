@@ -15,7 +15,7 @@ export const StatutProduit = ({ statut, className = "" }: { statut: StatutSite; 
   const { texte, icone: Icone } = LIBELLES[statut];
   return (
     <span
-      className={`inline-flex max-w-full items-center gap-1.5 text-left text-xs font-bold leading-snug bg-[#FFF6DB] text-[#7a5a00] border border-[#F5C842] px-3 py-1.5 rounded-2xl ${className}`}
+      className={`inline-flex max-w-full items-center gap-1.5 text-left text-xs font-bold leading-snug bg-attente-fond text-attente-encre border border-secondary px-3 py-1.5 rounded-2xl ${className}`}
     >
       <Icone className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
       {texte}
@@ -68,7 +68,7 @@ const ProductTags = ({ product, className = "" }: { product: Product; className?
 
   return (
     <div className={`flex flex-wrap gap-1.5 ${className}`}>
-      <span className="inline-flex items-center gap-1 text-xs font-bold bg-[#eaf3fb] border border-[#cfe3f6] text-[#16527f] px-2 py-0.5 rounded-full">
+      <span className="inline-flex items-center gap-1 text-xs font-bold bg-info-fond border border-info-bord text-info-encre px-2 py-0.5 rounded-full">
         <Info className="w-3 h-3" aria-hidden="true" />
         Contient : {allergens.map((a) => a.toLowerCase()).join(", ")}
       </span>

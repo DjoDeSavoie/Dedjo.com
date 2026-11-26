@@ -100,9 +100,8 @@ const Marseille = () => {
       <Horizon lieu="marseille" />
       <BandeauPratique faits={PRATIQUE} />
 
-      <BlocLieu>
-        <GaleriePhotos titre={GALERIE} />
-      </BlocLieu>
+      {/* Rien tant que moins de deux produits ont leur photo */}
+      <GaleriePhotos titre={GALERIE} />
 
       <BlocLieu fond="creme">
         <EtapesEnLigne titre={COMMENT.titre} etapes={COMMENT.etapes} />

@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 /** Couleur des liens dans un texte (la même que sur la page Commande). */
-export const CLASSE_LIEN = "font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0]";
+export const CLASSE_LIEN = "font-bold text-lien underline underline-offset-2 hover:text-lien-survol";
 
 const MOTIF = /\[([^\]]+)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*/g;
 

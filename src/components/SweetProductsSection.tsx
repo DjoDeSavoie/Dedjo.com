@@ -7,14 +7,8 @@ import { GrilleProduits } from "./CarteProduit";
 import { useCart } from "@/context/CartContext";
 import { CUISSON, PRIX_SACHET, Product, VIENNOISERIES, eur } from "@/lib/catalog";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
+import { BORDURE_PRODUIT } from "@/lib/bordures";
 
-/** Bordure de chaque carte (couleurs propres au site) ; le reste vient du catalogue. */
-const BORDURES: Record<string, string> = {
-  lune: "border-product-croissant",
-  cabosse: "border-product-chocolat",
-  grappe: "border-product-raisin",
-  rose: "border-product-rose",
-};
 /** Pastille du site, montrée seulement sur une carte sans tampon. */
 const BADGES: Record<string, string> = { lune: "Classique", rose: "Favorite du chef" };
 
@@ -73,7 +67,7 @@ const SweetProductsSection = () => {
         <GrilleProduits
           produits={VIENNOISERIES}
           statut={statut}
-          bordures={BORDURES}
+          bordures={BORDURE_PRODUIT}
           badges={BADGES}
           onAjouter={handleAdd}
           onDetails={handleDetails}

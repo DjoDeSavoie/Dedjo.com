@@ -1,6 +1,5 @@
 import { ReactNode, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBasket } from "lucide-react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import TexteRiche from "./TexteRiche";
@@ -116,19 +115,6 @@ export const Faq = ({ questions }: { questions: QuestionFrequente[] }) => (
         </p>
       </div>
     ))}
-  </div>
-);
-
-/** Bouton « Commander » : ouvre la page de commande avec le secteur déjà choisi. */
-export const BoutonCommander = ({ secteur }: { secteur: "marseille" | "savoie" }) => (
-  <div className="py-10 px-5 text-center bg-background">
-    <Link
-      to={`/commande?secteur=${secteur}`}
-      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-9 py-3.5 rounded-full text-lg font-bold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-    >
-      <ShoppingBasket className="w-5 h-5" aria-hidden="true" />
-      Commander
-    </Link>
   </div>
 );
 
