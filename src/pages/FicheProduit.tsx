@@ -65,7 +65,7 @@ const FicheProduit = ({ id }: { id: ProductId }) => {
   // Même comportement que le bouton « + Panier » de l'accueil
   const ajouterAuPanier = () => {
     (estViennoiserie ? addVienno : addFriand)(id, 1);
-    toast.success(`1 sachet de ${product.name} ajouté au panier ${estViennoiserie ? "🥐" : "🥧"}`, {
+    toast.success(`1 sachet de ${product.name} ajouté au panier`, {
       description: `${product.pieces} ${product.unit} · ${eur(product.price)}`,
     });
   };
@@ -73,19 +73,11 @@ const FicheProduit = ({ id }: { id: ProductId }) => {
   return (
     <PageContenu>
       <header className="pt-24 md:pt-28 pb-10 px-5 section-cream border-b border-border">
-        <div className="max-w-5xl mx-auto grid gap-6 md:grid-cols-2 md:gap-9 md:items-start">
-          {/* 1. Photos (carrousel s'il y en a plusieurs) ; sans photo, l'emoji du produit */}
-          {photos.length ? (
-            <PhotosProduit product={product} sizes={TAILLES_PHOTO.fiche} prioritaire />
-          ) : (
-            <div
-              className="rounded-xl h-40 md:h-auto md:aspect-[4/3] flex items-center justify-center text-7xl md:text-8xl"
-              style={{ backgroundColor: product.color }}
-              aria-hidden="true"
-            >
-              {product.emoji}
-            </div>
-          )}
+        <div
+          className={`mx-auto grid gap-6 md:gap-9 md:items-start ${photos.length ? "max-w-5xl md:grid-cols-2" : "max-w-3xl"}`}
+        >
+          {/* 1. Photos (carrousel s'il y en a plusieurs), sur la crème des cartes ; sans photo, pas de zone image */}
+          {photos.length > 0 && <PhotosProduit product={product} sizes={TAILLES_PHOTO.fiche} prioritaire />}
 
           <div>
             {/* 2. Titre */}
@@ -121,7 +113,7 @@ const FicheProduit = ({ id }: { id: ProductId }) => {
       </header>
 
       {/* 5. Cuisson : la préparation de l'étiquette, et le lien vers le guide */}
-      <SectionPage titre={CUISSON_TITRE} emoji="🔥">
+      <SectionPage titre={CUISSON_TITRE}>
         <p>
           <TexteRiche texte={label.preparation} />
         </p>
@@ -131,14 +123,14 @@ const FicheProduit = ({ id }: { id: ProductId }) => {
       </SectionPage>
 
       {/* 6. Étiquette : même affichage que la pop-up « Voir les détails » de l'accueil */}
-      <SectionPage titre={INGREDIENTS_TITRE} emoji="📋" fond="ciel">
+      <SectionPage titre={INGREDIENTS_TITRE} fond="ciel">
         <div className="bg-card rounded-2xl shadow-soft p-5 space-y-4">
           <MentionsEtiquette label={label} variante="page" />
         </div>
       </SectionPage>
 
       {/* 7. Où le trouver */}
-      <SectionPage titre={OU_LE_TROUVER.titre} emoji="📍">
+      <SectionPage titre={OU_LE_TROUVER.titre}>
         <Points points={OU_LE_TROUVER.lignes} puce="→" />
       </SectionPage>
 

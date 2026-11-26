@@ -66,7 +66,7 @@ const PreparationCuisson = ({ variante }: { variante: Variante }) => {
       <p className="text-center mt-3">
         <Link
           to={CHEMIN_GUIDE}
-          className="font-display text-sm text-foreground/70 underline underline-offset-4 hover:text-foreground"
+          className="inline-flex items-center min-h-11 font-display text-sm text-foreground/70 underline underline-offset-4 hover:text-foreground"
         >
           {LIEN_GUIDE}
         </Link>

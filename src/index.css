@@ -50,6 +50,9 @@
     --section-yellow: 45 50% 94%;  /* warm golden ivory */
     --section-cream: 43 35% 95%;   /* neutral warm cream */
 
+    /* Crème des cartes produits, pizzas et gammes, et des zones photo : à peine plus foncée que le fond */
+    --creme-carte: #F5F0E5;
+
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(43 45% 96%) 0%, hsl(45 50% 95%) 50%, hsl(30 50% 95%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(40 35% 95%) 100%);
@@ -123,6 +126,24 @@
   [id] {
     scroll-margin-top: 73px;
   }
+
+  /* Focus toujours visible au clavier, même sur un élément sans anneau à lui */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* « Réduire les animations » : plus de mouvement, ni animation ni transition */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer utilities {
@@ -133,11 +154,11 @@
 
 @layer components {
   .card-pastry {
-    @apply bg-card rounded-2xl p-6 shadow-soft transition-all duration-300 hover:shadow-hover hover:-translate-y-1;
+    @apply bg-card rounded-2xl p-6 shadow-soft transition-all duration-300 hover:shadow-hover motion-safe:hover:-translate-y-0.5;
   }
 
   .btn-newsletter {
-    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-hover;
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-full transition-colors duration-200 hover:bg-primary/90;
   }
 
   .input-newsletter {

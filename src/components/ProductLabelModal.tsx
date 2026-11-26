@@ -31,8 +31,7 @@ const ProductLabelModal = ({ product, open, onOpenChange }: ProductLabelModalPro
             Marge du haut : la croix de fermeture ne cache pas la photo. */}
         <PhotosProduit key={product.id} product={product} sizes={TAILLES_PHOTO.popup} className="mt-6" />
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 font-display text-2xl">
-            <span className="text-3xl">{product.emoji}</span>
+          <DialogTitle className="font-display text-2xl">
             {product.name}
           </DialogTitle>
           {label.badge && (
@@ -45,14 +44,14 @@ const ProductLabelModal = ({ product, open, onOpenChange }: ProductLabelModalPro
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
-          <RubriqueEtiquette titre="🔥 Préparation">
+          <RubriqueEtiquette titre="Préparation">
             <p>
               <TexteRiche texte={label.preparation} />
             </p>
           </RubriqueEtiquette>
 
           {label.tip && (
-            <RubriqueEtiquette titre={`💡 ${label.tip.title}`}>
+            <RubriqueEtiquette titre={label.tip.title}>
               <p>{label.tip.text}</p>
             </RubriqueEtiquette>
           )}
@@ -60,7 +59,7 @@ const ProductLabelModal = ({ product, open, onOpenChange }: ProductLabelModalPro
           <MentionsEtiquette label={label} />
 
           {product.note && (
-            <RubriqueEtiquette titre="ℹ️ Bon à savoir">
+            <RubriqueEtiquette titre="Bon à savoir">
               <p>{product.note}</p>
             </RubriqueEtiquette>
           )}

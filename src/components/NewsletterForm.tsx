@@ -44,7 +44,7 @@ const NewsletterForm = () => {
       toast({
         title: "Bienvenue dans la tribu Dedjo !",
         description:
-          "Tu fais désormais partie de la newsletter. Ravi de continuer cette aventure avec toi 🌿 (désinscription à tout moment via le lien dans nos emails)",
+          "Tu fais désormais partie de la newsletter. Ravi de continuer cette aventure avec toi (désinscription à tout moment via le lien dans nos emails)",
       });
 
       setEmail("");

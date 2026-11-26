@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Check, CheckCircle2, Loader2 } from "lucide-react";
+import { defilement } from "@/lib/utils";
+import { ArrowLeft, Check, CheckCircle2, Loader2, Snowflake } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import AdresseAutocomplete from "@/components/AdresseAutocomplete";
 import ProductLabelModal from "@/components/ProductLabelModal";
@@ -177,7 +178,7 @@ const Commande = () => {
   const showErrors = (errs: string[]): boolean => {
     setErrors(errs);
     if (errs.length > 0) {
-      setTimeout(() => errorsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+      setTimeout(() => errorsRef.current?.scrollIntoView({ behavior: defilement(), block: "center" }), 50);
       return true;
     }
     return false;
@@ -187,7 +188,7 @@ const Commande = () => {
   const afficherEtape = (n: Etape) => {
     setEtape(n);
     setErrors([]);
-    setTimeout(() => ongletsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    setTimeout(() => ongletsRef.current?.scrollIntoView({ behavior: defilement(), block: "start" }), 50);
   };
 
   /**
@@ -256,7 +257,7 @@ const Commande = () => {
       setEnvoi("succes");
       setCgvAcceptees(false); // chaque commande demande une nouvelle acceptation
       clear();
-      setTimeout(() => recapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      setTimeout(() => recapRef.current?.scrollIntoView({ behavior: defilement(), block: "start" }), 50);
     } else {
       setErreurEnvoi(resultat.error);
       setEnvoi("erreur");
@@ -270,7 +271,7 @@ const Commande = () => {
     setNumero("");
     setErrors([]);
     setEtape(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: defilement() });
   };
 
   /* ---------- Rendu d'une carte produit ----------
@@ -291,19 +292,11 @@ const Commande = () => {
             // Le nom est écrit juste à côté : la vignette n'a pas besoin de texte alternatif
             <PhotoProduit
               photo={photosDe(p.id)[0]}
-              couleur={p.color}
               sizes={TAILLES_PHOTO.pastille}
               alt=""
               className="w-9 h-9 rounded-full flex-shrink-0"
             />
-          ) : (
-            <span
-              className="w-9 h-9 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-              style={{ backgroundColor: p.color }}
-            >
-              {p.emoji}
-            </span>
-          )}
+          ) : null}
           <div>
             <h3 className="text-foreground">
               {p.name}
@@ -325,7 +318,7 @@ const Commande = () => {
                 onClick={() => add(p.id, -1)}
                 disabled={count <= 0}
                 aria-label={`Retirer un sachet de ${p.name}`}
-                className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-11 h-11 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 −
               </button>
@@ -339,7 +332,7 @@ const Commande = () => {
                 type="button"
                 onClick={() => add(p.id, 1)}
                 aria-label={`Ajouter un sachet de ${p.name}`}
-                className="w-9 h-9 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc]"
+                className="w-11 h-11 rounded-xl border-2 border-border bg-white text-[#185FA5] font-bold text-xl leading-none transition hover:border-[#2A7FD0] hover:bg-[#eef5fc]"
               >
                 +
               </button>
@@ -348,7 +341,7 @@ const Commande = () => {
           <button
             type="button"
             onClick={() => openInfo(p)}
-            className="text-sm font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0] text-right"
+            className="inline-flex items-center min-h-11 text-sm font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0] text-right"
           >
             Voir les infos de la création
           </button>
@@ -364,7 +357,7 @@ const Commande = () => {
       .map((p) => (
         <li key={p.id} className="flex justify-between gap-3 py-1.5 border-b border-dashed border-border text-sm">
           <span>
-            {p.emoji} {p.name}{" "}
+            {p.name}{" "}
             <span className="text-muted-foreground">· {sachetsLabel(p, counts[p.id])}</span>
           </span>
           <span className="whitespace-nowrap">{eur(counts[p.id] * p.price)}</span>
@@ -454,7 +447,7 @@ const Commande = () => {
         <button
           type="button"
           onClick={etapeSuivante}
-          className="rounded-2xl px-5 py-3 font-bold text-white text-right transition hover:-translate-y-0.5 hover:shadow-hover"
+          className="rounded-2xl px-5 py-3 font-bold text-white text-right transition hover:brightness-95"
           style={{ backgroundImage: GRAD }}
         >
           Suivant : {ETAPES[etape].titre.toLowerCase()} →
@@ -472,7 +465,7 @@ const Commande = () => {
         <div className="container max-w-3xl mx-auto">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-white/90 hover:text-white text-sm font-medium mb-3"
+            className="inline-flex items-center gap-1.5 min-h-11 text-white/90 hover:text-white text-sm font-medium mb-1"
           >
             <ArrowLeft className="w-4 h-4" /> Retour au site
           </Link>
@@ -486,7 +479,7 @@ const Commande = () => {
       <main className="container max-w-3xl mx-auto px-4">
         {/* Rappel congelé */}
         <div className="flex gap-3 items-center bg-[#eaf3fb] border border-[#cfe3f6] text-[#16527f] rounded-2xl px-4 py-3 my-6 text-sm">
-          <span className="text-xl leading-none">❄️</span>
+          <Snowflake className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} aria-hidden="true" />
           <p>{RAPPEL_CONGELE}</p>
         </div>
 
@@ -520,10 +513,7 @@ const Commande = () => {
         <>
         {/* Viennoiseries */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="text-2xl">🥐</span>
-            <h2 className={sectionTitle}>Les viennoiseries</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-1`}>Les viennoiseries</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             Vendues en sachet, <strong>{eur(PRIX_SACHET)} le sachet</strong>. Compose ton panier comme tu veux, autant de sachets de chaque création.
           </p>
@@ -534,10 +524,7 @@ const Commande = () => {
 
         {/* Feuilletés */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="text-2xl">🥧</span>
-            <h2 className={sectionTitle}>Les feuilletés salés</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-1`}>Les feuilletés salés</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             De gros friands feuilletés, garnis à la main. Chaque sachet contient {FEUILLETES[0].pieces} {FEUILLETES[0].unit} de la même gamme, pour <strong>{eur(PRIX_SACHET)}</strong>.
           </p>
@@ -548,12 +535,8 @@ const Commande = () => {
 
         {/* Pizzas (mention) */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-3">
-            <span className="text-2xl">🍕</span>
-            <h2 className={sectionTitle}>Les pizzas du vendredi</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-3`}>Les pizzas du vendredi</h2>
           <div className="bg-card rounded-2xl shadow-soft p-4 flex gap-3.5 items-start border-l-4 border-[#F5C842]">
-            <span className="text-3xl leading-none">🔥</span>
             <p className="text-foreground text-sm leading-relaxed">
               Mes pizzas au feu de bois, c'est <strong>uniquement sur place</strong>, les vendredis dédiés à la Ferme de la Goëttaz. <strong>À commander sur place</strong> — on se retrouve là-bas, on garnit, on enfourne. À très vite !
             </p>
@@ -565,10 +548,7 @@ const Commande = () => {
         {/* ===== Onglet 2 : où je te retrouve ===== */}
         {etape === 2 && (
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="text-2xl">📍</span>
-            <h2 className={sectionTitle}>Où je te retrouve ?</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-4`}>Où je te retrouve ?</h2>
 
           <fieldset className="mb-4">
             <legend className="block font-bold mb-1.5 text-sm">
@@ -635,7 +615,7 @@ const Commande = () => {
               ))}
             </select>
             <p className="text-sm text-muted-foreground mt-1.5">
-              🗓️ Pense à commander quelques jours à l'avance — je prépare tout à la main.
+              Pense à commander quelques jours à l'avance — je prépare tout à la main.
             </p>
           </div>
         </section>
@@ -648,10 +628,7 @@ const Commande = () => {
         <>
         {/* Coordonnées */}
         <section className="my-8">
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="text-2xl">✍️</span>
-            <h2 className={sectionTitle}>Tes coordonnées</h2>
-          </div>
+          <h2 className={`${sectionTitle} mb-4`}>Tes coordonnées</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="prenom" className="block font-bold mb-1.5 text-sm">
@@ -713,7 +690,7 @@ const Commande = () => {
         <section ref={recapRef} className="my-8 scroll-mt-24">
           <div className="bg-card rounded-2xl shadow-soft p-5">
             <h2 className="text-xl font-bold mb-2.5">
-              🧺 Ma commande
+              Ma commande
             </h2>
             <ul className="list-none m-0 p-0">
               {totalSachets === 0 && (
@@ -736,7 +713,7 @@ const Commande = () => {
               {isLivraison && totalSachets > 0 && (
                 <li className="flex justify-between gap-3 py-1.5 text-sm">
                   <span>
-                    🚚 Livraison ({secteur?.nom})
+                    Livraison ({secteur?.nom})
                     {!livraisonOfferte && (
                       <span className="block text-xs text-[#8a5a09]">
                         Ajoute {pluralize(sachetsManquants, "sachet", "sachets")} et elle devient offerte
@@ -817,7 +794,7 @@ const Commande = () => {
               disabled={envoi === "envoi" || !cgvAcceptees}
               aria-busy={envoi === "envoi"}
               aria-describedby={cgvAcceptees ? undefined : "cgv-aide"}
-              className={`w-full mt-4 rounded-2xl px-4 py-3.5 font-bold text-base text-white flex items-center justify-center gap-2 transition hover:-translate-y-0.5 hover:shadow-hover disabled:hover:translate-y-0 disabled:hover:shadow-none ${
+              className={`w-full mt-4 rounded-2xl px-4 py-3.5 font-bold text-base text-white flex items-center justify-center gap-2 transition hover:brightness-95 hover:shadow-hover disabled:hover:translate-y-0 disabled:hover:shadow-none ${
                 cgvAcceptees ? "disabled:opacity-80 disabled:cursor-wait" : "disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               style={{ backgroundImage: GRAD }}
@@ -874,7 +851,7 @@ const Commande = () => {
             )}
 
             <p className="mt-3.5 text-sm text-muted-foreground text-center">
-              Aucun paiement en ligne : tu règles quand tu récupères ta commande. 💛
+              Aucun paiement en ligne : tu règles quand tu récupères ta commande.
             </p>
           </div>
         </section>
@@ -894,14 +871,14 @@ const Commande = () => {
         )}
 
         {/* Liens légaux (nouvel onglet : le panier et le formulaire restent remplis) */}
-        <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm pb-6">
+        <nav aria-label="Informations légales" className="flex flex-wrap justify-center gap-x-4 text-sm pb-6">
           {LIENS_LEGAUX.map((lien) => (
             <Link
               key={lien.to}
               to={lien.to}
               target="_blank"
               rel="noopener"
-              className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+              className="inline-flex items-center min-h-11 text-muted-foreground underline underline-offset-2 hover:text-foreground"
             >
               {lien.label}
             </Link>
@@ -926,7 +903,7 @@ const Commande = () => {
             {envoi !== "succes" && (
               <button
                 type="button"
-                onClick={() => (etape < 3 ? etapeSuivante() : recapRef.current?.scrollIntoView({ behavior: "smooth" }))}
+                onClick={() => (etape < 3 ? etapeSuivante() : recapRef.current?.scrollIntoView({ behavior: defilement() }))}
                 className="text-white font-bold px-4 py-3 rounded-2xl text-sm whitespace-nowrap"
                 style={{ backgroundImage: GRAD }}
               >

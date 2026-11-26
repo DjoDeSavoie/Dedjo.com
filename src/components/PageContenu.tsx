@@ -48,21 +48,14 @@ const FONDS = {
 interface SectionPageProps {
   /** Titre de la section (h2). */
   titre: string;
-  /** Emoji décoratif au-dessus du titre, comme sur l'accueil. */
-  emoji?: string;
   fond?: keyof typeof FONDS;
   children: ReactNode;
 }
 
 /** Une section d'une page : fond de couleur, titre centré, contenu en colonne étroite. */
-export const SectionPage = ({ titre, emoji, fond = "clair", children }: SectionPageProps) => (
+export const SectionPage = ({ titre, fond = "clair", children }: SectionPageProps) => (
   <section className={`py-10 md:py-12 px-5 ${FONDS[fond]}`}>
     <div className="max-w-3xl mx-auto">
-      {emoji && (
-        <span className="text-4xl mb-3 block text-center" aria-hidden="true">
-          {emoji}
-        </span>
-      )}
       <h2 className="font-display font-bold text-2xl md:text-3xl leading-tight text-foreground text-center text-balance mb-5">
         {titre}
       </h2>
@@ -131,7 +124,7 @@ export const BoutonCommander = ({ secteur }: { secteur: "marseille" | "savoie" }
   <div className="py-10 px-5 text-center bg-background">
     <Link
       to={`/commande?secteur=${secteur}`}
-      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-9 py-3.5 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-hover"
+      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-9 py-3.5 rounded-full text-lg font-semibold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <ShoppingBasket className="w-5 h-5" aria-hidden="true" />
       Commander
@@ -142,7 +135,6 @@ export const BoutonCommander = ({ secteur }: { secteur: "marseille" | "savoie" }
 export interface LienPage {
   to: string;
   label: string;
-  emoji?: string;
 }
 
 /** Liens vers d'autres pages, en bas de page. `titre` n'est lu que par les lecteurs d'écran. */
@@ -155,11 +147,6 @@ export const LiensPages = ({ titre, liens }: { titre: string; liens: LienPage[] 
             to={lien.to}
             className="h-full flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3 text-sm font-semibold leading-snug text-foreground shadow-soft transition-all duration-200 hover:shadow-hover hover:border-primary"
           >
-            {lien.emoji && (
-              <span className="text-xl leading-none" aria-hidden="true">
-                {lien.emoji}
-              </span>
-            )}
             {lien.label}
           </Link>
         </li>

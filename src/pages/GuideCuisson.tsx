@@ -86,8 +86,8 @@ const QUESTIONS: { titre: string; liste: QuestionFrequente[] } = {
 /** Liens du bas de page : les fiches produits, puis Marseille et la Savoie (mêmes mots que dans le menu). */
 const LIENS = [
   ...liensFiches(),
-  { to: CHEMIN_MARSEILLE, label: "Marseille", emoji: "📍" },
-  { to: CHEMIN_SAVOIE, label: "Savoie", emoji: "📍" },
+  { to: CHEMIN_MARSEILLE, label: "Marseille" },
+  { to: CHEMIN_SAVOIE, label: "Savoie" },
 ];
 
 const GuideCuisson = () => {
@@ -99,15 +99,15 @@ const GuideCuisson = () => {
         <p>{INTRO}</p>
       </EnTetePage>
 
-      <SectionPage titre={FOUR.titre} emoji="🔥">
+      <SectionPage titre={FOUR.titre}>
         <Etapes etapes={FOUR.etapes} />
       </SectionPage>
 
-      <SectionPage titre={AIRFRYER.titre} emoji="💨" fond="ciel">
+      <SectionPage titre={AIRFRYER.titre} fond="ciel">
         <p>{AIRFRYER.texte}</p>
       </SectionPage>
 
-      <SectionPage titre={RESUME.titre} emoji="⏱️">
+      <SectionPage titre={RESUME.titre}>
         {/* Le tableau tient dans 390 px : textes courts, première colonne qui passe à la ligne */}
         <div className="bg-card rounded-2xl shadow-soft overflow-hidden">
           <table className="w-full text-left text-sm sm:text-base">
@@ -136,11 +136,11 @@ const GuideCuisson = () => {
         <p className="text-center text-base text-muted-foreground">{RESUME.note}</p>
       </SectionPage>
 
-      <SectionPage titre={ERREURS.titre} emoji="⚠️" fond="jaune">
+      <SectionPage titre={ERREURS.titre} fond="jaune">
         <Points points={ERREURS.liste} puce="✗" />
       </SectionPage>
 
-      <SectionPage titre={QUESTIONS.titre} emoji="💬" fond="creme">
+      <SectionPage titre={QUESTIONS.titre} fond="creme">
         <Faq questions={QUESTIONS.liste} />
       </SectionPage>
 

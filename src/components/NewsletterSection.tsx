@@ -40,29 +40,25 @@ const NewsletterSection = () => {
         
         <h2 className="section-title">Grandir ensemble</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-          Les nouvelles créations, les vendredis pizzas, les livraisons de saison — tu es le premier à savoir.<br />
-          <span className="italic">Une lettre de temps en temps, pas de bruit inutile.</span>
+          <span className="block">Les nouvelles créations, les vendredis pizza, les livraisons de saison : tu es le premier à savoir.</span>
+          <span className="block italic">Une lettre de temps en temps, pas de bruit inutile.</span>
         </p>
         
         {/* Newsletter subscription */}
         <div className="mb-12">
-          <h3 className="text-xl font-display mb-4 text-foreground">📬 S'abonner à la newsletter</h3>
+          <h3 className="text-xl font-display font-medium mb-4 text-foreground">S'abonner à la newsletter</h3>
           <NewsletterForm />
         </div>
 
         {/* Separator */}
-        <div className="flex items-center gap-4 max-w-md mx-auto mb-7">
-          <div className="flex-1 h-px bg-primary/30"></div>
-          <span className="text-2xl">🌿</span>
-          <div className="flex-1 h-px bg-primary/30"></div>
-        </div>
+        <div className="h-px bg-primary/30 max-w-md mx-auto mb-7" aria-hidden="true" />
 
         {/* Contact form */}
         <div id="contact">
-          <h3 className="text-xl font-display mb-2 text-foreground">💬 Partagez vos idées</h3>
+          <h3 className="text-xl font-display font-medium mb-2 text-foreground">Partage tes idées</h3>
           <p className="text-muted-foreground mb-6 text-sm">
-            Une idée de recette, une envie, un retour sur une fournée — j'aime savoir ce que tu en penses.<br />
-            <span className="italic">C'est comme ça qu'on grandit.</span>
+            <span className="block">Une idée de recette, une envie, un retour sur une fournée : j'aime savoir ce que tu en penses.</span>
+            <span className="block italic">C'est comme ça qu'on grandit.</span>
           </p>
           <ContactForm />
         </div>

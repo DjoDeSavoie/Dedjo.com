@@ -1,22 +1,29 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { ChevronDown, Croissant, LucideIcon, Snowflake, Truck } from "lucide-react";
 import { toast } from "sonner";
 import ProductLabelModal from "./ProductLabelModal";
 import PreparationCuisson, { BoutonQuestion } from "./PreparationCuisson";
-import { BoutonPhoto } from "./PhotoProduit";
-import ProductTags, { StatutProduit, Tampons } from "./ProductTags";
+import { GrilleProduits } from "./CarteProduit";
 import { useCart } from "@/context/CartContext";
-import { CUISSON, Product, VIENNOISERIES, eur } from "@/lib/catalog";
+import { CUISSON, PRIX_SACHET, Product, VIENNOISERIES, eur } from "@/lib/catalog";
 import { useDisponibilite } from "@/hooks/useDisponibilite";
-import { ficheDe } from "@/lib/fiches";
 
-/** Étiquette, sachet et prix viennent du catalogue. */
-const catalogProduct = (id: string) => VIENNOISERIES.find((p) => p.id === id)!;
-
-const sachetInfo = (id: string) => {
-  const p = catalogProduct(id);
-  return `${p.pieces} ${p.unit} · ${eur(p.price)}`;
+/** Bordure de chaque carte (couleurs propres au site) ; le reste vient du catalogue. */
+const BORDURES: Record<string, string> = {
+  lune: "border-product-croissant",
+  cabosse: "border-product-chocolat",
+  grappe: "border-product-raisin",
+  rose: "border-product-rose",
 };
+/** Pastille du site, montrée seulement sur une carte sans tampon. */
+const BADGES: Record<string, string> = { lune: "Classique", rose: "Favorite du chef" };
+
+/** Bandeau d'arguments : trois faits, sans carte ni émoji. Durée et prix lus dans le catalogue. */
+const ARGUMENTS: { icone: LucideIcon; titre: string; texte: string }[] = [
+  { icone: Croissant, titre: "Pur beurre", texte: "Façonnées à la main, à Marseille." },
+  { icone: Snowflake, titre: "Sans décongeler", texte: `Du congélateur au four, ${CUISSON.minutes.viennoiseries} minutes.` },
+  { icone: Truck, titre: `${PRIX_SACHET} € le sachet`, texte: "Livré le samedi matin à Marseille." },
+];
 
 const SweetProductsSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -25,50 +32,37 @@ const SweetProductsSection = () => {
   const { addVienno } = useCart();
   const { statut } = useDisponibilite();
 
-  const handleAdd = (id: string) => {
-    addVienno(id, 1);
-    toast.success(`1 sachet de ${catalogProduct(id).name} ajouté au panier 🥐`, {
-      description: sachetInfo(id),
+  const handleAdd = (p: Product) => {
+    addVienno(p.id, 1);
+    toast.success(`1 sachet de ${p.name} ajouté au panier`, {
+      description: `${p.pieces} ${p.unit} · ${eur(p.price)}`,
     });
   };
 
-  // Couleur de carte et pastille propres au site ; nom, description, pastilles et sachet
-  // viennent du catalogue (texte des étiquettes).
-  const cards: { id: string; color: string; badge?: { icon: string; label: string; tooltip?: string } }[] = [
-    { id: "lune", color: "bg-product-croissant", badge: { icon: "🌼", label: "Classique" } },
-    { id: "cabosse", color: "bg-product-chocolat" },
-    { id: "grappe", color: "bg-product-raisin" },
-    { id: "rose", color: "bg-product-rose", badge: { icon: "❤️", label: "Favorite du chef", tooltip: "Favorite du chef" } },
-  ];
-
-  const handleProductClick = (id: string) => {
-    setSelectedProduct(catalogProduct(id));
+  const handleDetails = (p: Product) => {
+    setSelectedProduct(p);
     setModalOpen(true);
   };
 
   return (
     <section id="sweet-products" className="py-12 px-4 section-cream">
       <div className="container max-w-6xl">
-        <span className="text-5xl mb-4 block text-center">🥐</span>
-        <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Viennoiseries</span></h2>
+        <h2 className="section-title">Viennoiseries</h2>
         <p className="text-center text-muted-foreground mb-6 max-w-2xl mx-auto">
           Une viennoiserie à enfourner chez soi facilement, pour embaumer la maison d'une douce odeur de boulangerie.
         </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 max-w-3xl mx-auto">
-          {[
-            { icon: "🧈", title: "Beurre de qualité", desc: "Façonnées à la main" },
-            { icon: "🏠", title: "Cuites chez toi", desc: "Dans ton propre four" },
-            { icon: "☀️", title: `Prêtes en ${CUISSON.minutes.viennoiseries} min`, desc: "Le matin au réveil" },
-            { icon: "🥂", title: "Petit dej' et brunch", desc: "Par toi, pour eux" },
-          ].map((arg) => (
-            <div key={arg.title} className="bg-card rounded-2xl p-4 text-center shadow-soft">
-              <span className="text-3xl block mb-2">{arg.icon}</span>
-              <p className="font-semibold text-foreground text-sm">{arg.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">{arg.desc}</p>
-            </div>
+        <ul className="grid md:grid-cols-3 max-w-4xl mx-auto mb-10 divide-y md:divide-y-0 md:divide-x divide-border">
+          {ARGUMENTS.map(({ icone: Icone, titre, texte }) => (
+            <li key={titre} className="flex items-start gap-3 py-4 md:py-1 md:px-6 first:md:pl-0 last:md:pr-0">
+              <Icone className="w-5 h-5 mt-1 flex-shrink-0 text-brand-night" strokeWidth={1.5} aria-hidden="true" />
+              <div className="text-left">
+                <p className="font-display font-medium text-xl leading-snug text-brand-night">{titre}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{texte}</p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <ProductLabelModal
           product={selectedProduct}
@@ -76,137 +70,67 @@ const SweetProductsSection = () => {
           onOpenChange={setModalOpen}
         />
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {cards.map((card, index) => {
-            const product = catalogProduct(card.id);
-            const fiche = ficheDe(product.id);
-            return (
-            <div
-              key={product.id}
-              className={`${card.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <Tampons product={product} />
-              <div className="flex items-start gap-4">
-                <span className="text-4xl">{product.emoji}</span>
-                <div>
-                  {/* Titre, et pastille « Classique » / « Favorite du chef » à côté (le coin est aux tampons) */}
-                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 mb-2">
-                    <h3 className="font-display text-xl text-foreground">{product.name}</h3>
-                    {card.badge && (
-                      <span
-                        className="bg-white/90 px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1 shadow-soft"
-                        title={card.badge.tooltip}
-                      >
-                        <span>{card.badge.icon}</span>
-                        <span className="text-foreground">{card.badge.label}</span>
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-foreground/80 text-sm leading-relaxed">{product.label.description}</p>
-                  <ProductTags product={product} className="mt-2.5" />
-                  <p className="text-xs font-semibold text-foreground/70 mt-2">
-                    Sachet de {sachetInfo(product.id)}
-                  </p>
-                  {/* Lien discret vers la fiche du produit (un vrai lien, suivi par Google) ; la pop-up reste */}
-                  {fiche && (
-                    <Link to={fiche.chemin} className="inline-block mt-1.5 py-0.5 text-xs font-semibold text-foreground/70 underline underline-offset-2 hover:text-foreground">
-                      Voir la fiche
-                    </Link>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 mt-4 flex-wrap">
-                <button
-                  onClick={() => handleProductClick(product.id)}
-                  className="text-sm font-medium bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-full transition-colors"
-                >
-                  Voir les détails →
-                </button>
-                <BoutonPhoto product={product} />
-                {statut(product.id) === "disponible" ? (
-                  <button
-                    onClick={() => handleAdd(product.id)}
-                    className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-full transition-colors ml-auto"
-                  >
-                    + Panier
-                  </button>
-                ) : (
-                  <StatutProduit statut={statut(product.id)} className="ml-auto" />
-                )}
-              </div>
-            </div>
-            );
-          })}
-        </div>
-
-        <br /> <br />
+        <GrilleProduits
+          produits={VIENNOISERIES}
+          statut={statut}
+          bordures={BORDURES}
+          badges={BADGES}
+          onAjouter={handleAdd}
+          onDetails={handleDetails}
+        />
 
         {/* Préparation, comme sur l'étiquette */}
-        <div className="mb-8">
+        <div className="mt-12 mb-8">
           <PreparationCuisson variante="viennoiseries" />
-          <p className="text-center mt-4 text-sm text-muted-foreground italic">À partager et à offrir, comme une fleur, pour donner le sourire. 🌼</p>
+          <p className="text-center mt-4 text-sm text-muted-foreground italic">À partager et à offrir, comme une fleur, pour donner le sourire.</p>
           <BoutonQuestion sujet="viennoiseries" />
         </div>
 
         {/* Fabrication accordion */}
         <div className="max-w-3xl mx-auto mb-8">
           <button
+            type="button"
             onClick={() => setFabricationOpen(!fabricationOpen)}
-            className="w-full bg-card rounded-2xl p-5 shadow-soft flex items-center justify-between text-left hover:shadow-hover transition-all duration-200"
+            aria-expanded={fabricationOpen}
+            className="w-full bg-card rounded-2xl p-5 shadow-soft flex items-center justify-between gap-4 text-left transition-shadow duration-200 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <span className="font-display font-bold text-xl text-foreground">Comment naissent tes viennoiseries ?</span>
-            <span className="text-2xl text-primary transition-transform duration-300" style={{ transform: fabricationOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+            <span className="font-display font-medium text-xl text-foreground">Comment naissent tes viennoiseries ?</span>
+            <ChevronDown
+              className={`w-6 h-6 flex-shrink-0 text-primary transition-transform duration-300 motion-reduce:transition-none ${fabricationOpen ? "rotate-180" : ""}`}
+              aria-hidden="true"
+            />
           </button>
 
           {fabricationOpen && (
             <div className="bg-white/70 rounded-2xl px-6 py-6 mt-2 shadow-soft space-y-5 text-foreground leading-relaxed text-sm">
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">🌾</span>
-                <div>
-                  <p className="font-semibold mb-1">1 — La détrempe (pétrissage)</p>
-                  <p>Farine, eau, lait, levure, sel, sucre et du beurre. On pétrit jusqu'à obtenir une pâte souple et homogène. C'est la base — ce que les boulangers appellent la détrempe.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">1. La détrempe (pétrissage)</p>
+                <p>Farine, eau, lait, levure, sel, sucre et du beurre. On pétrit jusqu'à obtenir une pâte souple et homogène. C'est la base, ce que les boulangers appellent la détrempe.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">⏳</span>
-                <div>
-                  <p className="font-semibold mb-1">2 — Le pointage</p>
-                  <p>La pâte repose au frais. Les levures s'activent doucement, la pâte commence à vivre. Cette étape développe les arômes — c'est là que le caractère se construit.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">2. Le pointage</p>
+                <p>La pâte repose au frais. Les levures s'activent doucement, la pâte commence à vivre. Cette étape développe les arômes : c'est là que le caractère se construit.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">🧈</span>
-                <div>
-                  <p className="font-semibold mb-1">3 — L'enchâssage du beurre</p>
-                  <p>Un bloc de beurre de tourage — le meilleur que je trouve — est enfermé dans la détrempe. Tout commence ici : c'est ce beurre qui va créer le feuilletage.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">3. L'enchâssage du beurre</p>
+                <p>Un bloc de beurre de tourage, le meilleur que je trouve, est enfermé dans la détrempe. Tout commence ici : c'est ce beurre qui va créer le feuilletage.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">📐</span>
-                <div>
-                  <p className="font-semibold mb-1">4 — Le tourage (lamination)</p>
-                  <p>On étale, on plie, on tourne. Plusieurs fois. Chaque pli crée des couches de pâte et de beurre alternées. C'est ce qui donne ce feuilletage qu'on voit éclater à la cuisson.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">4. Le tourage (lamination)</p>
+                <p>On étale, on plie, on tourne. Plusieurs fois. Chaque pli crée des couches de pâte et de beurre alternées. C'est ce qui donne ce feuilletage qu'on voit éclater à la cuisson.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">✋</span>
-                <div>
-                  <p className="font-semibold mb-1">5 — Le façonnage</p>
-                  <p>Chaque pièce est découpée et roulée à la main. Un croissant, un pain au chocolat, une rose — chacun a sa forme, ses gestes, sa technique.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">5. Le façonnage</p>
+                <p>Chaque pièce est découpée et roulée à la main. Un croissant, un pain au chocolat, une rose : chacun a sa forme, ses gestes, sa technique.</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-lg flex-shrink-0">❄️</span>
-                <div>
-                  <p className="font-semibold mb-1">6 — La pré-pousse, puis la congélation</p>
-                  <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. Le froid préserve toute la fraîcheur du beurre, garde les arômes et arrête la fermentation au bon moment. Chez toi, elles passent direct du congélateur au four, où elles libèrent leurs arômes parfumés de beurre et de ferments dans toutes les pièces de la maison. Le résultat est le même qu'à la sortie de mon labo, mais chez toi, à l'heure qui te convient.</p>
-                </div>
+              <div>
+                <p className="font-semibold mb-1">6. La pré-pousse, puis la congélation</p>
+                <p>Les viennoiseries entament une première pousse, puis sont bloquées au congélateur. Le froid préserve toute la fraîcheur du beurre, garde les arômes et arrête la fermentation au bon moment. Chez toi, elles passent direct du congélateur au four, où elles libèrent leurs arômes parfumés de beurre et de ferments dans toutes les pièces de la maison. Le résultat est le même qu'à la sortie de mon labo, mais chez toi, à l'heure qui te convient.</p>
               </div>
               <div className="pt-4 border-t border-muted text-center">
                 <p className="italic text-muted-foreground">
-                  Tu vois, rien de sorcier. Le plus dur, je l'ai déjà fait pour toi —<br />
-                  il te reste juste à mettre le four en route, et partager tout ça. 🥐
+                  Tu vois, rien de sorcier. Le plus dur, je l'ai déjà fait pour toi : il te reste juste à mettre le four
+                  en route, et partager tout ça.
                 </p>
               </div>
             </div>

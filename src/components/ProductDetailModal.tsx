@@ -29,8 +29,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 font-display text-2xl">
-            <span className="text-3xl">{product.emoji}</span>
+          <DialogTitle className="font-display text-2xl">
             {product.name}
           </DialogTitle>
           <DialogDescription className="text-left pt-2">
@@ -41,9 +40,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
         <div className="space-y-4 pt-2">
           {/* Ingredients */}
           <div>
-            <h4 className="text-foreground mb-2 flex items-center gap-2">
-              📋 Ingrédients
-            </h4>
+            <h4 className="font-display font-medium text-foreground mb-2">Ingrédients</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
               {product.ingredients.map((ingredient, index) => (
                 <li key={index} className="flex items-center gap-2">
@@ -56,26 +53,20 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
 
           {/* Made By */}
           <div>
-            <h4 className="text-foreground mb-1 flex items-center gap-2">
-              👨‍🍳 Fabrication
-            </h4>
+            <h4 className="font-display font-medium text-foreground mb-1">Fabrication</h4>
             <p className="text-sm text-muted-foreground">{product.madeBy}</p>
           </div>
 
           {/* Where to Buy */}
           <div>
-            <h4 className="text-foreground mb-1 flex items-center gap-2">
-              📍 Où acheter
-            </h4>
+            <h4 className="font-display font-medium text-foreground mb-1">Où acheter</h4>
             <p className="text-sm text-muted-foreground">{product.whereToBuy}</p>
           </div>
 
           {/* Additional Info */}
           {product.additionalInfo && (
             <div>
-              <h4 className="text-foreground mb-1 flex items-center gap-2">
-                ℹ️ Bon à savoir
-              </h4>
+              <h4 className="font-display font-medium text-foreground mb-1">Bon à savoir</h4>
               <p className="text-sm text-muted-foreground">{product.additionalInfo}</p>
             </div>
           )}

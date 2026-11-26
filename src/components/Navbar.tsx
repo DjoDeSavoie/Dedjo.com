@@ -4,11 +4,12 @@ import { ShoppingBasket } from "lucide-react";
 import Logo from "./Logo";
 import { useCart } from "@/context/CartContext";
 import { CHEMIN_MARSEILLE, CHEMIN_SAVOIE } from "@/lib/fiches";
+import { defilement } from "@/lib/utils";
 
 const navLinks = [
   { id: "sweet-products", label: "Viennoiseries" },
-  { id: "salty-pastries", label: "Feuilletés Salés" },
-  { id: "pizzas", label: "Les Pizzas" },
+  { id: "salty-pastries", label: "Feuilletés salés" },
+  { id: "pizzas", label: "Les pizzas" },
   { id: "newsletter", label: "Grandir ensemble" },
 ];
 
@@ -66,13 +67,13 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
     if (location.pathname === "/") {
       const element = document.getElementById(id);
-      if (element) element.scrollIntoView({ behavior: "smooth" });
+      if (element) element.scrollIntoView({ behavior: defilement() });
     } else {
       // Naviguer vers la home puis scroller après le rendu
       navigate("/");
       setTimeout(() => {
         const element = document.getElementById(id);
-        if (element) element.scrollIntoView({ behavior: "smooth" });
+        if (element) element.scrollIntoView({ behavior: defilement() });
       }, 100);
     }
   };
@@ -81,7 +82,7 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
     if (location.pathname === "/") {
       const element = document.getElementById("hero");
-      if (element) element.scrollIntoView({ behavior: "smooth" });
+      if (element) element.scrollIntoView({ behavior: defilement() });
     } else {
       navigate("/");
     }
@@ -95,7 +96,7 @@ const Navbar = () => {
     }`;
 
   const mobileLinkClass = (active: boolean) =>
-    `block font-medium transition-colors duration-200 w-full text-left py-2 px-3 rounded-lg text-base ${
+    `block font-medium transition-colors duration-200 w-full text-left py-2.5 px-3 rounded-lg text-base ${
       active
         ? "text-primary bg-primary/10"
         : "text-foreground hover:text-primary hover:bg-primary/10"
@@ -114,7 +115,7 @@ const Navbar = () => {
           <div className="flex items-center gap-4 lg:gap-5">
             <button
               onClick={goHome}
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 min-h-11 hover:opacity-80 transition-opacity"
             >
               <Logo className="w-10 h-10" />
               <span className="font-brand text-2xl text-brand-night">Dedjo</span>
@@ -171,7 +172,7 @@ const Navbar = () => {
           {/* Bouton menu mobile */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-foreground"
+            className="lg:hidden p-2.5 -mr-2.5 text-foreground"
             aria-label="Ouvrir le menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,7 +224,7 @@ const Navbar = () => {
                 <Link
                   to="/commande"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold ${
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-base font-semibold ${
                     isCommande
                       ? "bg-primary text-primary-foreground"
                       : "bg-primary/10 text-primary"

@@ -22,7 +22,7 @@ export const RubriqueEtiquette = ({ titre, variante = "popup", children }: Rubri
   const Titre = variante === "page" ? "h3" : "h4";
   return (
     <div>
-      <Titre className="text-foreground mb-1 flex items-center gap-2">{titre}</Titre>
+      <Titre className="font-display font-medium text-foreground mb-1">{titre}</Titre>
       <div className={`${variante === "page" ? "text-base" : "text-sm"} text-muted-foreground space-y-1`}>{children}</div>
     </div>
   );
@@ -35,7 +35,7 @@ export const RubriqueEtiquette = ({ titre, variante = "popup", children }: Rubri
  */
 export const MentionsEtiquette = ({ label, variante = "popup" }: { label: ProductLabel; variante?: Variante }) => (
   <>
-    <RubriqueEtiquette titre="📋 Ingrédients" variante={variante}>
+    <RubriqueEtiquette titre="Ingrédients" variante={variante}>
       {label.denomination && <p className="font-medium text-foreground/80">{label.denomination}</p>}
       <p>
         <TexteRiche texte={label.ingredients} />
@@ -44,7 +44,7 @@ export const MentionsEtiquette = ({ label, variante = "popup" }: { label: Produc
     </RubriqueEtiquette>
 
     {label.allergenes && (
-      <RubriqueEtiquette titre="⚠️ Allergènes" variante={variante}>
+      <RubriqueEtiquette titre="Allergènes" variante={variante}>
         <p>
           <TexteRiche texte={label.allergenes} />
         </p>
@@ -52,22 +52,22 @@ export const MentionsEtiquette = ({ label, variante = "popup" }: { label: Produc
     )}
 
     {variante === "popup" && (
-      <RubriqueEtiquette titre="📦 Quantité" variante={variante}>
+      <RubriqueEtiquette titre="Quantité" variante={variante}>
         <p>{label.quantite}</p>
       </RubriqueEtiquette>
     )}
 
-    <RubriqueEtiquette titre="🧊 Conservation" variante={variante}>
+    <RubriqueEtiquette titre="Conservation" variante={variante}>
       <p>{label.conservation}</p>
     </RubriqueEtiquette>
 
     {label.ddm && (
-      <RubriqueEtiquette titre="📅 DDM" variante={variante}>
+      <RubriqueEtiquette titre="DDM" variante={variante}>
         <p>{label.ddm}</p>
       </RubriqueEtiquette>
     )}
 
-    <RubriqueEtiquette titre="🏷️ Fabriqué par" variante={variante}>
+    <RubriqueEtiquette titre="Fabriqué par" variante={variante}>
       <p>{label.exploitant}</p>
     </RubriqueEtiquette>
   </>
@@ -108,7 +108,6 @@ export const PhotosProduit = ({ product, sizes, className, prioritaire = false }
     return (
       <PhotoProduit
         photo={photos[0]}
-        couleur={product.color}
         sizes={sizes}
         className={className}
         chargement={prioritaire ? "eager" : "lazy"}
@@ -123,8 +122,7 @@ export const PhotosProduit = ({ product, sizes, className, prioritaire = false }
           <CarouselItem key={photo.n} aria-label={`Photo ${i + 1} sur ${photos.length}`}>
             <PhotoProduit
               photo={photo}
-              couleur={product.color}
-              sizes={sizes}
+                    sizes={sizes}
               chargement={prioritaire && i === 0 ? "eager" : "lazy"}
             />
           </CarouselItem>
