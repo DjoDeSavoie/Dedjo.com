@@ -1,6 +1,5 @@
 import type { MouseEvent } from "react";
 import FleurTati from "@/components/FleurTati";
-import { PRIX_SACHET } from "@/lib/catalog";
 
 /* Cartes de gamme : fond crème carte et bordure de 2 px de la couleur de la gamme, comme les
    cartes produits. Toute la carte est un lien vers la section de la gamme. */
@@ -49,16 +48,7 @@ const ProductShowcaseSection = () => {
   return (
     <section id="products-overview" className="pt-8 pb-12 px-4 bg-background">
       <div className="container max-w-5xl">
-        <FleurTati className="mx-auto mb-2" />
-        {/* Phrase longue : taille réduite, posée sur le h2 lui-même pour un interligne juste */}
-        <h2 className="font-display font-bold text-lg md:text-2xl leading-snug text-brand-night text-center text-balance max-w-2xl mx-auto mb-2">
-          Viennoiseries artisanales et feuilletés aux influences savoyardes, à cuire direct du congélateur. Livrés à
-          Marseille.
-        </h2>
-        <p className="text-center text-sm md:text-base font-semibold text-foreground mb-6">
-          Prix unique de {PRIX_SACHET} euros par sachet
-        </p>
-
+        <FleurTati className="mx-auto mb-6" />
         <div className="grid md:grid-cols-3 gap-6">
           {GAMMES.map((gamme) => (
             <a
