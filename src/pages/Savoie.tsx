@@ -91,7 +91,7 @@ const Savoie = () => {
         {/* La carte : nom et description de chaque pizza, sans prix */}
         <ul className="grid gap-3 sm:grid-cols-2 !mt-6 text-base">
           {[...PIZZAS_SALEES, ...PIZZAS_SUCREES].map((pizza) => (
-            <li key={pizza.name} className={`${pizza.color} rounded-2xl p-5 shadow-soft flex items-start gap-3.5`}>
+            <li key={pizza.name} className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-5 shadow-soft flex items-start gap-3.5`}>
               <span className="text-3xl leading-none" aria-hidden="true">
                 {pizza.emoji}
               </span>

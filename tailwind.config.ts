@@ -65,6 +65,8 @@ export default {
         "section-orange": "hsl(var(--section-orange))",
         "section-yellow": "hsl(var(--section-yellow))",
         "section-cream": "hsl(var(--section-cream))",
+        // Crème des cartes (produits, pizzas, gammes) et des zones photo
+        "creme-carte": "var(--creme-carte)",
         // Handmade colors
         "handmade": "hsl(var(--handmade))",
         "handmade-dark": "hsl(var(--handmade-dark))",

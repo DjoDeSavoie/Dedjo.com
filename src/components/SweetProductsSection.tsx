@@ -35,10 +35,10 @@ const SweetProductsSection = () => {
   // Couleur de carte et pastille propres au site ; nom, description, pastilles et sachet
   // viennent du catalogue (texte des étiquettes).
   const cards: { id: string; color: string; badge?: { icon: string; label: string; tooltip?: string } }[] = [
-    { id: "lune", color: "bg-product-croissant", badge: { icon: "🌼", label: "Classique" } },
-    { id: "cabosse", color: "bg-product-chocolat" },
-    { id: "grappe", color: "bg-product-raisin" },
-    { id: "rose", color: "bg-product-rose", badge: { icon: "❤️", label: "Favorite du chef", tooltip: "Favorite du chef" } },
+    { id: "lune", color: "border-product-croissant", badge: { icon: "🌼", label: "Classique" } },
+    { id: "cabosse", color: "border-product-chocolat" },
+    { id: "grappe", color: "border-product-raisin" },
+    { id: "rose", color: "border-product-rose", badge: { icon: "❤️", label: "Favorite du chef", tooltip: "Favorite du chef" } },
   ];
 
   const handleProductClick = (id: string) => {
@@ -83,7 +83,7 @@ const SweetProductsSection = () => {
             return (
             <div
               key={product.id}
-              className={`${card.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
+              className={`bg-creme-carte border-2 ${card.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative flex flex-col`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <Tampons product={product} />

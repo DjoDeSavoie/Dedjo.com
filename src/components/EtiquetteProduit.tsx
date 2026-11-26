@@ -108,7 +108,6 @@ export const PhotosProduit = ({ product, sizes, className, prioritaire = false }
     return (
       <PhotoProduit
         photo={photos[0]}
-        couleur={product.color}
         sizes={sizes}
         className={className}
         chargement={prioritaire ? "eager" : "lazy"}
@@ -123,8 +122,7 @@ export const PhotosProduit = ({ product, sizes, className, prioritaire = false }
           <CarouselItem key={photo.n} aria-label={`Photo ${i + 1} sur ${photos.length}`}>
             <PhotoProduit
               photo={photo}
-              couleur={product.color}
-              sizes={sizes}
+                    sizes={sizes}
               chargement={prioritaire && i === 0 ? "eager" : "lazy"}
             />
           </CarouselItem>

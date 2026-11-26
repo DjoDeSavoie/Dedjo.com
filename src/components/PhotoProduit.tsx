@@ -6,8 +6,6 @@ import { HAUTEUR_PHOTO, LARGEUR_PHOTO, Photo, TAILLES_PHOTO, photosDe } from "@/
 
 interface PhotoProduitProps {
   photo: Photo;
-  /** Fond affiché pendant le chargement : la couleur du produit. */
-  couleur: string;
   sizes: string;
   className?: string;
   /** Texte alternatif ; "" quand le nom du produit est déjà écrit à côté. */
@@ -16,8 +14,11 @@ interface PhotoProduitProps {
   chargement?: "lazy" | "eager";
 }
 
-/** Photo d'un produit, au format 4:3, en 600 ou 1200 px selon la place à l'écran. */
-const PhotoProduit = ({ photo, couleur, sizes, className, alt = photo.alt, chargement = "lazy" }: PhotoProduitProps) => (
+/**
+ * Photo détourée d'un produit, au format 4:3, en 600 ou 1200 px selon la place à l'écran.
+ * Posée sur la crème des cartes, jamais sur la couleur du produit.
+ */
+const PhotoProduit = ({ photo, sizes, className, alt = photo.alt, chargement = "lazy" }: PhotoProduitProps) => (
   <img
     src={photo.petite}
     srcSet={`${photo.petite} 600w, ${photo.grande} 1200w`}
@@ -27,8 +28,7 @@ const PhotoProduit = ({ photo, couleur, sizes, className, alt = photo.alt, charg
     alt={alt}
     loading={chargement}
     decoding="async"
-    className={cn("block w-full h-auto aspect-[4/3] object-cover rounded-xl", className)}
-    style={{ backgroundColor: couleur }}
+    className={cn("block w-full h-auto aspect-[4/3] object-cover rounded-xl bg-creme-carte", className)}
   />
 );
 
@@ -57,7 +57,7 @@ export const BoutonPhoto = ({ product, className }: { product: Product; classNam
       <DialogContent className="max-w-md p-4">
         <DialogTitle className="font-display text-xl">{product.name}</DialogTitle>
         <DialogDescription className="sr-only">{photo.alt}</DialogDescription>
-        <PhotoProduit photo={photo} couleur={product.color} sizes={TAILLES_PHOTO.popup} />
+        <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.popup} />
       </DialogContent>
     </Dialog>
   );

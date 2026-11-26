@@ -291,7 +291,6 @@ const Commande = () => {
             // Le nom est écrit juste à côté : la vignette n'a pas besoin de texte alternatif
             <PhotoProduit
               photo={photosDe(p.id)[0]}
-              couleur={p.color}
               sizes={TAILLES_PHOTO.pastille}
               alt=""
               className="w-9 h-9 rounded-full flex-shrink-0"

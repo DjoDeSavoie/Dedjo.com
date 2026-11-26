@@ -10,7 +10,7 @@ export interface Pizza {
   name: string;
   description: string;
   emoji: string;
-  /** Couleur de la carte (classe Tailwind, voir tailwind.config.ts). */
+  /** Couleur de la bordure de la carte (classe Tailwind, voir tailwind.config.ts). */
   color: string;
   /** Favorite du chef : un petit emoji dans le coin de la carte de l'accueil. */
   isFavorite?: boolean;
@@ -31,7 +31,7 @@ export const PIZZAS_SALEES: Pizza[] = [
     name: "La Classique",
     description: "Sauce tomate, jambon, oignons, fromage. Ce qu'on revient toujours chercher, parce que c'est juste bon.",
     emoji: "🍕",
-    color: "bg-pizza-classique",
+    color: "border-pizza-classique",
     ingredients: [pateIngredients, "Sauce tomate", "Jambon", "Oignons de la ferme", "Fromage"],
     madeBy: fabricationAll,
     whereToBuy: whereToBuyAll,
@@ -41,7 +41,7 @@ export const PIZZAS_SALEES: Pizza[] = [
     name: "La Flam",
     description: "Crème fraîche, lardons fumés, oignons — une flambée à la savoyarde. Notre création, notre préférée.",
     emoji: "🥓",
-    color: "bg-pizza-flam",
+    color: "border-pizza-flam",
     isFavorite: true,
     favoriteTooltip: "Favorite du chef",
     ingredients: [pateIngredients, "Crème fraîche", "Lardons fumés", "Oignons", "Fromage râpé"],
@@ -53,7 +53,7 @@ export const PIZZAS_SALEES: Pizza[] = [
     name: "La Végé",
     description: "Courgettes et oignons du jardin, sauce tomate, fromage. Ce que la ferme offre, simplement.",
     emoji: "🥒",
-    color: "bg-pizza-vege",
+    color: "border-pizza-vege",
     ingredients: [pateIngredients, "Sauce tomate", "Courgettes du jardin", "Oignons du jardin", "Fromage"],
     madeBy: fabricationAll,
     whereToBuy: whereToBuyAll,
@@ -66,7 +66,7 @@ export const PIZZAS_SUCREES: Pizza[] = [
     name: "La Praline Rose",
     description: "Praline rose de Lyon, crème AOP. Un classique sucré-croquant — en pizza.",
     emoji: "🩷",
-    color: "bg-pizza-praline",
+    color: "border-pizza-praline",
     isFavorite: true,
     favoriteTooltip: "Favorite du chef",
     ingredients: [pateIngredients, "Pralines roses", "Crème AOP"],
@@ -78,7 +78,7 @@ export const PIZZAS_SUCREES: Pizza[] = [
     name: "La Nut'",
     description: "Pâte à tartiner chocolat-noisette. Pour finir sur une note douce.",
     emoji: "🍫",
-    color: "bg-pizza-nut",
+    color: "border-pizza-nut",
     ingredients: [pateIngredients, "Pâte à tartiner chocolat-noisettes"],
     madeBy: fabricationAll,
     whereToBuy: whereToBuyAll,

@@ -39,28 +39,28 @@ const SaltyPastriesSection = () => {
       name: "La Montagne",
       description: "Lardons, oignons et reblochon. Un hommage discret à la tartiflette, en une bouchée.",
       emoji: "🏔️",
-      color: "bg-product-montagne",
+      color: "border-product-montagne",
     },
     {
       id: "foret",
       name: "La Forêt",
       description: "Champignons de Paris, béchamel douce, fromages à fondue savoyarde. Le goût de la Savoie, en format feuilleté.",
       emoji: "🌲",
-      color: "bg-product-foret",
+      color: "border-product-foret",
     },
     {
       id: "goet",
       name: "La Goët",
       description: "Poireaux cueillis à la Goëttaz, fromage de chèvre frais. Ce qui pousse ici finit dans ta pâte.",
       emoji: "🥬",
-      color: "bg-product-goet",
+      color: "border-product-goet",
     },
     {
       id: "noix",
       name: "La Noix",
       description: "Chèvre, miel local, cerneaux de noix. Le sucré-salé qui surprend — et qui revient.",
       emoji: "🐝",
-      color: "bg-product-noix",
+      color: "border-product-noix",
     },
   ];
 
@@ -86,7 +86,7 @@ const SaltyPastriesSection = () => {
   return (
     <section id="salty-pastries" className="py-12 px-4 section-sky">
       <div className="container max-w-6xl">
-        <FeuilleteIllustration className="w-14 h-14 mb-2 mx-auto block" />
+        <FeuilleteIllustration className="w-16 h-16 mb-2 mx-auto block" />
         <h2 className="section-title"><span className="font-display font-bold text-3xl md:text-4xl text-foreground">Feuilletés Salés</span></h2>
         <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
           Une pâte feuilletée maison. Des garnitures du paysage savoyard.<br />
@@ -109,7 +109,7 @@ const SaltyPastriesSection = () => {
             {flavors.map((flavor, index) => (
               <div
                 key={flavor.name}
-                className={`${flavor.color} relative rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left flex flex-col`}
+                className={`bg-creme-carte border-2 ${flavor.color} relative rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left flex flex-col`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <Tampons product={catalogProduct(flavor.id)} />

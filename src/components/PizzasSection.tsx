@@ -27,7 +27,7 @@ const PizzasSection = () => {
               <button 
                 key={pizza.name}
                 onClick={() => handleProductClick(pizza)}
-                className={`${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
+                className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {pizza.isFavorite && (
@@ -57,7 +57,7 @@ const PizzasSection = () => {
               <button 
                 key={pizza.name}
                 onClick={() => handleProductClick(pizza)}
-                className={`${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
+                className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-6 shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in text-left relative`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {pizza.isFavorite && (
