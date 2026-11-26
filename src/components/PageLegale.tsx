@@ -29,7 +29,7 @@ const PageLegale = ({ titre, sousTitre, children }: PageLegaleProps) => {
           >
             <ArrowLeft className="w-4 h-4" /> Retour au site
           </Link>
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">{titre}</h1>
+          <h1 className="font-display text-3xl md:text-4xl text-foreground">{titre}</h1>
           {sousTitre && <p className="mt-2 text-muted-foreground">{sousTitre}</p>}
         </div>
       </header>
@@ -44,7 +44,7 @@ const PageLegale = ({ titre, sousTitre, children }: PageLegaleProps) => {
 /** Une section numérotée ou titrée d'une page légale. */
 export const Article = ({ titre, children }: { titre: string; children: ReactNode }) => (
   <section className="space-y-3">
-    <h2 className="font-display text-2xl font-semibold text-foreground">{titre}</h2>
+    <h2 className="font-display text-2xl text-foreground">{titre}</h2>
     {children}
   </section>
 );

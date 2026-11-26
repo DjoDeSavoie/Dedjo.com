@@ -1,13 +1,23 @@
-import PageContenu, {
-  BoutonCommander,
-  EnTetePage,
-  Faq,
-  QuestionFrequente,
-  SectionPage,
-} from "@/components/PageContenu";
-import TexteRiche from "@/components/TexteRiche";
-import { JOURS_SEMAINE, PRIX_SACHET, SECTEURS, eur } from "@/lib/catalog";
-import { CHEMIN_GUIDE, CHEMIN_MARSEILLE, LIEN_GUIDE, ficheDe } from "@/lib/fiches";
+import PageContenu from "@/components/PageContenu";
+import {
+  BandeauPratique,
+  BlocLieu,
+  CarteCompacte,
+  CarteProduitsCompacte,
+  ElementCarte,
+  EnTeteLieu,
+  FaitPratique,
+  FinCommander,
+  GaleriePhotos,
+  Horizon,
+  QuestionLieu,
+  QuestionsRepliees,
+  QuiFaitToutCa,
+  SectionTitree,
+} from "@/components/PageLieu";
+import { ALL_PRODUCTS, JOURS_SEMAINE, PRIX_SACHET, SECTEURS, eur } from "@/lib/catalog";
+import { CHEMIN_GUIDE, CHEMIN_MARSEILLE, LIEN_GUIDE } from "@/lib/fiches";
+import { photosDe } from "@/lib/photos";
 import { PIZZAS_SALEES, PIZZAS_SUCREES } from "@/lib/pizzas";
 import { useMetaPage } from "@/lib/seo";
 
@@ -23,38 +33,48 @@ const TITRE_ONGLET = "Pizzas au feu de bois et viennoiseries à cuire en Savoie 
 const DESCRIPTION =
   "Pizzas au feu de bois certains vendredis à la Ferme de la Goëttaz, viennoiseries et feuilletés à cuire au magasin toute la semaine. Autour du Bourget-du-Lac, d'Aix-les-Bains et de Chambéry.";
 
+const LIEU = "Le Bourget-du-Lac · Aix-les-Bains · Chambéry";
 const TITRE = "Dedjo en Savoie, à la Ferme de la Goëttaz";
 const INTRO =
-  "C'est en Savoie que Dedjo a commencé, en famille, autour du four à bois de la Ferme de la Goëttaz. On s'y retrouve pour les vendredis pizza, et mes viennoiseries et feuilletés à cuire t'attendent toute la semaine au magasin de la ferme. Pour les habitants du Bourget-du-Lac, d'Aix-les-Bains, de Chambéry et des alentours.";
+  "C'est en Savoie que Dedjo a commencé, en famille, autour du four à bois de la Ferme de la Goëttaz. Mes viennoiseries et mes feuilletés t'y attendent toute la semaine, à cuire chez toi.";
+
+const PRATIQUE: FaitPratique[] = [
+  { titre: "Toute la semaine", texte: "Au congélateur Dedjo du magasin de la ferme" },
+  { titre: `${eur(PRIX_SACHET)} le sachet`, texte: "Paiement à la caisse de la ferme" },
+];
+
+const GALERIE = "La carte en images";
+/** La galerie ne s'affiche qu'à partir de deux produits en photo : avec la seule photo de La Lune,
+    elle répéterait celle du haut de page. */
+const AVEC_GALERIE = ALL_PRODUCTS.filter((p) => photosDe(p.id).length > 0).length >= 2;
+
+const CARTE = {
+  titre: "À la carte",
+  note: "Le choix varie selon les arrivages.",
+};
 
 const PIZZAS = {
-  titre: "Les vendredis pizza",
+  titre: "Les vendredis pizza au feu de bois",
   texte:
-    "Certains vendredis, à partir de 18 h, on allume le four à bois. La pâte est faite avec la farine de la ferme, étalée à la main et cuite au feu de bois. Sur place ou à emporter, sans réservation : tu commandes au stand.",
-  dates: {
-    titre: "Prochaines dates",
-    texte:
-      "Les dates sont annoncées dans la newsletter de la Ferme de la Goëttaz. Prochain rendez-vous : décembre 2026.",
-  },
+    "Certains vendredis, à partir de 18 h, on allume le four à bois. La pâte est faite avec la farine de la ferme et étalée à la main. Sur place ou à emporter, sans réservation.",
+  dates:
+    "Les dates sont annoncées dans la newsletter de la Ferme de la Goëttaz. Prochain rendez-vous : décembre 2026.",
 };
 
-const MAGASIN = {
-  titre: "Toute la semaine, au magasin de la ferme",
-  texte: `Mes viennoiseries et mes feuilletés sont dans le congélateur Dedjo du magasin, aux horaires d'ouverture de la ferme. ${eur(PRIX_SACHET)} le sachet, paiement à la caisse de la ferme. Le choix varie selon les arrivages.`,
-};
+/** La carte des pizzas : nom et description, sans prix. */
+const CARTE_PIZZAS: ElementCarte[] = [...PIZZAS_SALEES, ...PIZZAS_SUCREES].map((pizza) => ({
+  cle: pizza.name,
+  nom: pizza.name,
+  type: pizza.description,
+}));
 
-const A_L_AVANCE = {
-  titre: "Commander à l'avance",
+const QUI = {
+  titre: "Qui fait tout ça",
   texte:
-    "Tu peux aussi commander sur dedjo.com et retirer ta commande à la ferme, lors d'un vendredi pizza. Retrait sans frais, paiement sur place.",
+    "Ingénieur de métier, boulanger de passion, d'origine savoyarde. Je fais tout moi-même, du feuilletage à la livraison.",
 };
 
-const SAVEURS = {
-  titre: "Des feuilletés aux saveurs d'ici",
-  texte: `[La Montagne](${ficheDe("montagne")!.chemin}), au reblochon AOP, lardons et oignons. [La Forêt](${ficheDe("foret")!.chemin}), aux champignons et fromages à fondue savoyarde.`,
-};
-
-const QUESTIONS: { titre: string; liste: QuestionFrequente[] } = {
+const QUESTIONS: { titre: string; liste: QuestionLieu[] } = {
   titre: "Questions fréquentes",
   liste: [
     {
@@ -81,50 +101,39 @@ const Savoie = () => {
 
   return (
     <PageContenu>
-      <EnTetePage titre={TITRE}>
-        <p>{INTRO}</p>
-      </EnTetePage>
+      <EnTeteLieu lieu={LIEU} titre={TITRE} intro={INTRO} secteur="savoie" />
+      <Horizon lieu="savoie" />
+      <BandeauPratique faits={PRATIQUE} />
 
-      <SectionPage titre={PIZZAS.titre} fond="jaune">
-        <p>{PIZZAS.texte}</p>
+      {AVEC_GALERIE && (
+        <BlocLieu>
+          <GaleriePhotos titre={GALERIE} />
+        </BlocLieu>
+      )}
 
-        {/* La carte : nom et description de chaque pizza, sans prix */}
-        <ul className="grid gap-3 sm:grid-cols-2 !mt-6 text-base">
-          {[...PIZZAS_SALEES, ...PIZZAS_SUCREES].map((pizza) => (
-            <li key={pizza.name} className={`bg-creme-carte border-2 ${pizza.color} rounded-2xl p-5`}>
-              <h3 className="font-display font-medium text-xl leading-snug text-foreground mb-1">{pizza.name}</h3>
-              <p className="text-sm leading-relaxed text-foreground/80">{pizza.description}</p>
-            </li>
-          ))}
-        </ul>
+      {/* Sans disponibilité : le stock affiché sur le site est celui de Marseille */}
+      <BlocLieu>
+        <CarteProduitsCompacte titre={CARTE.titre} note={CARTE.note} />
+      </BlocLieu>
 
-        <div className="!mt-6 border-l-4 border-primary bg-white/70 rounded-2xl px-5 py-4 shadow-soft text-base">
-          <h3 className="text-sm font-semibold font-body text-primary uppercase tracking-widest mb-1.5">
-            {PIZZAS.dates.titre}
-          </h3>
-          <p>{PIZZAS.dates.texte}</p>
+      <BlocLieu fond="creme">
+        <SectionTitree titre={PIZZAS.titre}>
+          <div className="max-w-[40rem] space-y-3 leading-relaxed text-foreground/90 mb-5">
+            <p>{PIZZAS.texte}</p>
+            <p className="font-bold text-foreground">{PIZZAS.dates}</p>
+          </div>
+          <CarteCompacte elements={CARTE_PIZZAS} />
+        </SectionTitree>
+      </BlocLieu>
+
+      <BlocLieu>
+        <div className="grid gap-12 md:grid-cols-[1fr_1.4fr] md:gap-16">
+          <QuiFaitToutCa titre={QUI.titre} texte={QUI.texte} />
+          <QuestionsRepliees titre={QUESTIONS.titre} questions={QUESTIONS.liste} />
         </div>
-      </SectionPage>
+      </BlocLieu>
 
-      <SectionPage titre={MAGASIN.titre}>
-        <p>{MAGASIN.texte}</p>
-      </SectionPage>
-
-      <SectionPage titre={A_L_AVANCE.titre} fond="ciel">
-        <p>{A_L_AVANCE.texte}</p>
-      </SectionPage>
-
-      <SectionPage titre={SAVEURS.titre}>
-        <p>
-          <TexteRiche texte={SAVEURS.texte} />
-        </p>
-      </SectionPage>
-
-      <SectionPage titre={QUESTIONS.titre} fond="creme">
-        <Faq questions={QUESTIONS.liste} />
-      </SectionPage>
-
-      <BoutonCommander secteur="savoie" />
+      <FinCommander secteur="savoie" />
     </PageContenu>
   );
 };

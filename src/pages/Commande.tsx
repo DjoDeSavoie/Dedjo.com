@@ -32,7 +32,7 @@ const GRAD = "linear-gradient(135deg,#185FA5 0%,#2A7FD0 100%)";
 const RAPPEL_CONGELE = "Tout est livré congelé, à conserver au congélateur, et cuire en direct dans ton four.";
 const SECTEUR_LIVRAISON = SECTEURS.find((s) => s.livraison)!;
 const SEUIL_LIVRAISON = pluralize(CONFIG.livraisonOfferteDes, "sachet", "sachets");
-const lienClass = "font-semibold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0]";
+const lienClass = "font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0]";
 
 /** « samedi 18 octobre » */
 const formatDate = (iso: string) =>
@@ -437,7 +437,7 @@ const Commande = () => {
           <button
             type="button"
             onClick={() => afficherEtape((etape - 1) as Etape)}
-            className="rounded-2xl px-4 py-3 font-semibold border-2 border-border bg-white hover:border-[#2A7FD0]"
+            className="rounded-2xl px-4 py-3 font-bold border-2 border-border bg-white hover:border-[#2A7FD0]"
           >
             ← Retour
           </button>
@@ -469,7 +469,7 @@ const Commande = () => {
           >
             <ArrowLeft className="w-4 h-4" /> Retour au site
           </Link>
-          <h1 className="text-3xl font-bold">Commander</h1>
+          <h1 className="text-3xl">Commander</h1>
           <p className="mt-2 text-white/95">
             Choisis tes sachets, dis-moi où je te retrouve, puis envoie-moi ta commande : rien à payer en ligne, tu règles quand tu la récupères.
           </p>
@@ -487,7 +487,7 @@ const Commande = () => {
           <section ref={recapRef} className="my-8 scroll-mt-24">
             <div role="status" className="bg-card rounded-2xl shadow-soft p-6 text-center border-2 border-[#cfe3f6]">
               <CheckCircle2 className="w-12 h-12 mx-auto text-[#2A7FD0]" aria-hidden="true" />
-              <h2 className="text-2xl font-bold mt-3">C'est reçu !</h2>
+              <h2 className="text-2xl mt-3">C'est reçu !</h2>
               <p className="mt-2 text-foreground">
                 Je te recontacte rapidement sur WhatsApp pour confirmer le créneau : ta commande devient ferme à ce moment-là.
               </p>
@@ -495,10 +495,10 @@ const Commande = () => {
                 N° de commande : <strong className="text-foreground">{numero}</strong>
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <Link to="/" className="rounded-xl px-4 py-2.5 font-semibold text-white" style={{ backgroundImage: GRAD }}>
+                <Link to="/" className="rounded-xl px-4 py-2.5 font-bold text-white" style={{ backgroundImage: GRAD }}>
                   Retour au site
                 </Link>
-                <button type="button" onClick={nouvelleCommande} className="rounded-xl px-4 py-2.5 font-semibold border-2 border-border hover:border-[#2A7FD0]">
+                <button type="button" onClick={nouvelleCommande} className="rounded-xl px-4 py-2.5 font-bold border-2 border-border hover:border-[#2A7FD0]">
                   Nouvelle commande
                 </button>
               </div>
@@ -689,7 +689,7 @@ const Commande = () => {
         {/* Récap + envoi */}
         <section ref={recapRef} className="my-8 scroll-mt-24">
           <div className="bg-card rounded-2xl shadow-soft p-5">
-            <h2 className="text-xl font-bold mb-2.5">
+            <h2 className="text-xl mb-2.5">
               Ma commande
             </h2>
             <ul className="list-none m-0 p-0">
@@ -721,12 +721,12 @@ const Commande = () => {
                     )}
                   </span>
                   {livraisonOfferte ? (
-                    <span className="whitespace-nowrap font-semibold text-brand-night">
+                    <span className="whitespace-nowrap font-bold text-brand-night">
                       <s className="text-muted-foreground font-normal mr-1.5">{eur(CONFIG.fraisLivraison)}</s>
                       Offerte
                     </span>
                   ) : (
-                    <span className="whitespace-nowrap font-semibold text-[#8a5a09]">{eur(fraisLivraison)}</span>
+                    <span className="whitespace-nowrap font-bold text-[#8a5a09]">{eur(fraisLivraison)}</span>
                   )}
                 </li>
               )}
@@ -842,7 +842,7 @@ const Commande = () => {
                     href={`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(resumeSecours())}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold underline underline-offset-2"
+                    className="font-bold underline underline-offset-2"
                   >
                     ou écris-moi sur WhatsApp
                   </a>
@@ -860,7 +860,7 @@ const Commande = () => {
           <button
             type="button"
             onClick={() => afficherEtape(2)}
-            className="rounded-2xl px-4 py-3 font-semibold border-2 border-border bg-white hover:border-[#2A7FD0]"
+            className="rounded-2xl px-4 py-3 font-bold border-2 border-border bg-white hover:border-[#2A7FD0]"
           >
             ← Retour : {ETAPES[1].titre.toLowerCase()}
           </button>

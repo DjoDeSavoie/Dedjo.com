@@ -37,7 +37,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className={`bg-creme-carte border-2 ${item.bordure} rounded-2xl aspect-square flex flex-col items-center justify-center gap-1 p-3 text-center transition-transform duration-200 motion-safe:hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
               >
-                <span className="font-display font-medium text-lg text-foreground">{item.label}</span>
+                <span className="font-display text-lg text-foreground">{item.label}</span>
                 <span className="text-xs text-foreground/70">{item.desc}</span>
               </a>
             ))}
@@ -47,7 +47,7 @@ const Footer = () => {
             href="https://instagram.com/Dedjo_"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-full font-semibold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-full font-bold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Instagram className="w-5 h-5" />
             Suivre @Dedjo_ sur Instagram

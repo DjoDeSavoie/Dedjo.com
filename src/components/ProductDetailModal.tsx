@@ -40,7 +40,7 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
         <div className="space-y-4 pt-2">
           {/* Ingredients */}
           <div>
-            <h4 className="font-display font-medium text-foreground mb-2">Ingrédients</h4>
+            <h4 className="font-display text-foreground mb-2">Ingrédients</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
               {product.ingredients.map((ingredient, index) => (
                 <li key={index} className="flex items-center gap-2">
@@ -53,20 +53,20 @@ const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalP
 
           {/* Made By */}
           <div>
-            <h4 className="font-display font-medium text-foreground mb-1">Fabrication</h4>
+            <h4 className="font-display text-foreground mb-1">Fabrication</h4>
             <p className="text-sm text-muted-foreground">{product.madeBy}</p>
           </div>
 
           {/* Where to Buy */}
           <div>
-            <h4 className="font-display font-medium text-foreground mb-1">Où acheter</h4>
+            <h4 className="font-display text-foreground mb-1">Où acheter</h4>
             <p className="text-sm text-muted-foreground">{product.whereToBuy}</p>
           </div>
 
           {/* Additional Info */}
           {product.additionalInfo && (
             <div>
-              <h4 className="font-display font-medium text-foreground mb-1">Bon à savoir</h4>
+              <h4 className="font-display text-foreground mb-1">Bon à savoir</h4>
               <p className="text-sm text-muted-foreground">{product.additionalInfo}</p>
             </div>
           )}

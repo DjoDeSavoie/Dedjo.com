@@ -21,25 +21,25 @@ const Hero = () => {
       <div className="container max-w-5xl grid gap-8 md:grid-cols-2 md:items-center">
         <div className="text-left motion-safe:animate-fade-in">
           <h1 className="font-brand text-5xl md:text-6xl leading-none text-brand-night">Dedjo</h1>
-          <p className="font-display italic text-xl md:text-3xl text-brand-night mt-2">L'artisanat chez soi</p>
+          <p className="font-accroche italic text-xl md:text-3xl text-brand-night mt-2">L'artisanat chez soi</p>
           {/* Texte du lot SEO 1 : il reste un h2, mot pour mot */}
-          <h2 className="font-display font-bold text-xl md:text-2xl leading-snug text-brand-night text-balance mt-6 max-w-xl">
+          <h2 className="font-display text-xl md:text-2xl leading-snug text-brand-night text-balance mt-6 max-w-xl">
             Viennoiseries artisanales et feuilletés aux influences savoyardes, à cuire direct du congélateur. Livrés à
             Marseille.
           </h2>
-          <p className="font-semibold text-foreground mt-3">Prix unique de {PRIX_SACHET} euros par sachet</p>
+          <p className="font-bold text-foreground mt-3">Prix unique de {PRIX_SACHET} euros par sachet</p>
 
           <div className="flex flex-wrap gap-3 mt-7">
             <Link
               to="/commande?secteur=marseille"
-              className="inline-flex items-center min-h-12 bg-primary text-primary-foreground px-8 rounded-full font-semibold transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center min-h-12 bg-primary text-primary-foreground px-8 rounded-full font-bold transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Commander
             </Link>
             <a
               href="#products-overview"
               onClick={allerAuxProduits}
-              className="inline-flex items-center min-h-12 bg-card border border-foreground/50 text-foreground px-7 rounded-full font-semibold transition-colors hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center min-h-12 bg-card border border-foreground/50 text-foreground px-7 rounded-full font-bold transition-colors hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Voir les produits
             </a>

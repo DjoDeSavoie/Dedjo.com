@@ -30,7 +30,7 @@ export default function Connexion({ apresConnexion }: { apresConnexion: () => vo
   return (
     <main className="mx-auto flex min-h-[100dvh] max-w-[420px] flex-col justify-center px-4 py-10">
       <p className="font-brand text-[34px] leading-none text-[#163F6B]">Dedjo</p>
-      <p className="mb-8 mt-1 font-display text-xl italic text-[#5E6A78]">Atelier</p>
+      <p className="mb-8 mt-1 font-accroche text-xl italic text-[#5E6A78]">Atelier</p>
       <form onSubmit={entrer} className="grid gap-3" noValidate>
         <label htmlFor="code-atelier" className={ETIQUETTE}>
           Code d'accès

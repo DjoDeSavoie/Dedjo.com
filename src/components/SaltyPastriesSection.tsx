@@ -57,7 +57,7 @@ const SaltyPastriesSection = () => {
 
         {/* Encart terroir */}
         <div className="max-w-2xl mx-auto mb-10 border-l-4 border-primary bg-white/60 rounded-2xl px-6 py-5 shadow-soft">
-          <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-2">Origine savoyarde</p>
+          <p className="text-sm font-bold text-primary uppercase tracking-widest mb-2">Origine savoyarde</p>
           <p className="text-foreground leading-relaxed text-sm">
             Reblochon, fromage à fondue savoyarde, poireaux cueillis à la Ferme de la Goëttaz : chaque garniture incarne à
             sa façon le paysage savoyard.{" "}
@@ -67,7 +67,7 @@ const SaltyPastriesSection = () => {
 
         {/* Flavors */}
         <div className="mb-12">
-          <h3 className="font-display font-medium text-xl text-foreground mb-4">Quatre préparations</h3>
+          <h3 className="font-display text-xl text-foreground mb-4">Quatre préparations</h3>
           <GrilleProduits
             produits={FEUILLETES}
             statut={statut}
@@ -85,7 +85,7 @@ const SaltyPastriesSection = () => {
 
         {/* Sizes */}
         <div>
-          <h3 className="font-display font-medium text-xl text-foreground mb-4">Formats</h3>
+          <h3 className="font-display text-xl text-foreground mb-4">Formats</h3>
           <div className="grid md:grid-cols-2 gap-6">
             {sizes.map((size) => (
               <div 
@@ -98,7 +98,7 @@ const SaltyPastriesSection = () => {
                     Arrivent bientôt
                   </span>
                 )}
-                <h4 className="font-display font-medium text-xl mb-2">{size.name}</h4>
+                <h4 className="font-display text-xl mb-2">{size.name}</h4>
                 <p className="text-muted-foreground">{size.description}</p>
               </div>
             ))}

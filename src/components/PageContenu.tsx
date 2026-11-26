@@ -30,7 +30,7 @@ const PageContenu = ({ children }: { children: ReactNode }) => {
 export const EnTetePage = ({ titre, children }: { titre: string; children?: ReactNode }) => (
   <header className="pt-28 pb-10 px-5 section-cream border-b border-border">
     <div className="max-w-2xl mx-auto">
-      <h1 className="font-display font-bold text-3xl md:text-4xl leading-tight text-brand-night text-center text-balance">
+      <h1 className="font-display text-3xl md:text-4xl leading-tight text-brand-night text-center text-balance">
         {titre}
       </h1>
       {children && <div className="mt-5 space-y-4 text-lg leading-relaxed text-foreground/90">{children}</div>}
@@ -56,7 +56,7 @@ interface SectionPageProps {
 export const SectionPage = ({ titre, fond = "clair", children }: SectionPageProps) => (
   <section className={`py-10 md:py-12 px-5 ${FONDS[fond]}`}>
     <div className="max-w-3xl mx-auto">
-      <h2 className="font-display font-bold text-2xl md:text-3xl leading-tight text-foreground text-center text-balance mb-5">
+      <h2 className="font-display text-2xl md:text-3xl leading-tight text-foreground text-center text-balance mb-5">
         {titre}
       </h2>
       <div className="space-y-4 leading-relaxed text-foreground/90 md:text-lg">{children}</div>
@@ -71,7 +71,7 @@ export const Etapes = ({ etapes }: { etapes: string[] }) => (
       <li key={i} className="bg-card rounded-2xl shadow-soft p-4 flex items-start gap-3.5">
         <span
           aria-hidden="true"
-          className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-night text-white font-display font-bold flex items-center justify-center"
+          className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-night text-white font-display flex items-center justify-center"
         >
           {i + 1}
         </span>
@@ -110,7 +110,7 @@ export const Faq = ({ questions }: { questions: QuestionFrequente[] }) => (
   <div className="space-y-3">
     {questions.map(({ question, reponse }) => (
       <div key={question} className="bg-card rounded-2xl shadow-soft p-5">
-        <h3 className="font-display font-semibold text-lg leading-snug text-foreground mb-1.5">{question}</h3>
+        <h3 className="font-display text-lg leading-snug text-foreground mb-1.5">{question}</h3>
         <p>
           <TexteRiche texte={reponse} />
         </p>
@@ -124,7 +124,7 @@ export const BoutonCommander = ({ secteur }: { secteur: "marseille" | "savoie" }
   <div className="py-10 px-5 text-center bg-background">
     <Link
       to={`/commande?secteur=${secteur}`}
-      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-9 py-3.5 rounded-full text-lg font-semibold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-9 py-3.5 rounded-full text-lg font-bold transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <ShoppingBasket className="w-5 h-5" aria-hidden="true" />
       Commander
@@ -145,7 +145,7 @@ export const LiensPages = ({ titre, liens }: { titre: string; liens: LienPage[] 
         <li key={lien.to}>
           <Link
             to={lien.to}
-            className="h-full flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3 text-sm font-semibold leading-snug text-foreground shadow-soft transition-all duration-200 hover:shadow-hover hover:border-primary"
+            className="h-full flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3 text-sm font-bold leading-snug text-foreground shadow-soft transition-all duration-200 hover:shadow-hover hover:border-primary"
           >
             {lien.label}
           </Link>

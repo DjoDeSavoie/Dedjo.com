@@ -39,6 +39,8 @@ export const TAILLES_PHOTO = {
   pastille: "36px",
   /** Fiche produit : pleine largeur sur mobile, une colonne sur deux à partir de 768 px. */
   fiche: "(min-width: 1064px) 494px, (min-width: 768px) calc(50vw - 38px), calc(100vw - 40px)",
+  /** Galerie des pages de lieu : une carte et demie sur mobile, trois cartes à partir de 768 px. */
+  galerie: "(min-width: 1088px) 304px, (min-width: 768px) calc(33vw - 56px), calc(64vw - 32px)",
 };
 
 const FICHIERS = import.meta.glob<string>("/src/assets/produits/*.webp", { eager: true, import: "default" });

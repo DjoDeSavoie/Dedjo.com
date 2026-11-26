@@ -29,7 +29,7 @@ const HistoireSection = () => {
             Peut-être finalement, et le plus simplement, qu'un tel savoir-faire se doit d'être proposé, car c'est aussi lui qui permet les plus belles rencontres, rendons-nous compte. C'est moins ce qu'il y a dans les assiettes que les personnes autour de la table qui rendent un moment mémorable ... Mais si on peut choisir de bien manger, pourquoi s'en priver ?
           </p>
 
-          <p className="font-display italic text-xl text-handmade-dark text-center pt-4 pb-2">
+          <p className="font-accroche italic text-xl text-handmade-dark text-center pt-4 pb-2">
             <span className="block">Désormais, tu me connais un peu mieux,</span>
             <span className="block">à très bientôt,</span>
             <span className="block">Djo</span>

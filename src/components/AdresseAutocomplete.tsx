@@ -159,7 +159,7 @@ const AdresseAutocomplete = ({ id, value, onChange, inputClass }: Props) => {
     onChange(null);
   };
 
-  const lien = "text-sm font-semibold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0]";
+  const lien = "text-sm font-bold text-[#185FA5] underline underline-offset-2 hover:text-[#2A7FD0]";
 
   if (manuel) {
     return (
