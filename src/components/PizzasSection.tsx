@@ -19,7 +19,7 @@ const PizzasSection = () => {
       type="button"
       onClick={() => handleProductClick(pizza)}
       aria-haspopup="dialog"
-      className={`group bg-creme-carte border-2 ${pizza.color} rounded-2xl p-5 text-left flex flex-col transition-transform duration-200 motion-safe:hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
+      className={`group bg-creme-carte border-2 ${pizza.color} rounded-2xl shadow-carte hover:shadow-carte-survol p-5 text-left flex flex-col transition-[transform,box-shadow] duration-200 motion-safe:hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
     >
       <h4 className="font-display text-xl leading-snug mb-1.5 text-foreground">{pizza.name}</h4>
       <p className="text-foreground/80 flex-grow">{pizza.description}</p>

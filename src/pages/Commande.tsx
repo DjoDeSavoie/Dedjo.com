@@ -294,6 +294,7 @@ const Commande = () => {
               photo={photosDe(p.id)[0]}
               sizes={TAILLES_PHOTO.pastille}
               alt=""
+              relief={false}
               className="w-9 h-9 rounded-full flex-shrink-0"
             />
           ) : null}
