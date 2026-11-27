@@ -34,9 +34,9 @@ const CarteProduit = ({ product, statut, bordure, badge, onAjouter, onDetails }:
 
   return (
     <article
-      className={`group relative bg-creme-carte border-2 ${bordure} rounded-2xl ${
+      className={`group relative bg-creme-carte border-2 ${bordure} rounded-2xl shadow-carte hover:shadow-carte-survol ${
         compacte ? "p-4" : "p-5"
-      } flex flex-col text-left transition-transform duration-200 motion-safe:hover:-translate-y-0.5 has-[h3_:focus-visible]:ring-2 has-[h3_:focus-visible]:ring-ring has-[h3_:focus-visible]:ring-offset-2`}
+      } flex flex-col text-left transition-[transform,box-shadow] duration-200 motion-safe:hover:-translate-y-0.5 has-[h3_:focus-visible]:ring-2 has-[h3_:focus-visible]:ring-ring has-[h3_:focus-visible]:ring-offset-2`}
     >
       <Tampons product={product} />
       {photo && !compacte && (
@@ -45,7 +45,7 @@ const CarteProduit = ({ product, statut, bordure, badge, onAjouter, onDetails }:
           photo={photo}
           sizes={TAILLES_PHOTO.carte}
           alt=""
-          className="mb-4 h-48 md:h-52 aspect-auto object-contain"
+          className="mb-4 h-48 md:h-52 aspect-auto overflow-visible"
         />
       )}
 

@@ -73,6 +73,13 @@
     /* Shadows */
     --shadow-soft: 0 4px 20px -4px hsl(200 40% 30% / 0.12);
     --shadow-hover: 0 8px 30px -8px hsl(200 40% 30% / 0.18);
+    /* Relief des photos détourées : ombre qui suit le contour du produit, teinte encre brune
+       (un contact net sous le produit, puis une ombre douce qui le décolle de la crème) */
+    --relief-produit: drop-shadow(0 2px 3px hsl(25 40% 15% / 0.28)) drop-shadow(0 12px 14px hsl(25 40% 15% / 0.24));
+    /* Cartes produits et pizzas : la crème carte est presque la couleur des sections, c'est l'ombre
+       qui détache la carte entière du fond (même teinte encre brune que le relief des photos) */
+    --shadow-carte: 0 1px 2px hsl(25 40% 15% / 0.05), 0 6px 16px -6px hsl(25 40% 15% / 0.13), 0 18px 34px -14px hsl(25 40% 15% / 0.19);
+    --shadow-carte-survol: 0 2px 4px hsl(25 40% 15% / 0.07), 0 10px 22px -8px hsl(25 40% 15% / 0.17), 0 26px 48px -16px hsl(25 40% 15% / 0.25);
 
     /* Couleur titre Dedjo — ambre chaud, entre le jaune et l'orange du logo */
     --color-dedjo: #C8690A;
@@ -171,6 +178,14 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .shadow-carte {
+    box-shadow: var(--shadow-carte);
+  }
+
+  .shadow-carte-survol {
+    box-shadow: var(--shadow-carte-survol);
+  }
 }
 
 @layer components {
@@ -196,6 +211,11 @@
 
   .shadow-hover {
     box-shadow: var(--shadow-hover);
+  }
+
+  /* Sur l'image elle-même, jamais sur un élément qui a un fond : l'ombre suivrait le rectangle */
+  .relief-produit {
+    filter: var(--relief-produit);
   }
 
   .section-sky {

@@ -4,8 +4,10 @@ import { PRIX_SACHET } from "@/lib/catalog";
 import { HAUTEUR_PHOTO, LARGEUR_PHOTO, photosDe } from "@/lib/photos";
 import { defilement } from "@/lib/utils";
 
-/* Photo de La Lune, détourée, posée directement sur le fond du site */
-const photoLune = photosDe("lune")[0];
+/* Le brunch vu du dessus (La Lune garnie, une Cabosse, un café), détouré, posé directement
+   sur le fond du site ; à défaut, la première photo de La Lune */
+const photosLune = photosDe("lune");
+const photoAccueil = photosLune.find((photo) => photo.n === 2) ?? photosLune[0];
 
 const Hero = () => {
   // Défilement doux vers les produits ; l'adresse (#…) reste un vrai lien
@@ -46,19 +48,19 @@ const Hero = () => {
           </div>
         </div>
 
-        {photoLune && (
+        {photoAccueil && (
           <img
-            src={photoLune.petite}
-            srcSet={`${photoLune.petite} 600w, ${photoLune.grande} 1200w`}
+            src={photoAccueil.petite}
+            srcSet={`${photoAccueil.petite} 600w, ${photoAccueil.grande} 1200w`}
             sizes="(min-width: 1024px) 456px, (min-width: 768px) calc(50vw - 64px), calc(100vw - 32px)"
             width={LARGEUR_PHOTO}
             height={HAUTEUR_PHOTO}
-            alt={photoLune.alt}
+            alt={photoAccueil.alt}
             loading="eager"
             // React 18 ne connaît que l'attribut HTML en minuscules
             {...{ fetchpriority: "high" }}
             decoding="async"
-            className="block w-full h-auto max-w-md mx-auto md:max-w-none"
+            className="block w-full h-auto max-w-md mx-auto md:max-w-none relief-produit"
           />
         )}
       </div>

@@ -124,7 +124,7 @@ export const EnTeteLieu = ({ lieu, titre, intro, secteur }: EnTeteLieuProps) => 
           // React 18 ne connaît que l'attribut HTML en minuscules
           {...{ fetchpriority: "high" }}
           decoding="async"
-          className="block w-full h-auto max-w-56 mx-auto md:max-w-none"
+          className="block w-full h-auto max-w-56 mx-auto md:max-w-none relief-produit"
         />
       )}
     </div>
@@ -299,7 +299,7 @@ export const GaleriePhotos = ({ titre }: { titre: string }) => {
             const fiche = ficheDe(p.id);
             const contenu = (
               <>
-                <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.galerie} />
+                <PhotoProduit photo={photo} sizes={TAILLES_PHOTO.galerie} className="overflow-visible" />
                 <p className="font-display text-lg md:text-xl leading-snug text-foreground mt-2 md:mt-3">{p.name}</p>
                 <p className="text-sm text-muted-foreground mt-0.5">{typeDe(p)}</p>
               </>
